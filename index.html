@@ -28,6 +28,15 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .shopping-time {
+            display: inline-block;
+            background-color: #4A90E2;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
         .section {
             background-color: #3C3F47;
             padding: 15px;
@@ -79,12 +88,19 @@
             color: #B0B3B8;
         }
     </style>
+    <script>
+        // JavaScript function to handle the redirection
+        function redirectToBuyStar() {
+            // Redirect to the buystar.html page
+            window.location.href = 'buystar.html';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <img src="https://usagif.com/wp-content/uploads/gify/cash-a-bag-of-money-transparent-background-usagif.gif" alt="logo" style="width: 100px; height: auto;">
         <div class="header">HuluPay</div>
-        <div class="shopping-time"><img src="2025-03-10-SHOPPING-TIME.gif" alt="logo" style="width: 100px; height: auto;"></div>
+        <div class="shopping-time">SHOPPING TIME</div>
         <p>Buy airtime and airtime package</p>
         
         <div class="section">
@@ -114,7 +130,7 @@
             <div class="section-content">
                 <div class="section-title">
                     <span>Telegram Stars</span>
-                    <button>GIFT</button>
+                    <button onclick=redirectToBuyStar()>GIFT</button>
                 </div>
                 <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
             </div>
