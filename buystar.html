@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mua Telegram Stars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1E1F22;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #2A2D35;
+            border-radius: 15px;
+            padding: 20px;
+            width: 400px;
+            text-align: center;
+        }
+        .header img {
+            width: 80px;
+        }
+        .star-list {
+            margin-top: 15px;
+        }
+        .star-item {
+            background-color: #3C3F47;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .star-item button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .custom-input {
+            margin-top: 15px;
+        }
+        .custom-input input {
+            width: 80%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            text-align: center;
+        }
+        .custom-input button {
+            margin-top: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://usagif.com/wp-content/uploads/gify/cash-a-bag-of-money-transparent-background-usagif.gif" alt="logo">
+            <h2>Mua Telegram Stars</h2>
+        </div>
+        
+        <div class="star-list" id="starList"></div>
+        
+        <div class="custom-input">
+            <input type="number" id="customAmount" placeholder="Nhập số lượng sao" min="1">
+            <button onclick="calculateCustomPrice()">Tính giá</button>
+            <p id="customPrice"></p>
+        </div>
+    </div>
+
+    <script>
+        const starsPackages = [
+            { amount: 50, price: 0.85 },
+            { amount: 75, price: 1.275 },
+            { amount: 100, price: 1.7 },
+            { amount: 150, price: 2.55 },
+            { amount: 250, price: 4.25 }
+        ];
+
+        const pricePerStar = 0.017; // Giá trung bình ước tính mỗi sao
+        
+        const starList = document.getElementById("starList");
+
+        starsPackages.forEach(pkg => {
+            const item = document.createElement("div");
+            item.className = "star-item";
+            item.innerHTML = `
+                <span>${pkg.amount} sao - $${pkg.price.toFixed(2)}</span>
+                <button onclick="buyStars(${pkg.amount}, ${pkg.price})">Mua ngay</button>
+            `;
+            starList.appendChild(item);
+        });
+
+        function buyStars(amount, price) {
+            alert(`Bạn đã chọn mua ${amount} sao với giá $${price.toFixed(2)}`);
+            // Gọi API thanh toán tại đây
+        }
+
+        function calculateCustomPrice() {
+            let customAmount = document.getElementById("customAmount").value;
+            if (customAmount < 1) {
+                document.getElementById("customPrice").innerText = "Số lượng sao không hợp lệ";
+                return;
+            }
+            let customPrice = customAmount * pricePerStar;
+            document.getElementById("customPrice").innerText = `Giá ước tính: $${customPrice.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
