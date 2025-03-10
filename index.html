@@ -43,6 +43,17 @@
             border-radius: 10px;
             margin-bottom: 15px;
             text-align: left;
+            display: flex;
+            align-items: center;
+        }
+        .section img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        .section-content {
+            flex-grow: 1;
         }
         .section-title {
             display: flex;
@@ -80,32 +91,42 @@
 </head>
 <body>
     <div class="container">
+        <img src="https://media4.giphy.com/media/gKVdeHpwce7TdHDyaK/giphy.gif?cid=6c09b952zg686kjx3nurnjyiyk7h36fwopa7vmihvxrcjmjl&ep=v1_internal_gif_by_id&rid=giphy.gif&ct=g" alt="logo" style="width: 100px; height: auto;">
         <div class="header">HuluPay</div>
         <div class="shopping-time">SHOPPING TIME</div>
         <p>Buy airtime and airtime package</p>
         
         <div class="section">
-            <div class="section-title">
-                <span>Games <span style="color: #FFCC00; font-size: 12px;">NEW</span></span>
-                <button>Play</button>
+            <img src="src/imgs/game.jpg" alt="Games">
+            <div class="section-content">
+                <div class="section-title">
+                    <span>Games <span style="color: #FFCC00; font-size: 12px;">NEW</span></span>
+                    <button>Play</button>
+                </div>
+                <p>Play games and earn Telegram Stars</p>
             </div>
-            <p>Play games and earn Telegram Stars</p>
         </div>
 
         <div class="section">
-            <div class="section-title">
-                <span>Telegram Premium</span>
-                <button>GET VERIFIED</button>
+            <img src="src/imgs/pre.jpg" alt="Telegram Premium">
+            <div class="section-content">
+                <div class="section-title">
+                    <span>Telegram Premium</span>
+                    <button>GET VERIFIED</button>
+                </div>
+                <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
             </div>
-            <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
         </div>
 
         <div class="section">
-            <div class="section-title">
-                <span>Telegram Stars</span>
-                <button>GIFT</button>
+            <img src="stars-icon.png" alt="Telegram Stars">
+            <div class="section-content">
+                <div class="section-title">
+                    <span>Telegram Stars</span>
+                    <button>GIFT</button>
+                </div>
+                <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
             </div>
-            <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
         </div>
 
         <div class="footer">
