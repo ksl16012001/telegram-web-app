@@ -142,7 +142,7 @@ body {
 }
 
 /* Footer text styles */
-.footer .footer-link {
+#footer a {
     font-size: 16px;
     color: white;
     text-decoration: none; /* Remove underline */

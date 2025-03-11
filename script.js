@@ -17,10 +17,17 @@ document.getElementById('header').innerHTML = `
 
 document.getElementById('footer').innerHTML = `
     <div class="footer">
+    <a href="javascript:history.back()">
         <div>Back</div>
+    </a>
+    <a href="/games.html">
         <div>Games</div>
+    </a>
+    <a href="/home.html">
         <div>Home</div>
-        <div>Top</div>
+    </a>
+    <a href="/profile.html">
         <div>Profile</div>
-    </div>
+    </a>
+</div>
 `;
