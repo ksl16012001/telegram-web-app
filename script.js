@@ -20,13 +20,13 @@ document.getElementById('footer').innerHTML = `
     <a href="javascript:history.back()">
         <div>Back</div>
     </a>
-    <a href="/games.html">
+    <a href="games.html">
         <div>Games</div>
     </a>
-    <a href="/home.html">
+    <a href="index.html">
         <div>Home</div>
     </a>
-    <a href="/profile.html">
+    <a href="profile.html">
         <div>Profile</div>
     </a>
 </div>
