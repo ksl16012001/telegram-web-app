@@ -137,10 +137,10 @@
         const orderButton = document.getElementById("orderButton");
         function formatAmount(amount) {
             if (amount >= 1000000) {
-                return (amount / 1000000) + 'm';
+                return (amount / 1000000) + 'M';
             }
             if (amount >= 1000) {
-                return (amount / 1000) + 'k';
+                return (amount / 1000) + 'K';
             }
             return amount.toString();
         }
@@ -177,8 +177,17 @@
         function buyStars() {
             const amount = orderButton.getAttribute("data-amount");
             const price = orderButton.getAttribute("data-price");
+            const username = document.querySelector(".username")?.textContent || "Unknown";
+
             if (amount && price) {
-                alert(`You have selected to buy ${amount} stars for $${price}`);
+                // Chuyển đổi giá từ USD sang TON
+                const tonPrice = (price / 2.5).toFixed(2); // 1 TON = 2.5$
+
+                // Tạo link thanh toán TON Keeper
+                const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonPrice * 1000000000}&text=${username}`;
+
+                // Chuyển hướng đến link thanh toán
+                window.open(paymentLink, "_blank");
             } else {
                 alert("Please select a star package first!");
             }
