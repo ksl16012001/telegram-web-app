@@ -26,6 +26,15 @@
             </select>
             <p id="customPrice"></p>
         </div>
+
+        <!-- Gói sao đã chọn -->
+        <div id="selectedPackage" class="selected-package" style="display: none;">
+            <h3>Gói sao đã chọn</h3>
+            <p id="selectedAmount"></p>
+            <p id="selectedPrice"></p>
+            <button id="paymentButton" class="payment-button" onclick="buySelectedStars()">Thanh toán</button>
+        </div>
+
         <footer class="footer">
             <div onclick="goBack()">Back</div>
             <div>Games</div>
@@ -35,12 +44,11 @@
         </footer>
     </div>
 
-    <!-- Footer Section -->
-   
     <script>
         function goBack() {
             window.history.back(); // Quay lại trang trước trong lịch sử trình duyệt
         }
+
         // Các gói sao có sẵn với giá của chúng
         const starsPackages = [
             { amount: 50, price: 0.85 },
@@ -67,6 +75,10 @@
 
         const starList = document.getElementById("starList");
         const customStarsSelect = document.getElementById("customStars");
+        const selectedPackageDiv = document.getElementById("selectedPackage");
+        const selectedAmount = document.getElementById("selectedAmount");
+        const selectedPrice = document.getElementById("selectedPrice");
+        const paymentButton = document.getElementById("paymentButton");
 
         // Hiển thị các gói sao đầu tiên
         starsPackages.slice(0, 5).forEach(pkg => {
@@ -74,7 +86,7 @@
             item.className = "star-item";
             item.innerHTML = `
                 <span>${pkg.amount} sao - $${pkg.price.toFixed(2)}</span>
-                <button onclick="buyStars(${pkg.amount}, ${pkg.price})">Mua ngay</button>
+                <button onclick="selectStarPackage(${pkg.amount}, ${pkg.price})">Chọn</button>
             `;
             starList.appendChild(item);
         });
@@ -86,6 +98,16 @@
             option.textContent = `${pkg.amount} sao - $${pkg.price.toFixed(2)}`;
             customStarsSelect.appendChild(option);
         });
+
+        // Hàm chọn gói sao
+        function selectStarPackage(amount, price) {
+            selectedPackageDiv.style.display = 'block';  // Hiển thị thông tin gói sao đã chọn
+            selectedAmount.textContent = `Số lượng sao: ${amount}`;
+            selectedPrice.textContent = `Giá: $${price.toFixed(2)}`;
+            paymentButton.onclick = function () {
+                buyStars(amount, price);  // Gọi hàm thanh toán khi nhấn nút thanh toán
+            };
+        }
 
         // Hàm mua sao
         function buyStars(amount, price) {
@@ -100,12 +122,19 @@
 
             if (!customAmount) {
                 customPriceElement.innerText = "";
+                selectedPackageDiv.style.display = 'none';  // Ẩn thông tin gói sao đã chọn khi không chọn
                 return;
             }
 
             const selectedPackage = starsPackages.find(pkg => pkg.amount === customAmount);
             if (selectedPackage) {
                 customPriceElement.innerText = `Giá cho ${selectedPackage.amount} sao là $${selectedPackage.price.toFixed(2)}`;
+                selectedPackageDiv.style.display = 'block';  // Hiển thị thông tin gói sao đã chọn
+                selectedAmount.textContent = `Số lượng sao: ${selectedPackage.amount}`;
+                selectedPrice.textContent = `Giá: $${selectedPackage.price.toFixed(2)}`;
+                paymentButton.onclick = function () {
+                    buyStars(selectedPackage.amount, selectedPackage.price);
+                };
             }
         }
     </script>

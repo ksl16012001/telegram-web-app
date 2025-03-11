@@ -283,3 +283,43 @@ body {
     font-size: 16px;
     font-weight: bold;
 }
+
+/* Styles for selected star package */
+.selected-package {
+    background-color: #3C3F47;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.selected-package h3 {
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.selected-package p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.payment-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.payment-button:hover {
+    background-color: #218838;
+}
+
+.payment-button:active {
+    transform: scale(0.98);
+}
