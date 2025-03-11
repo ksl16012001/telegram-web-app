@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy Telegram Stars</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Liên kết đến file styles.css -->
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the styles.css file -->
     <script src="script.js" defer></script>
 </head>
 <body id="buystar-page">
@@ -15,41 +15,50 @@
             <h2>Buy Telegram Stars</h2>
         </div>
 
-        <!-- Star List Section - Hiển thị 5 gói sao đầu tiên -->
+        <!-- Star List Section - Display the first 5 star packages -->
         <div class="star-list" id="starList"></div>
 
-        <!-- Custom Input Section - Sử dụng select cho các gói sao còn lại -->
+        <!-- Custom Input Section - Use select for the remaining star packages -->
         <div class="custom-input">
-            <label for="customStars">Chọn số lượng sao: </label>
+            <label for="customStars">Choose the number of stars: </label>
             <select id="customStars" onchange="calculateCustomPrice()">
-                <option value="">Chọn gói sao</option>
+                <option value="">Select a star package</option>
             </select>
             <p id="customPrice"></p>
         </div>
 
-        <!-- Gói sao đã chọn -->
+        <!-- Selected Star Package -->
         <div id="selectedPackage" class="selected-package" style="display: none;">
-            <h3>Gói sao đã chọn</h3>
+            <h3>Selected Star Package</h3>
             <p id="selectedAmount"></p>
             <p id="selectedPrice"></p>
-            <button id="paymentButton" class="payment-button" onclick="buySelectedStars()">Thanh toán</button>
+            <button id="paymentButton" class="payment-button" onclick="buySelectedStars()">Pay</button>
         </div>
-
-        <footer class="footer">
-            <div onclick="goBack()">Back</div>
-            <div>Games</div>
-            <div>Home</div>
-            <div>Top</div>
-            <div>Profile</div>
-        </footer>
+        
+        <div id="footer"></div>
     </div>
-
+    
     <script>
         function goBack() {
-            window.history.back(); // Quay lại trang trước trong lịch sử trình duyệt
+            window.history.back(); // Go back to the previous page in the browser history
         }
-
-        // Các gói sao có sẵn với giá của chúng
+        document.getElementById('footer').innerHTML = `
+            <div class="footer">
+            <a href="javascript:history.back()">
+                <div>Back</div>
+            </a>
+            <a href="/games.html">
+                <div>Games</div>
+            </a>
+            <a href="/home.html">
+                <div>Home</div>
+            </a>
+            <a href="/profile.html">
+                <div>Profile</div>
+            </a>
+        </div>
+        `;
+        // Available star packages with their prices
         const starsPackages = [
             { amount: 50, price: 0.85 },
             { amount: 75, price: 1.275 },
@@ -80,58 +89,58 @@
         const selectedPrice = document.getElementById("selectedPrice");
         const paymentButton = document.getElementById("paymentButton");
 
-        // Hiển thị các gói sao đầu tiên
+        // Display the first 5 star packages
         starsPackages.slice(0, 5).forEach(pkg => {
             const item = document.createElement("div");
             item.className = "star-item";
             item.innerHTML = `
-                <span>${pkg.amount} sao - $${pkg.price.toFixed(2)}</span>
-                <button onclick="selectStarPackage(${pkg.amount}, ${pkg.price})">Chọn</button>
+                <span>${pkg.amount} stars - $${pkg.price.toFixed(2)}</span>
+                <button onclick="selectStarPackage(${pkg.amount}, ${pkg.price})">Select</button>
             `;
             starList.appendChild(item);
         });
 
-        // Thêm các tùy chọn vào select cho các gói sao còn lại
+        // Add options to select for the remaining star packages
         starsPackages.slice(5).forEach(pkg => {
             const option = document.createElement("option");
             option.value = pkg.amount;
-            option.textContent = `${pkg.amount} sao - $${pkg.price.toFixed(2)}`;
+            option.textContent = `${pkg.amount} stars - $${pkg.price.toFixed(2)}`;
             customStarsSelect.appendChild(option);
         });
 
-        // Hàm chọn gói sao
+        // Function to select a star package
         function selectStarPackage(amount, price) {
-            selectedPackageDiv.style.display = 'block';  // Hiển thị thông tin gói sao đã chọn
-            selectedAmount.textContent = `Số lượng sao: ${amount}`;
-            selectedPrice.textContent = `Giá: $${price.toFixed(2)}`;
+            selectedPackageDiv.style.display = 'block';  // Display the selected star package information
+            selectedAmount.textContent = `Number of stars: ${amount}`;
+            selectedPrice.textContent = `Price: $${price.toFixed(2)}`;
             paymentButton.onclick = function () {
-                buyStars(amount, price);  // Gọi hàm thanh toán khi nhấn nút thanh toán
+                buyStars(amount, price);  // Call the payment function when clicking the pay button
             };
         }
 
-        // Hàm mua sao
+        // Function to buy stars
         function buyStars(amount, price) {
-            alert(`Bạn đã chọn mua ${amount} sao với giá $${price.toFixed(2)}`);
-            // Gọi API thanh toán tại đây (sẽ thay thế với logic thanh toán thực tế)
+            alert(`You have selected to buy ${amount} stars for $${price.toFixed(2)}`);
+            // Call payment API here (to be replaced with actual payment logic)
         }
 
-        // Hàm tính giá cho số lượng sao người dùng nhập
+        // Function to calculate the price for the selected number of stars
         function calculateCustomPrice() {
             const customAmount = parseInt(customStarsSelect.value);
             const customPriceElement = document.getElementById("customPrice");
 
             if (!customAmount) {
                 customPriceElement.innerText = "";
-                selectedPackageDiv.style.display = 'none';  // Ẩn thông tin gói sao đã chọn khi không chọn
+                selectedPackageDiv.style.display = 'none';  // Hide the selected star package information if nothing is selected
                 return;
             }
 
             const selectedPackage = starsPackages.find(pkg => pkg.amount === customAmount);
             if (selectedPackage) {
-                customPriceElement.innerText = `Giá cho ${selectedPackage.amount} sao là $${selectedPackage.price.toFixed(2)}`;
-                selectedPackageDiv.style.display = 'block';  // Hiển thị thông tin gói sao đã chọn
-                selectedAmount.textContent = `Số lượng sao: ${selectedPackage.amount}`;
-                selectedPrice.textContent = `Giá: $${selectedPackage.price.toFixed(2)}`;
+                customPriceElement.innerText = `Price for ${selectedPackage.amount} stars is $${selectedPackage.price.toFixed(2)}`;
+                selectedPackageDiv.style.display = 'block';  // Display the selected star package information
+                selectedAmount.textContent = `Number of stars: ${selectedPackage.amount}`;
+                selectedPrice.textContent = `Price: $${selectedPackage.price.toFixed(2)}`;
                 paymentButton.onclick = function () {
                     buyStars(selectedPackage.amount, selectedPackage.price);
                 };
