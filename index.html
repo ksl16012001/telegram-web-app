@@ -4,102 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HuluPay</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1E1F22;
-            color: white;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background-color: #2A2D35;
-            border-radius: 15px;
-            padding: 20px;
-            width: 380px;
-            text-align: center;
-        }
-        .header {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .section {
-            background-color: #3C3F47;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: left;
-            display: flex;
-            align-items: center;
-        }
-        .section img {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-            border-radius: 5px;
-        }
-        .section-content {
-            flex-grow: 1;
-        }
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .section-title button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        .footer {
-            display: flex;
-            justify-content: space-around;
-            padding-top: 10px;
-            border-top: 1px solid #4B4E57;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        .footer div {
-            cursor: pointer;
-        }
-        .bot-name {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #B0B3B8;
-        }
-    </style>
-    <script>
-        // JavaScript function to handle the redirection
-        function redirectToBuyStar() {
-            // Redirect to the buystar.html page
-            window.location.href = 'buystar.html';
-        }
-    </script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <img src="src/imgs/cash-bag.gif" alt="logo" style="width: 100px; height: auto;">
-        <div class="header">HuluPay</div>
-        <div class="shopping-time"><img src="src/imgs/shopping.gif" alt="gif" style="width: 150px; height: auto;"></div>
+        <!-- Header Module -->
+        <div id="header"></div>
+
         <p>Buy airtime and airtime package</p>
-        
+
         <div class="section">
             <img src="src/imgs/game.webp" alt="Games">
             <div class="section-content">
                 <div class="section-title">
-                    <span>Games <span style="color: #FFCC00; font-size: 12px;">COMING SOON!!!</span></span>
-                    <button type="button" disabled>Play</button>
+                    <span>Games <span class="coming-soon">COMING SOON!!!</span></span>
+                    <button type="button" class="disabled-button" disabled>Play</button>
                 </div>
                 <p>Play games and earn Telegram Stars</p>
             </div>
@@ -110,7 +29,7 @@
             <div class="section-content">
                 <div class="section-title">
                     <span>Telegram Premium</span>
-                    <button>GET VERIFIED</button>
+                    <button class="get-verified-btn">GET VERIFIED</button>
                 </div>
                 <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
             </div>
@@ -121,20 +40,18 @@
             <div class="section-content">
                 <div class="section-title">
                     <span>Telegram Stars</span>
-                    <button onclick=redirectToBuyStar()>GIFT</button>
+                    <button class="gift-button" onclick="redirectToBuyStar()">GIFT</button>
                 </div>
                 <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
             </div>
         </div>
 
-        <div class="footer">
-            <div>Back</div>
-            <div>Games</div>
-            <div>Home</div>
-            <div>Top</div>
-            <div>Profile</div>
-        </div>
+        <!-- Footer Module -->
+        <div id="footer"></div>
+        
         <div class="bot-name">@KINKIN1601</div>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

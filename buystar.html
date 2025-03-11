@@ -3,24 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mua Telegram Stars</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link đến file styles.css -->
-    <script src="script.js" defer></script> <!-- Link đến file script.js -->
+    <title>Buy Telegram Stars</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Liên kết đến file styles.css -->
+    <script src="script.js" defer></script>
 </head>
-<body id="buystar-page"> <!-- Thêm id buystar-page để phân biệt với các trang khác -->
+<body id="buystar-page">
     <div class="container">
+        <!-- Header Section -->
         <div class="header">
             <img src="https://usagif.com/wp-content/uploads/gify/cash-a-bag-of-money-transparent-background-usagif.gif" alt="logo">
-            <h2>Mua Telegram Stars</h2>
+            <h2>Buy Telegram Stars</h2>
         </div>
-        
+
+        <!-- Star List Section - Hiển thị 5 gói sao đầu tiên -->
         <div class="star-list" id="starList"></div>
-        
+
+        <!-- Custom Input Section - Sử dụng select cho các gói sao còn lại -->
         <div class="custom-input">
-            <input type="number" id="customAmount" placeholder="Nhập số lượng sao" min="1">
-            <button onclick="calculateCustomPrice()">Tính giá</button>
+            <label for="customStars">Chọn số lượng sao: </label>
+            <select id="customStars" onchange="calculateCustomPrice()">
+                <option value="">Chọn gói sao</option>
+            </select>
             <p id="customPrice"></p>
         </div>
+        <footer class="footer">
+            <div onclick="goBack()">Back</div>
+            <div>Games</div>
+            <div>Home</div>
+            <div>Top</div>
+            <div>Profile</div>
+        </footer>
     </div>
+
+    <!-- Footer Section -->
+   
+    <script>
+        function goBack() {
+            window.history.back(); // Quay lại trang trước trong lịch sử trình duyệt
+        }
+        // Các gói sao có sẵn với giá của chúng
+        const starsPackages = [
+            { amount: 50, price: 0.85 },
+            { amount: 75, price: 1.275 },
+            { amount: 100, price: 1.7 },
+            { amount: 150, price: 2.55 },
+            { amount: 250, price: 4.25 },
+            { amount: 350, price: 5.95 },
+            { amount: 500, price: 8.5 },
+            { amount: 750, price: 12.75 },
+            { amount: 1000, price: 16.5 },
+            { amount: 1500, price: 25 },
+            { amount: 2500, price: 42 },
+            { amount: 5000, price: 84 },
+            { amount: 10000, price: 165 },
+            { amount: 25000, price: 410 },
+            { amount: 35000, price: 570 },
+            { amount: 50000, price: 810 },
+            { amount: 100000, price: 1600 },
+            { amount: 150000, price: 2380 },
+            { amount: 500000, price: 7700 },
+            { amount: 1000000, price: 15500 }
+        ];
+
+        const starList = document.getElementById("starList");
+        const customStarsSelect = document.getElementById("customStars");
+
+        // Hiển thị các gói sao đầu tiên
+        starsPackages.slice(0, 5).forEach(pkg => {
+            const item = document.createElement("div");
+            item.className = "star-item";
+            item.innerHTML = `
+                <span>${pkg.amount} sao - $${pkg.price.toFixed(2)}</span>
+                <button onclick="buyStars(${pkg.amount}, ${pkg.price})">Mua ngay</button>
+            `;
+            starList.appendChild(item);
+        });
+
+        // Thêm các tùy chọn vào select cho các gói sao còn lại
+        starsPackages.slice(5).forEach(pkg => {
+            const option = document.createElement("option");
+            option.value = pkg.amount;
+            option.textContent = `${pkg.amount} sao - $${pkg.price.toFixed(2)}`;
+            customStarsSelect.appendChild(option);
+        });
+
+        // Hàm mua sao
+        function buyStars(amount, price) {
+            alert(`Bạn đã chọn mua ${amount} sao với giá $${price.toFixed(2)}`);
+            // Gọi API thanh toán tại đây (sẽ thay thế với logic thanh toán thực tế)
+        }
+
+        // Hàm tính giá cho số lượng sao người dùng nhập
+        function calculateCustomPrice() {
+            const customAmount = parseInt(customStarsSelect.value);
+            const customPriceElement = document.getElementById("customPrice");
+
+            if (!customAmount) {
+                customPriceElement.innerText = "";
+                return;
+            }
+
+            const selectedPackage = starsPackages.find(pkg => pkg.amount === customAmount);
+            if (selectedPackage) {
+                customPriceElement.innerText = `Giá cho ${selectedPackage.amount} sao là $${selectedPackage.price.toFixed(2)}`;
+            }
+        }
+    </script>
 </body>
 </html>

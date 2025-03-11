@@ -1,4 +1,4 @@
-/* styles.css */
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #1E1F22;
@@ -10,6 +10,7 @@ body {
     align-items: center;
     height: 100vh;
 }
+
 .container {
     background-color: #2A2D35;
     border-radius: 15px;
@@ -17,11 +18,33 @@ body {
     width: 380px;
     text-align: center;
 }
+
+/* Header Styles */
 .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+}
+
+.shopping-gif {
+    width: 150px;
+    height: auto;
+    margin-top: 10px;
+}
+
+.header h1 {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin: 10px 0;
 }
+
+/* Section Styles */
 .section {
     background-color: #3C3F47;
     padding: 15px;
@@ -31,15 +54,18 @@ body {
     display: flex;
     align-items: center;
 }
+
 .section img {
     width: 40px;
     height: 40px;
     margin-right: 10px;
     border-radius: 5px;
 }
+
 .section-content {
     flex-grow: 1;
 }
+
 .section-title {
     display: flex;
     justify-content: space-between;
@@ -47,6 +73,7 @@ body {
     font-size: 16px;
     font-weight: bold;
 }
+
 .section-title button {
     background-color: #007BFF;
     color: white;
@@ -56,23 +83,87 @@ body {
     padding: 5px 10px;
     font-size: 12px;
 }
+
+.coming-soon {
+    color: #FFCC00;
+    font-size: 12px;
+}
+
+.disabled-button {
+    background-color: #ccc;
+}
+
+.get-verified-btn {
+    background-color: #007BFF;
+    color: white;
+}
+
+.gift-button {
+    background-color: #FF5733;
+    color: white;
+}
+
+/* Footer Styles */
 .footer {
     display: flex;
     justify-content: space-around;
-    padding-top: 10px;
+    padding: 15px 0;
     border-top: 1px solid #4B4E57;
-    margin-top: 10px;
+    margin-top: 20px;
     font-size: 14px;
+    background-color: #2A2D35;
+    border-radius: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: background-color 0.3s ease;
 }
+
 .footer div {
     cursor: pointer;
+    padding: 8px 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+    text-align: center;
 }
-.bot-name {
-    margin-top: 10px;
-    font-size: 12px;
-    color: #B0B3B8;
+
+/* Hover effect for footer items */
+.footer div:hover {
+    background-color: #4E535C;  /* Darker background */
+    transform: scale(1.1); /* Slightly enlarge the element on hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
-/* Giới hạn selector chỉ áp dụng cho trang Mua Telegram Stars */
+
+/* Add a subtle effect when hovering */
+.footer div:active {
+    transform: scale(1.05); /* Slightly shrink the item when clicked */
+}
+
+/* Footer text styles */
+.footer .footer-link {
+    font-size: 16px;
+    color: white;
+    text-decoration: none; /* Remove underline */
+}
+
+.footer .footer-link:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
+/* Adjust footer text size and color for smaller screens */
+@media (max-width: 480px) {
+    .footer {
+        flex-direction: column;
+        align-items: center;
+    }
+    .footer div {
+        margin-bottom: 10px;
+    }
+}
+
+/* Buystar Page Styles */
 #buystar-page {
     font-family: Arial, sans-serif;
     background-color: #1E1F22;
@@ -87,56 +178,108 @@ body {
 #buystar-page .container {
     background-color: #2A2D35;
     border-radius: 15px;
-    padding: 20px;
-    width: 400px;
+    padding: 30px;
+    width: 100%;
+    max-width: 450px;
     text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #buystar-page .header img {
     width: 80px;
+    margin-bottom: 10px;
+}
+
+#buystar-page .header h2 {
+    font-size: 24px;
+    color: #ffcc00;
 }
 
 #buystar-page .star-list {
-    margin-top: 15px;
+    margin-top: 25px;
 }
 
 #buystar-page .star-item {
     background-color: #3C3F47;
-    padding: 10px;
+    padding: 15px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#buystar-page .star-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#buystar-page .star-item span {
+    font-size: 16px;
+    font-weight: bold;
 }
 
 #buystar-page .star-item button {
     background-color: #007BFF;
     color: white;
     border: none;
-    border-radius: 10px;
-    padding: 5px 10px;
+    border-radius: 15px;
+    padding: 8px 16px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#buystar-page .star-item button:hover {
+    background-color: #0056b3;
 }
 
 #buystar-page .custom-input {
-    margin-top: 15px;
+    margin-top: 30px;
 }
 
+#buystar-page .custom-input label {
+    font-size: 16px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+#buystar-page .custom-input select,
 #buystar-page .custom-input input {
-    width: 80%;
-    padding: 8px;
-    border-radius: 5px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
     border: none;
-    text-align: center;
+    background-color: #3C3F47;
+    color: white;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+#buystar-page .custom-input select:focus,
+#buystar-page .custom-input input:focus {
+    outline: none;
+    background-color: #4E535C;
 }
 
 #buystar-page .custom-input button {
-    margin-top: 10px;
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 8px 15px;
+    border-radius: 10px;
+    padding: 10px 20px;
     cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#buystar-page .custom-input button:hover {
+    background-color: #218838;
+}
+
+#buystar-page .custom-input p {
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
 }
