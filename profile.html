@@ -3,115 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Deposit Coin</title>
-    <script src="https://cdn.jsdelivr.net/npm/ton@1.0.0/dist/ton.min.js"></script>
+    <title>Profile Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1E1F22;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #2A2D35;
+            border-radius: 15px;
+            padding: 20px;
+            width: 380px;
+            text-align: center;
+        }
+        .profile-header {
+            background-color: #1C1F26;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: green;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            margin: 10px auto;
+        }
+        .username {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background-color: #262A33;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .wallet-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .transactions {
+            background-color: #1C1F26;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+        }
+        .footer div {
+            display: inline-block;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .footer a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>User Profile</h2>
-        <div class="profile-info">
-            <h3>User Info</h3>
-            <p><strong>User Name:</strong> <span id="username">Not logged in</span></p>
-            <p><strong>TON Balance:</strong> <span id="balance">0</span> TON</p>
-            <p><strong>Wallet Address:</strong> <span id="walletAddress">No Wallet</span></p>
+        <div class="profile-header">
+            <div class="avatar">J</div>
+            <div class="username">kinkin1601</div>
+            
+            <div class="info-box">
+                <span>Coins</span>
+                <span>0 🟡</span>
+            </div>
+            <div class="info-box">
+                <span>Tickets</span>
+                <span>0</span>
+            </div>
+            <div class="info-box">
+                <span>Wallet</span>
+                <button class="wallet-button">Connect Wallet</button>
+            </div>
+            <div class="info-box">
+                <span>Language</span>
+                <span>English</span>
+            </div>
         </div>
         
-        <!-- Deposit Section -->
-        <div class="deposit-section">
-            <h3>Deposit Coins</h3>
-            <label for="depositAmount">Enter Amount to Deposit (TON): </label>
-            <input type="number" id="depositAmount" placeholder="Amount in TON" min="0" step="any">
-            <button id="depositButton" onclick="initiateDeposit()">Deposit</button>
+        <div class="transactions">
+            <h3>Transactions</h3>
+            <p>Your transactions will appear here</p>
         </div>
-        
-        <footer>
-            <div>Back</div>
-            <div>Games</div>
-            <div>Home</div>
-            <div>Top</div>
-            <div>Profile</div>
-        </footer>
+        <div class="footer">
+            <a href="javascript:history.back()"><div>Back</div></a>
+            <a href="games.html"><div>Games</div></a>
+            <a href="index.html"><div>Home</div></a>
+            <a href="profile.html"><div>Profile</div></a>
+        </div>
     </div>
-
-    <script>
-        async function initiateDeposit() {
-            const depositAmount = document.getElementById('depositAmount').value;
-            const amount = parseFloat(depositAmount);
-
-            if (isNaN(amount) || amount <= 0) {
-                alert('Invalid deposit amount!');
-                return;
-            }
-
-            const walletAddress = await getWalletAddress();  // Fetch wallet address
-            if (!walletAddress) {
-                alert('Wallet address is not connected!');
-                return;
-            }
-
-            const depositTransaction = await sendTransaction(walletAddress, amount);
-            if (depositTransaction.success) {
-                alert(`Successfully deposited ${amount} TON!`);
-                updateBalance(); // Update balance if needed
-            } else {
-                alert('Deposit failed.');
-            }
-        }
-
-        // Fetch the connected wallet address from TonKeeper or Ton.js
-        async function getWalletAddress() {
-            // Example: Fetch wallet address from TonKeeper or Ton.js
-            try {
-                const accounts = await window.TonKeeper.request({ method: 'ton_requestAccounts' });
-                return accounts.length > 0 ? accounts[0] : null;
-            } catch (error) {
-                console.error('Error fetching wallet address:', error);
-                return null;
-            }
-        }
-
-        // Send transaction via TON API (ton.js or similar)
-        async function sendTransaction(address, amount) {
-            try {
-                const tonClient = new ton.Web3Client(); // Instantiate the TON client
-
-                // Construct the transaction
-                const transaction = {
-                    to: address,         // Recipient address
-                    value: amount * 1e9, // Convert TON to nanoTON (1 TON = 1e9 nanoTON)
-                    sendMode: 3,         // Send mode (3: direct)
-                    payload: "Deposit coins",
-                };
-
-                const result = await tonClient.sendTransaction(transaction);
-
-                if (result.success) {
-                    return { success: true, message: 'Transaction successful' };
-                } else {
-                    return { success: false, message: 'Transaction failed' };
-                }
-            } catch (error) {
-                console.error('Error sending transaction:', error);
-                return { success: false, message: 'Transaction failed' };
-            }
-        }
-
-        // Update the balance after the transaction
-        async function updateBalance() {
-            const walletAddress = await getWalletAddress();
-            if (!walletAddress) return;
-
-            try {
-                const balance = await window.TonKeeper.request({ method: 'ton_getBalance', params: { address: walletAddress } });
-                document.getElementById('balance').textContent = (balance / 1e9).toFixed(2); // Convert nanoTON to TON
-                document.getElementById('walletAddress').textContent = walletAddress;
-            } catch (error) {
-                console.error('Error fetching balance:', error);
-            }
-        }
-
-        // Call updateBalance on page load to show the latest balance
-        window.onload = updateBalance;
-    </script>
+    
+    
 </body>
 </html>
