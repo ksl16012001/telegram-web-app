@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -100,7 +102,11 @@
             </div>
             <div class="info-box">
                 <span>Wallet</span>
-                <button class="wallet-button">Connect Wallet</button>
+                <button id="connectWalletButton" class="wallet-button">Connect Wallet</button>
+            </div>
+            <div class="info-box">
+                <span>Wallet Address</span>
+                <span id="walletStatus">Not Connected</span>
             </div>
             <div class="info-box">
                 <span>Language</span>
@@ -119,7 +125,59 @@
             <a href="profile.html"><div>Profile</div></a>
         </div>
     </div>
-    
-    
+
+    <script>
+        // Khởi tạo TON Connect
+        const tonConnect = new TONConnect.TonConnect();
+        const connectButton = document.getElementById('connectWalletButton');
+        const walletStatus = document.getElementById('walletStatus');
+
+        // Hàm kết nối ví
+        async function connectWallet() {
+            try {
+                const walletsList = await tonConnect.getWallets();
+                if (walletsList.length === 0) {
+                    alert("Không có ví TON nào khả dụng!");
+                    return;
+                }
+
+                // Chọn ví mặc định (Tonkeeper)
+                await tonConnect.connect(walletsList[0]);
+
+                const account = await tonConnect.getWalletInfo();
+                walletStatus.textContent = `${account.address}`;
+                connectButton.textContent = "Disconnect Wallet";
+            } catch (error) {
+                console.error("Lỗi kết nối ví:", error);
+                alert("Không thể kết nối ví. Vui lòng thử lại.");
+            }
+        }
+
+        // Hàm ngắt kết nối ví
+        async function disconnectWallet() {
+            await tonConnect.disconnect();
+            walletStatus.textContent = "Not Connected";
+            connectButton.textContent = "Connect Wallet";
+        }
+
+        // Kiểm tra trạng thái kết nối khi tải trang
+        async function checkWalletConnection() {
+            const connectedWallet = await tonConnect.restoreConnection();
+            if (connectedWallet) {
+                walletStatus.textContent = `${connectedWallet.address}`;
+                connectButton.textContent = "Disconnect Wallet";
+            }
+        }
+        checkWalletConnection();
+
+        // Xử lý sự kiện khi nhấn nút
+        connectButton.addEventListener("click", () => {
+            if (connectButton.textContent === "Disconnect Wallet") {
+                disconnectWallet();
+            } else {
+                connectWallet();
+            }
+        });
+    </script>
 </body>
 </html>

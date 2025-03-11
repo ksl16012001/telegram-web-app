@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Telegram Stars</title>
     <style>
         body {
@@ -134,12 +135,20 @@
         const selectedAmount = document.getElementById("selectedAmount");
         const selectedPrice = document.getElementById("selectedPrice");
         const orderButton = document.getElementById("orderButton");
-
+        function formatAmount(amount) {
+            if (amount >= 1000000) {
+                return (amount / 1000000) + 'm';
+            }
+            if (amount >= 1000) {
+                return (amount / 1000) + 'k';
+            }
+            return amount.toString();
+        }
         // Hiển thị danh sách gói sao
         starsPackages.forEach((pkg, index) => {
             const item = document.createElement("div");
             item.className = "star-item";
-            item.innerHTML = `${pkg.amount} ⭐`;
+            item.innerHTML = `${formatAmount(pkg.amount)} ⭐`;
 
             item.onclick = function () {
                 selectStarPackage(index, pkg.amount, pkg.price);
@@ -155,7 +164,7 @@
 
             // Hiển thị gói đã chọn
             selectedPackageDiv.style.display = 'block';
-            selectedAmount.textContent = `Number of stars: ${amount}`;
+            selectedAmount.textContent = `Number of stars: ${formatAmount(amount)}`;
             selectedPrice.textContent = `Price: $${price.toFixed(2)}`;
             
             // Cập nhật nội dung nút
