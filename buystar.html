@@ -3,147 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy Telegram Stars</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to the styles.css file -->
-    <script src="script.js" defer></script>
+    <title>Telegram Stars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1E1F22;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #2A2D35;
+            border-radius: 15px;
+            padding: 20px;
+            width: 380px;
+            text-align: center;
+        }
+        .gift-box {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            background-image: url('src/imgs/star.gif');
+            background-size: cover;
+        }
+        h2 {
+            margin-top: 10px;
+        }
+        .recipient-box {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .star-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .star-item {
+            background-color: #444;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .star-item:hover, .star-item.selected {
+            background-color: #007bff;
+        }
+        .order-button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .footer {
+            margin-top: 20px;
+        }
+        .footer div {
+            display: inline-block;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .footer a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
 </head>
-<body id="buystar-page">
+<body>
     <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <img src="https://usagif.com/wp-content/uploads/gify/cash-a-bag-of-money-transparent-background-usagif.gif" alt="logo">
-            <h2>Buy Telegram Stars</h2>
+        <!-- Hộp quà GIF -->
+        <div class="gift-box"></div>
+        
+        <h2>Telegram Stars</h2>
+        <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
+        
+        <!-- Chọn người nhận -->
+        <div class="recipient-box">
+            <input type="text" style="background-color: #333; height: 20px;"></input>
+            <span>🕺 John Doe</span>
         </div>
 
-        <!-- Star List Section - Display the first 5 star packages -->
-        <div class="star-list" id="starList"></div>
+        <!-- Gói sao -->
+        <div class="star-grid" id="starList"></div>
 
-        <!-- Custom Input Section - Use select for the remaining star packages -->
-        <div class="custom-input">
-            <label for="customStars">Choose the number of stars: </label>
-            <select id="customStars" onchange="calculateCustomPrice()">
-                <option value="">Select a star package</option>
-            </select>
-            <p id="customPrice"></p>
-        </div>
-
-        <!-- Selected Star Package -->
-        <div id="selectedPackage" class="selected-package" style="display: none;">
-            <h3>Selected Star Package</h3>
+        <!-- Hiển thị gói đã chọn -->
+        <div id="selectedPackage" class="selected-package" style="display: none; background: #444; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
             <p id="selectedAmount"></p>
             <p id="selectedPrice"></p>
-            <button id="paymentButton" class="payment-button" onclick="buySelectedStars()">Pay</button>
         </div>
-        
-        <div id="footer"></div>
+
+        <!-- Nút đặt hàng -->
+        <button id="orderButton" class="order-button" onclick="buyStars()">Order</button>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="javascript:history.back()"><div>Back</div></a>
+            <a href="games.html"><div>Games</div></a>
+            <a href="index.html"><div>Home</div></a>
+            <a href="profile.html"><div>Profile</div></a>
+        </div>
     </div>
-    
+
     <script>
-        function goBack() {
-            window.history.back(); // Go back to the previous page in the browser history
-        }
-        document.getElementById('footer').innerHTML = `
-            <div class="footer">
-            <a href="javascript:history.back()">
-                <div>Back</div>
-            </a>
-            <a href="games.html">
-                <div>Games</div>
-            </a>
-            <a href="index.html">
-                <div>Home</div>
-            </a>
-            <a href="profile.html">
-                <div>Profile</div>
-            </a>
-        </div>
-        `;
-        // Available star packages with their prices
+        // Danh sách gói sao và giá
         const starsPackages = [
-            { amount: 50, price: 0.85 },
-            { amount: 75, price: 1.275 },
-            { amount: 100, price: 1.7 },
-            { amount: 150, price: 2.55 },
-            { amount: 250, price: 4.25 },
-            { amount: 350, price: 5.95 },
-            { amount: 500, price: 8.5 },
-            { amount: 750, price: 12.75 },
-            { amount: 1000, price: 16.5 },
-            { amount: 1500, price: 25 },
-            { amount: 2500, price: 42 },
-            { amount: 5000, price: 84 },
-            { amount: 10000, price: 165 },
-            { amount: 25000, price: 410 },
-            { amount: 35000, price: 570 },
-            { amount: 50000, price: 810 },
-            { amount: 100000, price: 1600 },
-            { amount: 150000, price: 2380 },
-            { amount: 500000, price: 7700 },
-            { amount: 1000000, price: 15500 }
+            { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },
+            { amount: 350, price: 5.95 }, { amount: 500, price: 8.5 }, { amount: 750, price: 12.75 },
+            { amount: 1000, price: 16.5 }, { amount: 1500, price: 25 }, { amount: 2500, price: 42 },
+            { amount: 5000, price: 84 }, { amount: 10000, price: 165 }, { amount: 25000, price: 410 },
+            { amount: 35000, price: 570 }, { amount: 50000, price: 810 }, { amount: 100000, price: 1600 },
+            { amount: 150000, price: 2380 }, { amount: 500000, price: 7700 }, { amount: 1000000, price: 15500 }
         ];
 
         const starList = document.getElementById("starList");
-        const customStarsSelect = document.getElementById("customStars");
         const selectedPackageDiv = document.getElementById("selectedPackage");
         const selectedAmount = document.getElementById("selectedAmount");
         const selectedPrice = document.getElementById("selectedPrice");
-        const paymentButton = document.getElementById("paymentButton");
+        const orderButton = document.getElementById("orderButton");
 
-        // Display the first 5 star packages
-        starsPackages.slice(0, 5).forEach(pkg => {
+        // Hiển thị danh sách gói sao
+        starsPackages.forEach((pkg, index) => {
             const item = document.createElement("div");
             item.className = "star-item";
-            item.innerHTML = `
-                <span>${pkg.amount} stars - $${pkg.price.toFixed(2)}</span>
-                <button onclick="selectStarPackage(${pkg.amount}, ${pkg.price})">Select</button>
-            `;
+            item.innerHTML = `${pkg.amount} ⭐`;
+
+            item.onclick = function () {
+                selectStarPackage(index, pkg.amount, pkg.price);
+            };
+
             starList.appendChild(item);
         });
 
-        // Add options to select for the remaining star packages
-        starsPackages.slice(5).forEach(pkg => {
-            const option = document.createElement("option");
-            option.value = pkg.amount;
-            option.textContent = `${pkg.amount} stars - $${pkg.price.toFixed(2)}`;
-            customStarsSelect.appendChild(option);
-        });
+        // Chọn gói sao
+        function selectStarPackage(index, amount, price) {
+            document.querySelectorAll('.star-item').forEach(item => item.classList.remove('selected'));
+            document.querySelectorAll('.star-item')[index].classList.add('selected');
 
-        // Function to select a star package
-        function selectStarPackage(amount, price) {
-            selectedPackageDiv.style.display = 'block';  // Display the selected star package information
+            // Hiển thị gói đã chọn
+            selectedPackageDiv.style.display = 'block';
             selectedAmount.textContent = `Number of stars: ${amount}`;
             selectedPrice.textContent = `Price: $${price.toFixed(2)}`;
-            paymentButton.onclick = function () {
-                buyStars(amount, price);  // Call the payment function when clicking the pay button
-            };
+            
+            // Cập nhật nội dung nút
+            orderButton.innerText = `Order ${amount} Stars`;
+            orderButton.setAttribute("data-amount", amount);
+            orderButton.setAttribute("data-price", price);
         }
 
-        // Function to buy stars
-        function buyStars(amount, price) {
-            alert(`You have selected to buy ${amount} stars for $${price.toFixed(2)}`);
-            // Call payment API here (to be replaced with actual payment logic)
-        }
-
-        // Function to calculate the price for the selected number of stars
-        function calculateCustomPrice() {
-            const customAmount = parseInt(customStarsSelect.value);
-            const customPriceElement = document.getElementById("customPrice");
-
-            if (!customAmount) {
-                customPriceElement.innerText = "";
-                selectedPackageDiv.style.display = 'none';  // Hide the selected star package information if nothing is selected
-                return;
-            }
-
-            const selectedPackage = starsPackages.find(pkg => pkg.amount === customAmount);
-            if (selectedPackage) {
-                customPriceElement.innerText = `Price for ${selectedPackage.amount} stars is $${selectedPackage.price.toFixed(2)}`;
-                selectedPackageDiv.style.display = 'block';  // Display the selected star package information
-                selectedAmount.textContent = `Number of stars: ${selectedPackage.amount}`;
-                selectedPrice.textContent = `Price: $${selectedPackage.price.toFixed(2)}`;
-                paymentButton.onclick = function () {
-                    buyStars(selectedPackage.amount, selectedPackage.price);
-                };
+        // Xử lý thanh toán
+        function buyStars() {
+            const amount = orderButton.getAttribute("data-amount");
+            const price = orderButton.getAttribute("data-price");
+            if (amount && price) {
+                alert(`You have selected to buy ${amount} stars for $${price}`);
+            } else {
+                alert("Please select a star package first!");
             }
         }
     </script>
