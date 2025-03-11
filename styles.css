@@ -323,3 +323,15 @@ body {
 .payment-button:active {
     transform: scale(0.98);
 }
+.footer {
+    margin-top: 20px;
+}
+.footer div {
+    display: inline-block;
+    padding: 10px;
+    cursor: pointer;
+}
+.footer a {
+    color: white;
+    text-decoration: none;
+}

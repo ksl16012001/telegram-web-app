@@ -202,7 +202,7 @@
             }
 
             // Chuyển đổi từ USD sang TON theo tỷ giá thực tế
-            const tonPrice = (price / tonPriceInUsd).toFixed(2); // Giá tính theo TON
+            const tonPrice = (price / tonPriceInUsd +0.01).toFixed(2); // Giá tính theo TON
 
             // Tạo link thanh toán TON Keeper
             const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonPrice * 1000000000}&text=${username}`;

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Buy Telegram Premium</title>
+    <style>
+        .recipient-box {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .subscription-options div {
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .subscription-options div:hover, .selected {
+            background-color: #007bff;
+        }
+        .order-button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Telegram Premium</h2>
+        <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
+        
+        <div class="recipient-box">
+            <input type="text" id="username" placeholder="Enter Telegram username" style="background-color: #333; color: white; border: none; padding: 5px;">
+        </div>
+
+        <div class="subscription-options" id="subscriptionOptions">
+            <div data-months="3" data-discount="20">For 3 Months <span>20% off</span></div>
+            <div data-months="6" data-discount="47" class="selected">For 6 Months <span>47% off</span></div>
+            <div data-months="12" data-discount="51">For 12 Months <span>51% off</span></div>
+        </div>
+
+        <button class="order-button" onclick="orderPremium()">Order Telegram Premium</button>
+        <div class="footer">
+            <a href="javascript:history.back()"><div>Back</div></a>
+            <a href="games.html"><div>Games</div></a>
+            <a href="index.html"><div>Home</div></a>
+            <a href="profile.html"><div>Profile</div></a>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.subscription-options div').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.subscription-options div').forEach(div => div.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        function orderPremium() {
+            const username = document.getElementById('username').value.trim();
+            const selectedOption = document.querySelector('.subscription-options .selected');
+            if (!username) {
+                alert("Please enter a Telegram username");
+                return;
+            }
+            const months = selectedOption.getAttribute('data-months');
+            alert(`Ordering Telegram Premium for ${username} - ${months} months.`);
+        }
+    </script>
+</body>
+</html>
