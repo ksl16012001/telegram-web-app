@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Nạp Coin</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Liên kết đến file styles.css -->
+    <script src="script.js" defer></script>
+</head>
+<body id="profile-page">
+    <div class="container">
+        <div class="header">
+            <h2>Trang Cá Nhân</h2>
+        </div>
+        
+        <!-- Thông tin người dùng -->
+        <div class="profile-info">
+            <h3>Thông tin người dùng</h3>
+            <p><strong>Tên người dùng:</strong> <span id="username">Chưa đăng nhập</span></p>
+            <p><strong>Số dư TON:</strong> <span id="balance">0</span> TON</p>
+            <p><strong>Địa chỉ ví:</strong> <span id="walletAddress">Chưa có ví</span></p>
+        </div>
+        
+        <!-- Nút nạp coin -->
+        <div class="deposit-section">
+            <h3>Nạp Coin</h3>
+            <button id="depositButton" onclick="initiateDeposit()">Nạp Coin</button>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div onclick="goBack()">Back</div>
+            <div>Games</div>
+            <div>Home</div>
+            <div>Top</div>
+            <div>Profile</div>
+        </footer>
+    </div>
+
+    <script>
+        async function goBack() {
+            window.history.back(); // Quay lại trang trước trong lịch sử trình duyệt
+        }
+
+        // Kiểm tra xem người dùng có kết nối ví Ton Keeper không
+        async function checkTonKeeperConnection() {
+            if (typeof window.TonKeeper !== 'undefined') {
+                try {
+                    const accounts = await window.TonKeeper.request({ method: 'ton_requestAccounts' });
+                    if (accounts.length === 0) {
+                        alert('Bạn chưa kết nối ví Ton Keeper!');
+                        return false;
+                    }
+                    return true;
+                } catch (error) {
+                    alert('Lỗi kết nối với Ton Keeper: ' + error.message);
+                    return false;
+                }
+            } else {
+                alert('Ton Keeper chưa được cài đặt. Vui lòng cài đặt extension Ton Keeper.');
+                return false;
+            }
+        }
+
+        // Khởi tạo quá trình nạp coin
+        async function initiateDeposit() {
+            const isConnected = await checkTonKeeperConnection();
+            if (!isConnected) return;
+
+            try {
+                const amountToDeposit = prompt('Nhập số tiền muốn nạp (TON):', '0');
+                const amount = parseFloat(amountToDeposit);
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Số tiền nạp không hợp lệ!');
+                    return;
+                }
+
+                const transaction = {
+                    to: 'TON_ADDRESS', // Địa chỉ nhận thanh toán
+                    value: amount * 1e9, // Chuyển đổi từ TON sang nanoTON (1 TON = 1e9 nanoTON)
+                    sendMode: 3,  // Chế độ gửi giao dịch (3 cho phép giao dịch qua Ton Keeper)
+                    payload: 'Nạp coin vào ví', // Nội dung thanh toán (có thể tùy chỉnh)
+                };
+
+                const result = await window.TonKeeper.request({ method: 'ton_sendTransaction', params: transaction });
+                if (result.success) {
+                    alert(`Đã nạp thành công ${amount} TON!`);
+                    // Cập nhật lại thông tin số dư ví
+                    updateBalance();
+                } else {
+                    alert('Nạp coin thất bại.');
+                }
+            } catch (error) {
+                alert('Có lỗi trong quá trình nạp coin: ' + error.message);
+            }
+        }
+
+        // Cập nhật số dư ví người dùng
+        async function updateBalance() {
+            const isConnected = await checkTonKeeperConnection();
+            if (!isConnected) return;
+
+            try {
+                const accounts = await window.TonKeeper.request({ method: 'ton_requestAccounts' });
+                const walletAddress = accounts[0];
+                const balance = await window.TonKeeper.request({ method: 'ton_getBalance', params: { address: walletAddress } });
+
+                // Hiển thị số dư
+                document.getElementById('walletAddress').textContent = walletAddress;
+                document.getElementById('balance').textContent = (balance / 1e9).toFixed(2);  // Chuyển từ nanoTON sang TON
+                document.getElementById('username').textContent = walletAddress.slice(0, 8) + '...'; // Hiển thị phần đầu của địa chỉ ví làm tên người dùng
+            } catch (error) {
+                alert('Không thể lấy thông tin ví: ' + error.message);
+            }
+        }
+
+        // Gọi hàm cập nhật thông tin ví khi trang tải
+        window.onload = updateBalance;
+    </script>
+</body>
+</html>
