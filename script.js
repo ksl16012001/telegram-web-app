@@ -23,7 +23,7 @@ document.getElementById('footer').innerHTML = `
     <a href="javascript:history.back()">
         <div>Back</div>
     </a>
-    <a href="games.html">
+    <a href="game.html">
         <div>Games</div>
     </a>
     <a href="index.html">
