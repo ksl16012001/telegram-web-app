@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram WebApp</title>
-    <script src="https://web.telegram.org/js/webapp.js"></script>
+    <title>Telegram Web App Example</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
 </head>
 <body>
-    <h1>Welcome to the Telegram WebApp</h1>
+    <h1>Welcome to Telegram Mini App</h1>
     <div id="user-info"></div>
 
     <script>
-        // Kiểm tra xem WebApp đã được tải chưa
+        // Đảm bảo rằng WebApp đã được tải
         if (window.Telegram && window.Telegram.WebApp) {
-            // Lấy thông tin người dùng
+            // Truy cập thông tin người dùng
             const user = window.Telegram.WebApp.user;
 
             // Hiển thị thông tin người dùng
