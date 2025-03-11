@@ -55,10 +55,10 @@
             }
 
             // Địa chỉ ví nhận thanh toán (có thể thay thế bằng địa chỉ của bạn)
-            const recipientAddress = 'TON_ADDRESS'; // Thay 'TON_ADDRESS' bằng địa chỉ ví của bạn
+            const recipientAddress = 'UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg'; // Thay 'TON_ADDRESS' bằng địa chỉ ví của bạn
             
             // Tạo deep link cho TonKeeper
-            const deepLink = `tonkeeper://transfer?to=${recipientAddress}&amount=${amount * 1e9}&sendMode=3&payload=Nạp coin vào ví`;
+            const deepLink = `tonkeeper://transfer?to=${recipientAddress}&amount=${amount * 1e9}&sendMode=3&payload=Charge`;
 
             // Mở deep link để chuyển hướng đến TonKeeper
             window.location.href = deepLink;
