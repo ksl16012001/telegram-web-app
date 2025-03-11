@@ -3,7 +3,10 @@ function redirectToBuyStar() {
     // Redirect to the buystar.html page
     window.location.href = 'buystar.html';
 }
-
+function redirectToProfile() {
+    // Redirect to the buystar.html page
+    window.location.href = 'profile.html';
+}
 // Dynamically load header and footer
 document.getElementById('header').innerHTML = `
     <div class="header">
