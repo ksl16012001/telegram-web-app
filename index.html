@@ -53,24 +53,5 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-    
-            // Hiển thị toàn bộ dữ liệu initDataUnsafe
-            console.log("Telegram WebApp Data:", tg.initDataUnsafe);
-    
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                document.getElementById("user-info").innerHTML = `
-                    <p><strong>User ID:</strong> ${tg.initDataUnsafe.user.id}</p>
-                    <p><strong>Username:</strong> ${tg.initDataUnsafe.user.username || "N/A"}</p>
-                `;
-            } else {
-                document.getElementById("user-info").innerHTML = "<p>Không lấy được dữ liệu người dùng!</p>";
-            }
-        });
-    </script>
-    
 </body>
 </html>

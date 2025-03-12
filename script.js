@@ -51,3 +51,12 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 });
+document.addEventListener("DOMContentLoaded", function () {
+    const savedUsername = localStorage.getItem("tg_username");
+    if (savedUsername) {
+        const usernameInput = document.getElementById("username-input");
+        if (usernameInput) {
+            usernameInput.value = savedUsername; // Hiển thị username đã lưu
+        }
+    }
+});
