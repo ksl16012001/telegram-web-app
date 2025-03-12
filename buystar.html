@@ -84,7 +84,7 @@
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js"></script>
+    
 </head>
 <body>
     <div class="container">
@@ -96,8 +96,7 @@
         
         <!-- Chọn người nhận -->
         <div class="recipient-box">
-            <!-- <input type="text" id="username-input" placeholder="Enter username" style="background-color: #333; height: 20px;"> -->
-            <div id="usercard">
+            <input type="text" id="username-input" placeholder="Enter username" style="background-color: #333; height: 20px;">
         </div>
 
         <!-- Gói sao -->
@@ -122,24 +121,6 @@
     </div>
 
     <script>
-        let usercard = document.getElementById("usercard"); //получаем блок usercard 
-
-        let profName = document.createElement('p'); //создаем параграф
-        profName.innerText = `${tg.initDataUnsafe.user.first_name}
-        ${tg.initDataUnsafe.user.last_name}
-        ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code})`;
-        //выдем имя, "фамилию", через тире username и код языка
-        usercard.appendChild(profName); //добавляем 
-
-        let userid = document.createElement('p'); //создаем еще параграф 
-        userid.innerText = `${tg.initDataUnsafe.user.id}`; //показываем user_id
-        usercard.appendChild(userid); //добавляем
-
-
-        //    работает только в attachment menu
-        let pic = document.createElement('img'); //создаем img
-        pic.src = tg.initDataUnsafe.user.photo_url; //задаём src 
-        usercard.appendChild(pic); //добавляем элемент в карточку 
         // Danh sách gói sao và giá
         const starsPackages = [
             { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },

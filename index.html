@@ -1,83 +1,64 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HuluPay</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Test Telegram WebApps API</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            color: var(--tg-theme-text-color);
+            background: var(--tg-theme-bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 18px;
+        }
+        .user-info {
+            text-align: center;
+        }
+        #user-photo {
+            display: none;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container">
-        <div id="usercard"> <!--Карта профиля, человека, который к нам обратился-->
-        </div>
-        <!-- Header Module -->
-        <div id="header"></div>
-
-        <p>Buy airtime and airtime package</p>
-
-        <div class="section">
-            <img src="src/imgs/game.webp" alt="Games">
-            <div class="section-content">
-                <div class="section-title">
-                    <span>Games <span class="coming-soon">COMING SOON!!!</span></span>
-                    <button type="button" class="disabled-button" disabled>Play</button>
-                </div>
-                <p>Play games and earn Telegram Stars</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <img src="src/imgs/pre.avif" alt="Telegram Premium">
-            <div class="section-content">
-                <div class="section-title">
-                    <span>Telegram Premium</span>
-                    <a href="buypre.html"><button class="get-verified-btn" >GET VERIFIED</button></a>
-                </div>
-                <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <img src="src/imgs/star.jpg" alt="Telegram Stars">
-            <div class="section-content">
-                <div class="section-title">
-                    <span>Telegram Stars</span>
-                    <button class="gift-button" onclick="redirectToBuyStar()">GIFT</button>
-                </div>
-                <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
-            </div>
-        </div>
-
-        <!-- Footer Module -->
-        <div id="footer"></div>
-        
-        <div class="bot-name">@KINKIN1601</div>
+    <div id="usercard" class="user-info">
+        <p id="user-name"></p>
+        <p id="user-id"></p>
+        <p id="user-username"></p>
+        <p id="user-language"></p>
+        <img id="user-photo" src="" alt="User Photo">
     </div>
 
-    <script src="script.js"></script>
     <script>
-        let tg = window.Telegram.WebApp;
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
 
-        tg.expand(); 
+        let firstName = getQueryParam("firstName") || "Unknown";
+        let lastName = getQueryParam("lastName") || "";
+        let username = getQueryParam("username") || "N/A";
+        let userId = getQueryParam("userId") || "N/A";
+        let language = getQueryParam("language") || "N/A";
+        let photoUrl = getQueryParam("photoUrl") || "";
 
-        let usercard = document.getElementById("usercard"); //получаем блок usercard 
+        document.getElementById("user-name").innerText = `Имя: ${firstName} ${lastName}`;
+        document.getElementById("user-username").innerText = `Username: ${username}`;
+        document.getElementById("user-id").innerText = `User ID: ${userId}`;
+        document.getElementById("user-language").innerText = `Язык: ${language}`;
 
-        let profName = document.createElement('p'); //создаем параграф
-        profName.innerText = `${tg.initDataUnsafe.user.first_name}
-        ${tg.initDataUnsafe.user.last_name}
-        ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code})`;
-        //выдем имя, "фамилию", через тире username и код языка
-        usercard.appendChild(profName); //добавляем 
-
-        let userid = document.createElement('p'); //создаем еще параграф 
-        userid.innerText = `${tg.initDataUnsafe.user.id}`; //показываем user_id
-        usercard.appendChild(userid); //добавляем
-
-
-        //    работает только в attachment menu
-        let pic = document.createElement('img'); //создаем img
-        pic.src = tg.initDataUnsafe.user.photo_url; //задаём src 
-        usercard.appendChild(pic); //добавляем элемент в карточку 
+        if (photoUrl) {
+            let userPhoto = document.getElementById("user-photo");
+            userPhoto.src = photoUrl;
+            userPhoto.style.display = "block";
+        }
     </script>
 </body>
 </html>
