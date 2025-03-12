@@ -34,3 +34,20 @@ document.getElementById('footer').innerHTML = `
     </a>
 </div>
 `;
+document.addEventListener("DOMContentLoaded", function () {
+    let tg = window.Telegram.WebApp;
+    tg.expand(); // Mở rộng WebApp toàn màn hình
+
+    let user = tg.initDataUnsafe.user;
+    
+    if (user) {
+        localStorage.setItem("tg_username", user.username ? `@${user.username}` : "");
+
+        document.getElementById("user-info").innerHTML = `
+            <p><b>ID:</b> ${user.id}</p>
+            <p><b>First Name:</b> ${user.first_name}</p>
+            <p><b>Last Name:</b> ${user.last_name || "N/A"}</p>
+            <p><b>Username:</b> @${user.username || "N/A"}</p>
+        `;
+    }
+});

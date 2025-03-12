@@ -84,27 +84,6 @@
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let tg = window.Telegram.WebApp;
-            tg.expand(); // Mở rộng WebApp toàn màn hình
-    
-            // Lấy thông tin người dùng
-            let user = tg.initDataUnsafe.user;
-            
-            if (user) {
-                document.getElementById("user-info").innerHTML = `
-                    <p><b>ID:</b> ${user.id}</p>
-                    <p><b>First Name:</b> ${user.first_name}</p>
-                    <p><b>Last Name:</b> ${user.last_name || "N/A"}</p>
-                    <p><b>Username:</b> @${user.username || "N/A"}</p>
-                    <p><b>Language:</b> ${user.language_code}</p>
-                `;
-            } else {
-                document.getElementById("user-info").innerHTML = `<p>Không thể lấy thông tin người dùng!</p>`;
-            }
-        });
-    </script>
     
 </head>
 <body>
@@ -117,8 +96,7 @@
         
         <!-- Chọn người nhận -->
         <div class="recipient-box">
-            <input type="text" style="background-color: #333; height: 20px;"></input>
-            <span>🕺 John Doe</span>
+            <input type="text" id="username-input" placeholder="Enter username" style="background-color: #333; height: 20px;">
         </div>
 
         <!-- Gói sao -->
@@ -143,6 +121,15 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const savedUsername = localStorage.getItem("tg_username");
+            if (savedUsername) {
+                const usernameInput = document.getElementById("username-input");
+                if (usernameInput) {
+                    usernameInput.value = savedUsername; // Hiển thị username đã lưu
+                }
+            }
+        });
         // Danh sách gói sao và giá
         const starsPackages = [
             { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },
