@@ -3,24 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App Example</title>
+    <title>Telegram WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <h1>Welcome to Telegram Mini App</h1>
-    <div id="user-info">Loading user data...</div>
+    <div id="user-info">Đang tải...</div>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const tg = window.Telegram.WebApp;
-            tg.ready();  // Đảm bảo WebApp đã sẵn sàng
+            setTimeout(() => {
+                if (typeof Telegram === "undefined") {
+                    console.error("Telegram WebApp SDK chưa được tải!");
+                    document.getElementById('user-info').innerHTML = "Lỗi: Không thể tải Telegram SDK.";
+                    return;
+                }
 
-            // Kiểm tra xem dữ liệu user có sẵn không
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const tg = Telegram.WebApp;
+                tg.ready(); // Đánh dấu WebApp đã sẵn sàng
+
+                // Kiểm tra xem user có tồn tại không
+                if (!tg.initDataUnsafe.user) {
+                    console.error("Không lấy được thông tin người dùng.");
+                    document.getElementById('user-info').innerHTML = "Lỗi: Không thể lấy thông tin người dùng.";
+                    return;
+                }
+
+                // Lấy thông tin người dùng
                 const user = tg.initDataUnsafe.user;
+                console.log("User Data:", user);
 
-                // Hiển thị thông tin người dùng
-                document.getElementById("user-info").innerHTML = `
+                // Hiển thị thông tin lên giao diện
+                document.getElementById('user-info').innerHTML = `
                     <p><strong>User ID:</strong> ${user.id}</p>
                     <p><strong>First Name:</strong> ${user.first_name}</p>
                     <p><strong>Last Name:</strong> ${user.last_name || "N/A"}</p>
@@ -28,25 +42,7 @@
                     <p><strong>Language Code:</strong> ${user.language_code}</p>
                     <p><strong>Premium User:</strong> ${user.is_premium ? "Yes" : "No"}</p>
                 `;
-
-                // Gửi dữ liệu lên server
-                fetch("https://yourserver.com/api/save-user", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        id: user.id,
-                        username: user.username || "N/A",
-                        first_name: user.first_name,
-                        last_name: user.last_name || "N/A",
-                        language_code: user.language_code
-                    })
-                })
-                .then(response => response.json())
-                .then(data => console.log("Server response:", data))
-                .catch(error => console.error("Error sending data:", error));
-            } else {
-                document.getElementById("user-info").innerHTML = "<p>Không lấy được dữ liệu người dùng!</p>";
-            }
+            }, 1000); // Delay để SDK tải xong
         });
     </script>
 </body>
