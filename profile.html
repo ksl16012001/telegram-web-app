@@ -4,49 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest"></script>
-
+    <link rel="stylesheet" href="styles.css">
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #1E1F22;
+            background: linear-gradient(135deg, #1e1f22, #2a2d35);
             color: white;
             margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
-
         .container {
-            background-color: #2A2D35;
+            background: #2a2d35;
             border-radius: 15px;
             padding: 20px;
-            width: 380px;
             text-align: center;
+            width: 350px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
         }
         .profile-header {
-            background-color: #1C1F26;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            background: #1c1f26;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
         }
-        .avatar {
+        .avatar img {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background-color: green;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            font-weight: bold;
-            margin: 10px auto;
+            border: 3px solid #ffcc00;
+            margin-bottom: 10px;
         }
         .username {
             font-size: 20px;
@@ -54,134 +46,146 @@
             margin-bottom: 10px;
         }
         .info-box {
-            background-color: #262A33;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
+            background: #262a33;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .wallet-button {
-            background-color: #007bff;
+            background: #007bff;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
+            transition: 0.3s;
         }
+        .wallet-button:hover { background: #0056b3; }
         .transactions {
-            background-color: #1C1F26;
-            padding: 20px;
+            background: #1c1f26;
+            padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
         }
-        .footer {
+        .transactions h3 { margin-bottom: 10px; }
+        .bottom-menu {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
             margin-top: 20px;
         }
-        .footer div {
-            display: inline-block;
-            padding: 10px;
-            cursor: pointer;
-        }
-        .footer a {
+        .bottom-menu button {
+            background: none;
+            border: none;
             color: white;
-            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="profile-header">
-            <div class="avatar">J</div>
-            <div class="username">kinkin1601</div>
-            
-            <div class="info-box">
-                <span>Coins</span>
-                <span>0 🟡</span>
-            </div>
-            <div class="info-box">
-                <span>Tickets</span>
-                <span>0</span>
-            </div>
-            <div class="info-box">
-                <span>Wallet</span>
-                <button id="connectWalletButton" class="wallet-button">Connect Wallet</button>
-            </div>
-            <div class="info-box">
-                <span>Wallet Address</span>
-                <span id="walletStatus">Not Connected</span>
-            </div>
-            <div class="info-box">
-                <span>Language</span>
-                <span>English</span>
-            </div>
+        <div class="profile-header" id="usercard">
+            <div class="avatar"><img src="src/imgs/default_avatar.png" alt="User Avatar"></div>
+            <div class="username">Loading...</div>
+            <div class="info-box"><span>User ID</span> <span>Loading...</span></div>
+            <div class="info-box"><span>Username</span> <span>Loading...</span></div>
+            <div class="info-box"><span>Phone</span> <span>Loading...</span></div>
+            <div class="info-box"><span>Coins</span> <span>0 🟡</span></div>
+            <div class="info-box"><span>Tickets</span> <span>0 🎟️</span></div>
+            <div class="info-box"><span>Wallet</span> <button id="connectWalletButton" class="wallet-button">Connect Wallet</button></div>
+            <div class="info-box"><span>Wallet Address</span> <span id="walletStatus">Not Connected</span></div>
         </div>
         
         <div class="transactions">
             <h3>Transactions</h3>
             <p>Your transactions will appear here</p>
         </div>
-        <div class="footer">
-            <a href="javascript:history.back()"><div>Back</div></a>
-            <a href="games.html"><div>Games</div></a>
-            <a href="index.html"><div>Home</div></a>
-            <a href="profile.html"><div>Profile</div></a>
-        </div>
     </div>
 
     <script>
-        // Khởi tạo TON Connect
-        const tonConnect = new TONConnect.TonConnect();
-        const connectButton = document.getElementById('connectWalletButton');
-        const walletStatus = document.getElementById('walletStatus');
+        document.addEventListener("DOMContentLoaded", function () {
+            Telegram.WebApp.ready();
+            
+            let user = Telegram.WebApp.initDataUnsafe?.user || null;
+            let userCard = document.getElementById("usercard");
+            let walletStatus = document.getElementById("walletStatus");
+            let connectButton = document.getElementById("connectWalletButton");
 
-        // Hàm kết nối ví
-        async function connectWallet() {
-            try {
-                const walletsList = await tonConnect.getWallets();
-                if (walletsList.length === 0) {
-                    alert("Không có ví TON nào khả dụng!");
-                    return;
+            function updateUserInfo(user) {
+                if (user) {
+                    userCard.innerHTML = `
+                        <div class="avatar">
+                            <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
+                        </div>
+                        <div class="username">${user.first_name} ${user.last_name || ""}</div>
+                        <div class="info-box"><span>User ID</span> <span>${user.id}</span></div>
+                        <div class="info-box"><span>Username</span> <span>@${user.username || "Not Set"}</span></div>
+                        <div class="info-box"><span>Phone</span> <span>${user.phone_number || "Not Shared"}</span></div>
+                        <div class="info-box"><span>Coins</span> <span>0 🟡</span></div>
+                        <div class="info-box"><span>Tickets</span> <span>0 🎟️</span></div>
+                        <div class="info-box"><span>Wallet</span> <button id="connectWalletButton" class="wallet-button">Connect Wallet</button></div>
+                        <div class="info-box"><span>Wallet Address</span> <span id="walletStatus">Not Connected</span></div>
+                    `;
+                } else {
+                    userCard.innerHTML = "<p>Unable to fetch user data!</p>";
                 }
-
-                // Chọn ví mặc định (Tonkeeper)
-                await tonConnect.connect(walletsList[0]);
-
-                const account = await tonConnect.getWalletInfo();
-                walletStatus.textContent = `${account.address}`;
-                connectButton.textContent = "Disconnect Wallet";
-            } catch (error) {
-                console.error("Lỗi kết nối ví:", error);
-                alert("Không thể kết nối ví. Vui lòng thử lại.");
             }
-        }
 
-        // Hàm ngắt kết nối ví
-        async function disconnectWallet() {
-            await tonConnect.disconnect();
-            walletStatus.textContent = "Not Connected";
-            connectButton.textContent = "Connect Wallet";
-        }
-
-        // Kiểm tra trạng thái kết nối khi tải trang
-        async function checkWalletConnection() {
-            const connectedWallet = await tonConnect.restoreConnection();
-            if (connectedWallet) {
-                walletStatus.textContent = `${connectedWallet.address}`;
-                connectButton.textContent = "Disconnect Wallet";
+            function requestPhoneNumber() {
+                Telegram.WebApp.requestContact(function (sent, event) {
+                    if (sent && event.responseUnsafe.contact) {
+                        let phoneNumber = event.responseUnsafe.contact.phone_number;
+                        document.querySelector(".info-box:nth-child(3) span:last-child").innerText = phoneNumber;
+                    }
+                });
             }
-        }
-        checkWalletConnection();
 
-        // Xử lý sự kiện khi nhấn nút
-        connectButton.addEventListener("click", () => {
-            if (connectButton.textContent === "Disconnect Wallet") {
-                disconnectWallet();
-            } else {
-                connectWallet();
+            if (user) updateUserInfo(user);
+            else requestPhoneNumber();
+
+            const tonConnect = new TONConnect.TonConnect();
+            
+            async function connectWallet() {
+                try {
+                    const walletsList = await tonConnect.getWallets();
+                    if (walletsList.length === 0) {
+                        alert("No TON wallets available!");
+                        return;
+                    }
+                    await tonConnect.connect(walletsList[0]);
+                    const account = await tonConnect.getWalletInfo();
+                    walletStatus.textContent = `${account.address}`;
+                    connectButton.textContent = "Disconnect Wallet";
+                } catch (error) {
+                    alert("Unable to connect wallet. Try again.");
+                }
             }
+
+            async function disconnectWallet() {
+                await tonConnect.disconnect();
+                walletStatus.textContent = "Not Connected";
+                connectButton.textContent = "Connect Wallet";
+            }
+
+            async function checkWalletConnection() {
+                const connectedWallet = await tonConnect.restoreConnection();
+                if (connectedWallet) {
+                    walletStatus.textContent = `${connectedWallet.address}`;
+                    connectButton.textContent = "Disconnect Wallet";
+                }
+            }
+
+            checkWalletConnection();
+            
+            connectButton.addEventListener("click", () => {
+                connectButton.textContent === "Disconnect Wallet" ? disconnectWallet() : connectWallet();
+            });
         });
     </script>
+    <script src="script.js"></script>
 </body>
 </html>
