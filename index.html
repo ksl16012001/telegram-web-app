@@ -281,6 +281,7 @@
         .viewport-border,
         .viewport-stable_border {
             position: fixed;
+
             height: var(--tg-viewport-height, 100vh);
             pointer-events: none;
         }
@@ -360,7 +361,7 @@
 
 <body class="" style="visibility: hidden;">
 
-<!-- <section id="top_sect" class="second">
+<section id="top_sect" class="second">
     <button id="main_btn" onclick="DemoApp.sendMessage('');">Send «Hello, World!»</button>
     <button id="with_webview_btn" onclick="DemoApp.sendMessage('', true);">Send «Hello, World!» with inline webview button</button>
     <button id="share_btn" onclick="DemoApp.sendMessage('', false, true);">Share «Hello, World!»</button>
@@ -408,12 +409,12 @@
             <option value="custom" id="bbar_color_val">custom...</option>
         </select>
     </div>
-</section> -->
+</section>
 
 <section>
     <div id="btn_status" class="hint" style="display: none;"></div>
 
-    <!-- <p>Test links:</p>
+    <p>Test links:</p>
     <ul>
         <li><a id="regular_link" href="?nextpage=1">Regular link #1</a> (opens inside webview)</li>
         <li><a href="https://telegram.org/" target="_blank">target="_blank" link</a> (opens outside webview)</li>
@@ -424,8 +425,8 @@
         <li><a href="tg://resolve?domain=vote">VoteBot tg:// link</a> (does not open)</li>
         <li><a href="javascript:Telegram.WebApp.openLink('https://telegra.ph/api',{try_instant_view:true});">web_app_open_link({try_instant_view:true})</a> (opens IV inside Telegram app)</li>
         <li><a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/DurgerKingBot/menu');">web_app_open_tg_link(webapp_direct_link)</a> (opens with confirm for the first time, then without)</li>
-    </ul> -->
-    <!-- <ul>
+    </ul>
+    <ul>
         <li><a href="javascript:Telegram.WebApp.openLink('https://telegram.org',{try_browser:'chrome'});">telegram.org</a> (opens in Chrome)</li>
         <li><a href="javascript:Telegram.WebApp.openLink('https://telegram.org',{try_browser:'firefox'});">telegram.org</a> (opens in Firefox)</li>
         <li><a href="javascript:Telegram.WebApp.openLink('https://telegram.org',{try_browser:'safari'});">telegram.org</a> (opens in Safari)</li>
@@ -455,9 +456,9 @@
         <li><a href="javascript:DemoApp.setEmojiStatus(this, '5213305508034783384');">Set emoji status</a> <span></span></li>
         <li><a href="javascript:DemoApp.setEmojiStatus(this, '5213305508034783384', 300);">Set emoji status</a> for 5 min <span></span></li>
         <li><a href="javascript:DemoApp.setEmojiStatus(this, '123');">Set emoji status</a> (invalid id) <span></span></li>
-    </ul> -->
+    </ul>
 
-    <!-- <p>Test permissions:</p>
+    <p>Test permissions:</p>
     <div class="columns">
         <ul>
             <li><a href="javascript:;" onclick="return DemoApp.requestLocation(this);">Request Location</a> <span></span></li>
@@ -499,9 +500,9 @@
             <li><a href="javascript:;" onclick="DemoApp.showScanQrPopup();">showScanQrPopup</a></li>
             <li><a href="javascript:;" onclick="DemoApp.showScanQrPopup(true);">showScanQrPopup (links only)</a></li>
         </ul>
-    </div> -->
+    </div>
 
-    <!-- <p>Haptics:</p>
+    <p>Haptics:</p>
     <ul>
         <li>Impact: <a href="javascript:Telegram.WebApp.HapticFeedback.impactOccurred('heavy');">heavy</a>, &nbsp; <a href="javascript:Telegram.WebApp.HapticFeedback.impactOccurred('light');">light</a>, &nbsp; <a href="javascript:Telegram.WebApp.HapticFeedback.impactOccurred('medium');">medium</a>, &nbsp; <a href="javascript:Telegram.WebApp.HapticFeedback.impactOccurred('rigid');">rigid</a>, &nbsp; <a href="javascript:Telegram.WebApp.HapticFeedback.impactOccurred('soft');">soft</a><br><br></li>
         <li>Notification: <a href="javascript:Telegram.WebApp.HapticFeedback.notificationOccurred('error');">error</a>, &nbsp; <a href="javascript:Telegram.WebApp.HapticFeedback.notificationOccurred('success');">success</a>, &nbsp; <a href="javascript:Telegram.WebApp.HapticFeedback.notificationOccurred('warning');">warning</a><br><br></li>
@@ -530,9 +531,9 @@
             </tr>
             </tfoot>
         </table>
-    </form> -->
+    </form>
 
-    <!-- <p>Biometrics:</p>
+    <p>Biometrics:</p>
     <div class="columns">
         <ul>
             <li>isInited: <span class="txt" id="bm_inited">false</span></li>
@@ -544,9 +545,9 @@
             <li>device_id: <span class="txt" id="bm_device_id"></span></li>
             <li><a href="javascript:;" onclick="return DemoApp.biometricRequestAuth(this);">Request auth</a> <span></span></li>
         </ul>
-    </div> -->
+    </div>
 
-    <!-- <p>Location:</p>
+    <p>Location:</p>
     <div class="columns">
         <ul>
             <li>isInited: <span class="txt" id="loc_inited">false</span></li>
@@ -556,7 +557,7 @@
                 <span id="loc_settings" style="display:none;">(<a href="javascript:;" onclick="return DemoApp.locationOpenSettings(this);">Open settings</a>)</span>
             </li>
         </ul>
-    </div> -->
+    </div>
 
     <pre><code id="webview_data"></code></pre>
     <div class="hint">
