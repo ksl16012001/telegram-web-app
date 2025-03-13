@@ -38,9 +38,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Get phone number from result and update UI
+    // Request phone number from user
+    Telegram.WebApp.requestContact({
+        request_write_access: true,
+        success: function (contact) {
+            console.log("Phone number received:", contact);
+            updateUserInfo(user, contact.phone_number);
+        },
+        fail: function (error) {
+            console.error("Failed to retrieve phone number:", error);
+            updateUserInfo(user, getPhoneNumberFromResult());
+        }
+    });
+
+    // Get phone number from result if already shared
     let phoneNumber = getPhoneNumberFromResult();
-    updateUserInfo(user, phoneNumber);
+    if (phoneNumber === "Phone number not shared") {
+        updateUserInfo(user, "Waiting for user to share contact...");
+    } else {
+        updateUserInfo(user, phoneNumber);
+    }
 });
 
 // Dark Theme Toggle
