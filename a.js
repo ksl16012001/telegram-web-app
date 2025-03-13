@@ -3,7 +3,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
+    const bottomMenu = document.createElement("div");
+    bottomMenu.className = "bottom-menu";
+    bottomMenu.innerHTML = `
+        <button><a href="index.html">🏠 Home</a></button>
+        <button><a href="buystar.html">⭐ Stars</a></button>
+        <button><a href="buypre.html">Premium</a></button>
+        <button><a href="profile.html">👤 Profile</a></button>
+    `;
 
+    // Chèn vào cuối body
+    document.body.appendChild(bottomMenu);
     // 🛠️ Cập nhật UI với số điện thoại
     function updateUserInfo(user, phoneNumber) {
         if (user) {
@@ -49,16 +59,11 @@ document.addEventListener("DOMContentLoaded", function () {
     updateUserInfo(user, null);
 
     // 🌙 Chuyển đổi chế độ Dark Mode
-        // Tạo bottom-menu
-    const bottomMenu = document.createElement("div");
-    bottomMenu.className = "bottom-menu";
-    bottomMenu.innerHTML = `
-            <button><a href="index.html">🏠 Home</a></button>
-            <button><a href="buystar.html">⭐ Stars</a></button>
-            <button><a href="buypre.html">Premium</a></button>
-            <button><a href="profile.html">👤 Profile</a></button>
-        `;
-    
-        // Chèn vào cuối body
-    document.body.appendChild(bottomMenu);
+    const themeToggle = document.getElementById("theme-toggle");
+    themeToggle.addEventListener("click", function () {
+        document.body.classList.toggle("dark-theme");
+        themeToggle.innerText = document.body.classList.contains("dark-theme")
+            ? "☀️ Light Mode"
+            : "🌙 Dark Mode";
+    });
 });
