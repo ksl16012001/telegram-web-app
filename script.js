@@ -4,22 +4,31 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe.user;
     let userCard = document.getElementById("usercard");
 
-    // Request phone number on load
-    Telegram.WebApp.requestWriteAccess();
+    // Request phone number
+    Telegram.WebApp.requestContact({
+        request_write_access: true,
+        success: function (contact) {
+            updateUserInfo(user, contact.phone_number);
+        },
+        fail: function () {
+            updateUserInfo(user, "Phone number not shared");
+        }
+    });
 
-    if (user) {
-        let phoneNumber = user.phone_number ? user.phone_number : "Requesting phone number...";
-        userCard.innerHTML = `
-            <div class="user-info">
-                <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
-                <div class="user-details">
-                    <p>${user.first_name} (@${user.username || 'No username'})</p>
-                    <p>📞 ${phoneNumber}</p>
+    function updateUserInfo(user, phoneNumber) {
+        if (user) {
+            userCard.innerHTML = `
+                <div class="user-info">
+                    <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
+                    <div class="user-details">
+                        <p>${user.first_name} (@${user.username || 'No username'})</p>
+                        <p>📞 ${phoneNumber}</p>
+                    </div>
                 </div>
-            </div>
-        `;
-    } else {
-        userCard.innerHTML = "<p>Unable to fetch user data!</p>";
+            `;
+        } else {
+            userCard.innerHTML = "<p>Unable to fetch user data!</p>";
+        }
     }
 });
 
