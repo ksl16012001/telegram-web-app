@@ -4,11 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
 
-    // Extract phone number from result
+    // Function to extract phone number from encoded result
     function getPhoneNumberFromResult(result) {
         try {
-            let params = new URLSearchParams(result);
-            let contactData = params.get("contact");
+            let urlParams = new URLSearchParams(result);
+            let contactData = urlParams.get("contact");
 
             if (contactData) {
                 let decodedData = decodeURIComponent(contactData);
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return "Phone number not shared";
     }
 
-    // Update user info in the UI
+    // Function to update the user card UI
     function updateUserInfo(user, phoneNumber) {
         if (user) {
             userCard.innerHTML = `
@@ -38,20 +38,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Request contact using `getRequestedContact`
-    Telegram.WebApp.getRequestedContact({
-        success: function (response) {
-            console.log("Received contact data:", response);
-            let phoneNumber = getPhoneNumberFromResult(response.result);
-            updateUserInfo(user, phoneNumber);
-        },
-        fail: function (error) {
-            console.error("Failed to retrieve phone number:", error);
-            updateUserInfo(user, "Phone number not shared");
-        }
+    // **Properly request the contact information**
+    Telegram.WebApp.onEvent("custom_method_invoked", function (response) {
+        console.log("Received contact data:", response);
+        let phoneNumber = getPhoneNumberFromResult(response.result);
+        updateUserInfo(user, phoneNumber);
     });
 
-    // Dark Theme Toggle
+    // Manually trigger the request
+    Telegram.WebApp.sendData(JSON.stringify({ method: "getRequestedContact" }));
+
+    // **Dark Mode Toggle**
     const themeToggle = document.getElementById("theme-toggle");
     themeToggle.addEventListener("click", function () {
         document.body.classList.toggle("dark-theme");
