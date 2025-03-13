@@ -115,22 +115,24 @@
         document.addEventListener("DOMContentLoaded", function () {
             let user = Telegram.WebApp.initDataUnsafe?.user || null;
             const usernameInput = document.getElementById("username-input");
+            const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
 
-            // 📌 Kiểm tra nếu có username, tự động điền vào input khi chọn "For Myself"
+            // 📌 Cập nhật giá trị input theo chế độ mua
             function updateRecipient() {
                 const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
                 if (selectedOption === "self") {
-                    if (user && user.username) {
-                        usernameInput.value = user.username;
-                    } else {
-                        usernameInput.value = "No username found";
-                    }
+                    usernameInput.value = user?.username || "No username found";
                     usernameInput.disabled = true;
                 } else {
                     usernameInput.value = "";
                     usernameInput.disabled = false;
                 }
             }
+
+            // 📌 Gán sự kiện click cho radio buttons để cập nhật ngay khi thay đổi
+            purchaseTypeRadios.forEach(radio => {
+                radio.addEventListener("change", updateRecipient);
+            });
 
             // 📌 Cập nhật ngay khi trang tải xong
             updateRecipient();
