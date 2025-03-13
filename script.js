@@ -5,25 +5,34 @@ document.addEventListener("DOMContentLoaded", function () {
     let userCard = document.getElementById("usercard");
 
     if (user) {
-        let phoneNumber = user.phone_number ? user.phone_number : "Chưa chia sẻ số điện thoại";
+        let phoneNumber = user.phone_number ? user.phone_number : "Phone not shared";
         userCard.innerHTML = `
             <div class="user-info">
                 <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
-                <p>${user.first_name} (@${user.username})</p>
-                <p>SĐT: ${phoneNumber}</p>
+                <div class="user-details">
+                    <p>${user.first_name} (@${user.username || 'No username'})</p>
+                    <p>📞 ${phoneNumber}</p>
+                </div>
             </div>
         `;
     } else {
-        userCard.innerHTML = "<p>Không thể lấy thông tin người dùng!</p>";
+        userCard.innerHTML = "<p>Unable to fetch user data!</p>";
     }
 });
 
-// Chuyển hướng giữa các trang
+// Page Navigation
 function goToPage(page) {
     window.location.href = page;
 }
 
-// Chuyển hướng đến trang mua Telegram Stars
+// Redirect to Buy Stars Page
 function redirectToBuyStar() {
     window.location.href = "buystar.html";
 }
+
+// Dark Theme Toggle
+const themeToggle = document.getElementById("theme-toggle");
+themeToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-theme");
+    themeToggle.innerText = document.body.classList.contains("dark-theme") ? "☀️ Light Mode" : "🌙 Dark Mode";
+});

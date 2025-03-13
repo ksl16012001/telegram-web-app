@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +9,17 @@
 </head>
 <body>
     <div class="container">
-        <!-- Hiển thị thông tin người dùng -->
-        <div id="usercard"></div>
-
         <!-- Header -->
-        <div id="header"></div>
+        <div id="header">
+            <button id="theme-toggle">🌙 Dark Mode</button>
+        </div>
+
+        <!-- User Info Card -->
+        <div id="usercard"></div>
 
         <p>Buy airtime and airtime package</p>
 
-        <!-- Mục Games -->
+        <!-- Games Section -->
         <div class="section">
             <img src="src/imgs/game.webp" alt="Games">
             <div class="section-content">
@@ -29,7 +31,7 @@
             </div>
         </div>
 
-        <!-- Mục Telegram Premium -->
+        <!-- Telegram Premium Section -->
         <div class="section">
             <img src="src/imgs/pre.avif" alt="Telegram Premium">
             <div class="section-content">
@@ -41,7 +43,7 @@
             </div>
         </div>
 
-        <!-- Mục Telegram Stars -->
+        <!-- Telegram Stars Section -->
         <div class="section">
             <img src="src/imgs/star.jpg" alt="Telegram Stars">
             <div class="section-content">
@@ -53,15 +55,12 @@
             </div>
         </div>
 
-        <!-- Footer -->
-        <div id="footer"></div>
-
-        <!-- Menu điều hướng -->
+        <!-- Navigation Menu -->
         <div class="bottom-menu">
-            <button onclick="goToPage('index.html')">🏠 Trang chủ</button>
-            <button onclick="goToPage('buystar.html')">⭐ Mua sao</button>
-            <button onclick="goToPage('buypre.html')">💎 Mua Premium</button>
-            <button onclick="goToPage('profile.html')">👤 Hồ sơ</button>
+            <button onclick="goToPage('index.html')">🏠 Home</button>
+            <button onclick="goToPage('buystar.html')">⭐ Buy Stars</button>
+            <button onclick="goToPage('buypre.html')">💎 Premium</button>
+            <button onclick="goToPage('profile.html')">👤 Profile</button>
         </div>
     </div>
 
