@@ -6,10 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
-        <button><a href="index.html">🏠 Home</a></button>
-        <button><a href="buystar.html">⭐ Stars</a></button>
-        <button><a href="buypre.html">Premium</a></button>
-        <button><a href="profile.html">👤 Profile</a></button>
+        <button><a href="index.html">Home</a></button>
+        <button><a href="buystar.html">Buy Stars</a></button>
+        <button><a href="buypre.html">Buy Premium</a></button>
+        <button><a href="profile.html">Profile</a></button>
     `;
 
     // Chèn vào cuối body
