@@ -1,36 +1,46 @@
+/* Root Variables for Light & Dark Theme */
 :root {
-    --bg-color: #ffffff;
-    --text-color: #000000;
-    --card-bg: #f4f4f4;
-    --button-bg: blue;
+    --bg-color: #f8f9fa;
+    --text-color: #222;
+    --card-bg: #ffffff;
+    --card-shadow: rgba(0, 0, 0, 0.1);
+    --button-bg: #007bff;
     --button-text: white;
+    --accent-color: #ff9800;
 }
 
 .dark-theme {
-    --bg-color: #181818;
+    --bg-color: #1e1e1e;
     --text-color: #ffffff;
-    --card-bg: #222;
+    --card-bg: #2a2a2a;
+    --card-shadow: rgba(255, 255, 255, 0.1);
     --button-bg: #555;
     --button-text: #ffffff;
+    --accent-color: #ffcc00;
 }
 
+/* General Styling */
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
+    font-family: "Arial", sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     margin: 0;
-    padding-bottom: 60px;
+    padding-bottom: 80px;
+    transition: all 0.3s ease;
 }
 
 .container {
     padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
+/* Header */
 #header {
     display: flex;
-    justify-content: flex-end;
-    padding: 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
 }
 
 #theme-toggle {
@@ -40,73 +50,119 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
 }
 
+#theme-toggle:hover {
+    background: var(--accent-color);
+}
+
+/* User Card */
 #usercard {
-    margin: 15px auto;
-    padding: 15px;
-    background: var(--card-bg);
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--card-bg);
+    box-shadow: 0px 4px 10px var(--card-shadow);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
 }
 
 .user-info {
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .user-info img {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 15px;
+    border: 2px solid var(--accent-color);
 }
 
+.user-details {
+    text-align: left;
+    flex-grow: 1;
+}
+
+.user-details p {
+    margin: 5px 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Sections */
 .section {
     display: flex;
     align-items: center;
-    margin: 20px auto;
-    padding: 15px;
     background: var(--card-bg);
-    border-radius: 10px;
+    box-shadow: 0px 4px 10px var(--card-shadow);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 750px;
+    transition: transform 0.2s ease;
+}
+
+.section:hover {
+    transform: translateY(-5px);
 }
 
 .section img {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
     margin-right: 15px;
 }
 
 .section-content {
+    flex-grow: 1;
     text-align: left;
 }
 
 .section-title {
     font-weight: bold;
+    font-size: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
+/* Buttons */
 button {
-    padding: 10px;
+    padding: 12px 18px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    background: var(--button-bg);
-    color: var(--button-text);
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
 .get-verified-btn {
     background: var(--button-bg);
+    color: var(--button-text);
+}
+
+.get-verified-btn:hover {
+    background: var(--accent-color);
 }
 
 .gift-button {
-    background: gold;
-    color: black;
+    background: var(--accent-color);
+    color: #222;
+}
+
+.gift-button:hover {
+    background: #ffa726;
 }
 
 .disabled-button {
@@ -114,30 +170,74 @@ button {
     cursor: not-allowed;
 }
 
+/* Bottom Navigation Menu */
 .bottom-menu {
     position: fixed;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
+    max-width: 900px;
     background-color: var(--card-bg);
     display: flex;
     justify-content: space-around;
     padding: 10px;
-    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px -2px 5px var(--card-shadow);
 }
 
 .bottom-menu button {
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 0;
-    border-top: 1px solid #4B4E57;
-    margin-top: 20px;
-    font-size: 14px;
-    background-color: #2A2D35;
-    border-radius: 15px;
-    width: 100%;
-    box-sizing: border-box;
-    max-width: 450px;
-    margin-left: auto;
-    margin-right: auto;
-    transition: background-color 0.3s ease;
+    flex: 1;
+    padding: 14px;
+    font-size: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.bottom-menu button:hover {
+    color: var(--accent-color);
+}
+
+/* Responsive Design for Mobile & Tablets */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    #usercard {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .user-info img {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 10px;
+    }
+
+    .section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .section img {
+        width: 50%;
+        margin-bottom: 10px;
+    }
+
+    .section-title {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .bottom-menu {
+        flex-wrap: wrap;
+        padding: 5px;
+    }
+
+    .bottom-menu button {
+        font-size: 14px;
+        padding: 12px;
+    }
 }
