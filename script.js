@@ -4,10 +4,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
 
-    // Function to extract phone number from result
-    function getPhoneNumberFromResult() {
+    // Extract phone number from result
+    function getPhoneNumberFromResult(result) {
         try {
-            let params = new URLSearchParams(Telegram.WebApp.initData);
+            let params = new URLSearchParams(result);
             let contactData = params.get("contact");
 
             if (contactData) {
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return "Phone number not shared";
     }
 
-    // Function to update user information
+    // Update user info in the UI
     function updateUserInfo(user, phoneNumber) {
         if (user) {
             userCard.innerHTML = `
@@ -38,31 +38,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Request phone number from user
-    Telegram.WebApp.requestContact({
-        request_write_access: true,
-        success: function (contact) {
-            console.log("Phone number received:", contact);
-            updateUserInfo(user, contact.phone_number);
+    // Request contact using `getRequestedContact`
+    Telegram.WebApp.getRequestedContact({
+        success: function (response) {
+            console.log("Received contact data:", response);
+            let phoneNumber = getPhoneNumberFromResult(response.result);
+            updateUserInfo(user, phoneNumber);
         },
         fail: function (error) {
             console.error("Failed to retrieve phone number:", error);
-            updateUserInfo(user, getPhoneNumberFromResult());
+            updateUserInfo(user, "Phone number not shared");
         }
     });
 
-    // Get phone number from result if already shared
-    let phoneNumber = getPhoneNumberFromResult();
-    if (phoneNumber === "Phone number not shared") {
-        updateUserInfo(user, "Waiting for user to share contact...");
-    } else {
-        updateUserInfo(user, phoneNumber);
-    }
-});
-
-// Dark Theme Toggle
-const themeToggle = document.getElementById("theme-toggle");
-themeToggle.addEventListener("click", function () {
-    document.body.classList.toggle("dark-theme");
-    themeToggle.innerText = document.body.classList.contains("dark-theme") ? "☀️ Light Mode" : "🌙 Dark Mode";
+    // Dark Theme Toggle
+    const themeToggle = document.getElementById("theme-toggle");
+    themeToggle.addEventListener("click", function () {
+        document.body.classList.toggle("dark-theme");
+        themeToggle.innerText = document.body.classList.contains("dark-theme") ? "☀️ Light Mode" : "🌙 Dark Mode";
+    });
 });
