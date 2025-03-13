@@ -3,42 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram WebApp</title>
+    <title>HuluPay</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .container { padding: 20px; }
-        button { margin: 10px; padding: 10px; }
-    </style>
 </head>
 <body>
-
     <div class="container">
-        <h2>Chào mừng đến với WebApp</h2>
-        <p id="user-info"></p>
-        <button onclick="goToPage('shop')">Mua Sao & Premium</button>
-        <button onclick="goToPage('game')">Chơi Game</button>
-        <button onclick="goToPage('profile')">Xem Profile</button>
+        <!-- Thẻ user card -->
+        <div id="usercard">
+            <img id="user-photo" src="" alt="User Photo" class="user-photo">
+            <p id="user-info">Đang tải thông tin...</p>
+        </div>
+
+        <!-- Header -->
+        <div id="header"></div>
+
+        <p>Buy airtime and airtime package</p>
+
+        <div class="section">
+            <img src="src/imgs/game.webp" alt="Games">
+            <div class="section-content">
+                <div class="section-title">
+                    <span>Games <span class="coming-soon">COMING SOON!!!</span></span>
+                    <button type="button" class="disabled-button" disabled>Play</button>
+                </div>
+                <p>Play games and earn Telegram Stars</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <img src="src/imgs/pre.avif" alt="Telegram Premium">
+            <div class="section-content">
+                <div class="section-title">
+                    <span>Telegram Premium</span>
+                    <a href="buypre.html"><button class="get-verified-btn">GET VERIFIED</button></a>
+                </div>
+                <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <img src="src/imgs/star.jpg" alt="Telegram Stars">
+            <div class="section-content">
+                <div class="section-title">
+                    <span>Telegram Stars</span>
+                    <button class="gift-button" onclick="redirectToBuyStar()">GIFT</button>
+                </div>
+                <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div id="footer"></div>
+        
+        <div class="bot-name">@KINKIN1601</div>
     </div>
 
-    <script>
-        Telegram.WebApp.ready();
-
-        function getUserData() {
-            let user = Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                document.getElementById('user-info').innerText = 
-                    `Xin chào, ${user.first_name} (@${user.username})`;
-            } else {
-                document.getElementById('user-info').innerText = "Không thể lấy thông tin người dùng!";
-            }
-        }
-
-        function goToPage(page) {
-            Telegram.WebApp.openLink(`./${page}.html`);
-        }
-
-        getUserData();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
