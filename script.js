@@ -4,8 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe.user;
     let userCard = document.getElementById("usercard");
 
+    // Request phone number on load
+    Telegram.WebApp.requestWriteAccess();
+
     if (user) {
-        let phoneNumber = user.phone_number ? user.phone_number : "Phone not shared";
+        let phoneNumber = user.phone_number ? user.phone_number : "Requesting phone number...";
         userCard.innerHTML = `
             <div class="user-info">
                 <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
