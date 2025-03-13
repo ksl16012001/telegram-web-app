@@ -3,26 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
-    let checkingContact = true; // Biến kiểm tra liên tục
 
-    // 🛠️ Hàm giải mã và lấy số điện thoại từ `result`
-    function extractPhoneNumber(result) {
-        try {
-            let params = new URLSearchParams(result);
-            let contactData = params.get("contact");
-
-            if (contactData) {
-                let decodedData = decodeURIComponent(contactData);
-                let contactJson = JSON.parse(decodedData);
-                return contactJson.phone_number || "Không có số điện thoại";
-            }
-        } catch (error) {
-            console.error("Lỗi khi xử lý dữ liệu liên hệ:", error);
-        }
-        return null;
-    }
-
-    // 🛠️ Cập nhật giao diện với số điện thoại
+    // 🛠️ Cập nhật UI với số điện thoại
     function updateUserInfo(user, phoneNumber) {
         if (user) {
             userCard.innerHTML = `
@@ -30,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
                     <div class="user-details">
                         <p>${user.first_name} (@${user.username || 'Không có username'})</p>
-                        <p>📞 ${phoneNumber || 'Đang lấy dữ liệu...'}</p>
+                        <p id="phone-status">📞 ${phoneNumber || 'Nhấn để chia sẻ số điện thoại'}</p>
                     </div>
                 </div>
             `;
@@ -39,33 +21,39 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 📌 Lắng nghe sự kiện từ Telegram để nhận số điện thoại
-    Telegram.WebApp.onEvent("custom_method_invoked", function (response) {
-        console.log("📩 Nhận dữ liệu số điện thoại:", response);
-        let phoneNumber = extractPhoneNumber(response.result);
+    // 📌 Hàm yêu cầu số điện thoại từ Telegram
+    function requestPhoneNumber() {
+        Telegram.WebApp.requestContact(function (sent, event) {
+            let phoneStatus = document.getElementById("phone-status");
 
-        if (phoneNumber) {
-            updateUserInfo(user, phoneNumber);
-            checkingContact = false; // Dừng kiểm tra khi đã có số điện thoại
+            if (sent) {
+                let phoneNumber =
+                    event?.responseUnsafe?.contact?.phone_number || "Không có số điện thoại";
+                phoneStatus.innerHTML = `📞 +${phoneNumber}`;
+                phoneStatus.className = "ok"; // Đổi màu xanh lá nếu thành công
+            } else {
+                phoneStatus.innerHTML = "🚫 Người dùng từ chối chia sẻ số điện thoại";
+                phoneStatus.className = "err"; // Đổi màu đỏ nếu bị từ chối
+            }
+        });
+    }
+
+    // 🛠️ Thêm sự kiện nhấn vào số điện thoại để yêu cầu chia sẻ
+    document.addEventListener("click", function (event) {
+        if (event.target.id === "phone-status") {
+            requestPhoneNumber();
         }
     });
 
-    // 📌 Gửi yêu cầu lấy số điện thoại liên tục
-    function requestPhoneNumber() {
-        if (checkingContact) {
-            console.log("📡 Gửi yêu cầu lấy số điện thoại...");
-            Telegram.WebApp.sendData(JSON.stringify({ method: "getRequestedContact" }));
-            setTimeout(requestPhoneNumber, 3000); // Kiểm tra lại sau 3 giây nếu chưa có dữ liệu
-        }
-    }
-
-    // 📌 Bắt đầu kiểm tra số điện thoại liên tục
-    requestPhoneNumber();
+    // 📌 Hiển thị thông tin người dùng ngay từ đầu
+    updateUserInfo(user, null);
 
     // 🌙 Chuyển đổi chế độ Dark Mode
     const themeToggle = document.getElementById("theme-toggle");
     themeToggle.addEventListener("click", function () {
         document.body.classList.toggle("dark-theme");
-        themeToggle.innerText = document.body.classList.contains("dark-theme") ? "☀️ Light Mode" : "🌙 Dark Mode";
+        themeToggle.innerText = document.body.classList.contains("dark-theme")
+            ? "☀️ Light Mode"
+            : "🌙 Dark Mode";
     });
 });
