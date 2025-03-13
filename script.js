@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="user-info">
                     <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
                     <div class="user-details">
-                        <p>${user.first_name} (@${user.username || 'Không có username'})</p>
-                        <p id="phone-status">📞 ${phoneNumber || 'Nhấn để chia sẻ số điện thoại'}</p>
+                        <p>${user.first_name} ${user.last_name} (@${user.username || 'Unkown username'})</p>
+                        <p id="phone-status">📞 ${phoneNumber || 'Click to share your contact'}</p>
                     </div>
                 </div>
             `;
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (sent) {
                 let phoneNumber =
-                    event?.responseUnsafe?.contact?.phone_number || "Không có số điện thoại";
+                    event?.responseUnsafe?.contact?.phone_number || "No phone number";
                 phoneStatus.innerHTML = `📞 +${phoneNumber}`;
                 phoneStatus.className = "ok"; // Đổi màu xanh lá nếu thành công
             } else {
