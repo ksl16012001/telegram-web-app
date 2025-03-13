@@ -9,17 +9,15 @@
 </head>
 <body>
     <div class="container">
-        <!-- Thẻ user card -->
-        <div id="usercard">
-            <img id="user-photo" src="" alt="User Photo" class="user-photo">
-            <p id="user-info">Đang tải thông tin...</p>
-        </div>
+        <!-- Hiển thị thông tin người dùng -->
+        <div id="usercard"></div>
 
         <!-- Header -->
         <div id="header"></div>
 
         <p>Buy airtime and airtime package</p>
 
+        <!-- Mục Games -->
         <div class="section">
             <img src="src/imgs/game.webp" alt="Games">
             <div class="section-content">
@@ -31,6 +29,7 @@
             </div>
         </div>
 
+        <!-- Mục Telegram Premium -->
         <div class="section">
             <img src="src/imgs/pre.avif" alt="Telegram Premium">
             <div class="section-content">
@@ -42,6 +41,7 @@
             </div>
         </div>
 
+        <!-- Mục Telegram Stars -->
         <div class="section">
             <img src="src/imgs/star.jpg" alt="Telegram Stars">
             <div class="section-content">
@@ -55,8 +55,14 @@
 
         <!-- Footer -->
         <div id="footer"></div>
-        
-        <div class="bot-name">@KINKIN1601</div>
+
+        <!-- Menu điều hướng -->
+        <div class="bottom-menu">
+            <button onclick="goToPage('index.html')">🏠 Trang chủ</button>
+            <button onclick="goToPage('buystar.html')">⭐ Mua sao</button>
+            <button onclick="goToPage('buypre.html')">💎 Mua Premium</button>
+            <button onclick="goToPage('profile.html')">👤 Hồ sơ</button>
+        </div>
     </div>
 
     <script src="script.js"></script>

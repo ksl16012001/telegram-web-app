@@ -1,23 +1,29 @@
-// Khởi tạo Telegram WebApp
-Telegram.WebApp.ready();
+document.addEventListener("DOMContentLoaded", function () {
+    Telegram.WebApp.ready();
 
-// Lấy thông tin người dùng Telegram
-function getUserData() {
     let user = Telegram.WebApp.initDataUnsafe.user;
+    let userCard = document.getElementById("usercard");
+
     if (user) {
-        document.getElementById('user-info').innerText = `Xin chào, ${user.first_name} (@${user.username})`;
-        if (user.photo_url) {
-            document.getElementById('user-photo').src = user.photo_url;
-        }
+        let phoneNumber = user.phone_number ? user.phone_number : "Chưa chia sẻ số điện thoại";
+        userCard.innerHTML = `
+            <div class="user-info">
+                <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
+                <p>${user.first_name} (@${user.username})</p>
+                <p>SĐT: ${phoneNumber}</p>
+            </div>
+        `;
     } else {
-        document.getElementById('user-info').innerText = "Không thể lấy thông tin người dùng!";
+        userCard.innerHTML = "<p>Không thể lấy thông tin người dùng!</p>";
     }
+});
+
+// Chuyển hướng giữa các trang
+function goToPage(page) {
+    window.location.href = page;
 }
 
-// Chuyển đến trang mua sao
+// Chuyển hướng đến trang mua Telegram Stars
 function redirectToBuyStar() {
-    Telegram.WebApp.openLink("./buystar.html");
+    window.location.href = "buystar.html";
 }
-
-// Gọi hàm lấy thông tin user ngay khi tải trang
-getUserData();
