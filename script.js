@@ -4,11 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
 
-    // Function to extract phone number from encoded result
-    function getPhoneNumberFromResult(result) {
+    // Function to extract phone number from result
+    function getPhoneNumberFromResult() {
         try {
-            let urlParams = new URLSearchParams(result);
-            let contactData = urlParams.get("contact");
+            let params = new URLSearchParams(Telegram.WebApp.initData);
+            let contactData = params.get("contact");
 
             if (contactData) {
                 let decodedData = decodeURIComponent(contactData);
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return "Phone number not shared";
     }
 
-    // Function to update the user card UI
+    // Function to update user information
     function updateUserInfo(user, phoneNumber) {
         if (user) {
             userCard.innerHTML = `
@@ -38,20 +38,31 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // **Properly request the contact information**
-    Telegram.WebApp.onEvent("custom_method_invoked", function (response) {
-        console.log("Received contact data:", response);
-        let phoneNumber = getPhoneNumberFromResult(response.result);
+    // Request phone number from user
+    Telegram.WebApp.requestContact({
+        request_write_access: true,
+        success: function (contact) {
+            console.log("Phone number received:", contact);
+            updateUserInfo(user, contact.phone_number);
+        },
+        fail: function (error) {
+            console.error("Failed to retrieve phone number:", error);
+            updateUserInfo(user, getPhoneNumberFromResult());
+        }
+    });
+
+    // Get phone number from result if already shared
+    let phoneNumber = getPhoneNumberFromResult();
+    if (phoneNumber === "Phone number not shared") {
+        updateUserInfo(user, "Waiting for user to share contact...");
+    } else {
         updateUserInfo(user, phoneNumber);
-    });
+    }
+});
 
-    // Manually trigger the request
-    Telegram.WebApp.sendData(JSON.stringify({ method: "getRequestedContact" }));
-
-    // **Dark Mode Toggle**
-    const themeToggle = document.getElementById("theme-toggle");
-    themeToggle.addEventListener("click", function () {
-        document.body.classList.toggle("dark-theme");
-        themeToggle.innerText = document.body.classList.contains("dark-theme") ? "☀️ Light Mode" : "🌙 Dark Mode";
-    });
+// Dark Theme Toggle
+const themeToggle = document.getElementById("theme-toggle");
+themeToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-theme");
+    themeToggle.innerText = document.body.classList.contains("dark-theme") ? "☀️ Light Mode" : "🌙 Dark Mode";
 });
