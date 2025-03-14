@@ -1,6 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
+// ✅ Cấu hình CORS cho phép Telegram gọi API
+app.use(cors({
+    origin: "*", // Hoặc thay "*" bằng "https://web.telegram.org" để chặt chẽ hơn
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
+app.use((req, res, next) => {
+    res.setHeader("Content-Type", "application/json");
+    next();
+});
 const app = express();
 const PORT = 3000;
 

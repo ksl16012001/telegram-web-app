@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        const apiUrl = `https://cheerful-grub-adequately.ngrok-free.app/api/adduser?id=${encodeURIComponent(user.id)}
+        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/adduser?id=${encodeURIComponent(user.id)}
             &username=${encodeURIComponent(user.username || "")}
             &name=${encodeURIComponent(user.first_name + " " + (user.last_name || ""))}
             &phone=${encodeURIComponent(user.phoneNumber)}
