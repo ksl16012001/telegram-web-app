@@ -2,19 +2,28 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+
 // ✅ Cấu hình CORS cho phép Telegram gọi API
 app.use(cors({
     origin: "*", // Hoặc thay "*" bằng "https://web.telegram.org" để chặt chẽ hơn
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"]
 }));
+
+// Middleware khác
 app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader("Content-Type", "application/json");
     next();
 });
-const app = express();
-const PORT = 3000;
+
+// Kiểm tra CORS trên từng request (DEBUG)
+app.use((req, res, next) => {
+    console.log("🔹 CORS Headers:", res.getHeaders());
+    next();
+});
 
 // Kết nối MongoDB
 mongoose.connect("mongodb+srv://admin:Nhincaigi1!@telegrambot.htjft.mongodb.net/?retryWrites=true&w=majority&appName=telegrambot", {
