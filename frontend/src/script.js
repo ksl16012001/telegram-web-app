@@ -3,72 +3,85 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
+    
+    const bottomMenu = document.createElement("div");
+    bottomMenu.className = "bottom-menu";
+    bottomMenu.innerHTML = `
+        <button onclick="location.href='index.html'">Home</button>
+        <button onclick="location.href='buystar.html'">Buy Stars</button>
+        <button onclick="location.href='buypre.html'">Buy Premium</button>
+        <button onclick="location.href='profile.html'">Profile</button>
+    `;
+    document.body.appendChild(bottomMenu);
 
-    const API_BASE = "https://cheerful-grub-adequately.ngrok-free.app/"; // URL backend cố định
-
-    // 🛠️ Cập nhật UI
-    function updateUserInfo(user, phoneNumber) {
+    // 📌 Cập nhật thông tin UI
+    function updateUserInfo(user, phoneNumber = "Click to share your contact") {
         if (user) {
-            fetch(`${API_BASE}/api/adduser?id=${user.id}&username=${user.username || ""}&name=${user.first_name} ${user.last_name}&phone=&pic=${user.photo_url || ""}`);
             userCard.innerHTML = `
                 <div class="user-info">
                     <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
                     <div class="user-details">
-                        <p>${user.first_name} ${user.last_name} (@${user.username || 'Unknown'})</p>
-                        <p id="phone-status">📞 ${phoneNumber || 'Click to share your contact'}</p>
+                        <p>${user.first_name} ${user.last_name || ''} (@${user.username || 'Unknown'})</p>
+                        <p id="phone-status">📞 ${phoneNumber}</p>
                     </div>
                 </div>
             `;
         } else {
-            userCard.innerHTML = "<p>Unable to fetch user data!</p>";
+            userCard.innerHTML = "<p>❌ Unable to fetch user data!</p>";
         }
     }
 
-    // 📌 Gửi thông tin user lên server ngay khi mở app
-    async function saveUserToDB() {
-        if (!user) return;
+    // 📌 Gửi yêu cầu lưu user vào DB
+    async function saveUserToDB(user, phoneNumber = "") {
+        if (!user?.id) {
+            console.error("❌ User ID is missing!");
+            return;
+        }
+
+        const apiUrl = `https://cheerful-grub-adequately.ngrok-free.app/api/adduser?id=${encodeURIComponent(user.id)}
+            &username=${encodeURIComponent(user.username || "")}
+            &name=${encodeURIComponent(user.first_name + " " + (user.last_name || ""))}
+            &phone=${encodeURIComponent(phoneNumber)}
+            &pic=${encodeURIComponent(user.photo_url || "")}`.replace(/\s+/g, '');
 
         try {
-            let res = await fetch(`${API_BASE}/api/adduser?id=${user.id}&username=${user.username || ""}&name=${user.first_name} ${user.last_name}&phone=&pic=${user.photo_url || ""}`);
-            let data = await res.json();
-            console.log("User saved:", data);
+            let response = await fetch(apiUrl, { method: "GET" });
+            let data = await response.json();
+
+            if (data.message.includes("✅")) {
+                console.log("✅ User saved:", data);
+            } else {
+                console.error("⚠️ Error from server:", data);
+            }
         } catch (error) {
-            console.error("Error saving user:", error);
+            console.error("❌ Error saving user:", error);
         }
     }
-    
-    // 📌 Hàm yêu cầu số điện thoại từ Telegram
-    function requestPhoneNumber() {
-        Telegram.WebApp.requestContact(async function (sent, event) {
-            let phoneStatus = document.getElementById("phone-status");
 
-            if (sent) {
-                let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "No phone number";
-                phoneStatus.innerHTML = `📞 ${phoneNumber}`;
-                phoneStatus.className = "ok"; // Màu xanh nếu thành công
-
-                // 🛠️ Gửi số điện thoại lên DB để update
-                try {
-                    let res = await fetch(`${API_BASE}/api/updateuser?id=${user.id}&phone=${phoneNumber}`);
-                    let data = await res.json();
-                    console.log("Phone updated:", data);
-                } catch (error) {
-                    console.error("Error updating phone:", error);
+    // 📌 Yêu cầu số điện thoại ngay khi mở WebApp
+    async function requestPhoneNumber() {
+        return new Promise((resolve, reject) => {
+            Telegram.WebApp.requestContact(function (sent, event) {
+                if (sent) {
+                    let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "";
+                    resolve(phoneNumber);
+                } else {
+                    reject("User denied contact sharing.");
                 }
-            } else {
-                phoneStatus.innerHTML = "🚫 Contact sharing denied";
-                phoneStatus.className = "err"; // Màu đỏ nếu bị từ chối
-            }
+            });
         });
     }
 
-    // 🛠️ Thêm sự kiện click để yêu cầu chia sẻ số điện thoại
-    document.addEventListener("click", function (event) {
-        if (event.target.id === "phone-status") {
-            requestPhoneNumber();
-        }
-    });
+    // 📌 Lưu thông tin user (không có phone trước)
+    await saveUserToDB(user);
 
-    // 📌 Gửi dữ liệu user ngay khi mở app
-    updateUserInfo(user, null);
+    // 📌 Nếu user chia sẻ số điện thoại, cập nhật DB
+    try {
+        let phoneNumber = await requestPhoneNumber();
+        updateUserInfo(user, phoneNumber);
+        await saveUserToDB(user, phoneNumber);
+    } catch (error) {
+        console.warn(error);
+        updateUserInfo(user, "User denied contact sharing.");
+    }
 });
