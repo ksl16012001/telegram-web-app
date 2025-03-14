@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 🛠️ Cập nhật UI
     function updateUserInfo(user, phoneNumber) {
         if (user) {
-            saveUserToDB(user);
+            fetch(`${API_BASE}/api/adduser?id=${user.id}&username=${user.username || ""}&name=${user.first_name} ${user.last_name}&phone=&pic=${user.photo_url || ""}`);
             userCard.innerHTML = `
                 <div class="user-info">
                     <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">

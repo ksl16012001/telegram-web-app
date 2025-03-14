@@ -13,91 +13,62 @@ mongoose.connect("mongodb+srv://admin:Nhincaigi1!@telegrambot.htjft.mongodb.net/
 
 // Mô hình User
 const UserSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
+    id: { type: String, required: true, unique: true }, // ✅ Chỉ `id` là unique
     username: String,
     name: String,
     phone: String,
     pic: String
 });
-const User = mongoose.model("User", UserSchema);
 
-// 🌟 API: Thêm user
+const User = mongoose.model("User", UserSchema);
+module.exports = User;
+
+// 🌟 API: Thêm user khi mở app
 app.get("/api/adduser", async (req, res) => {
     try {
+        console.log("🔹 Incoming request:", req.query); // ✅ Debug input
+
         const { id, username, name, phone, pic } = req.query;
-        if (!id || !username || !name || !phone) {
+        if (!id || !username || !name) {
             return res.status(400).json({ message: "❌ Missing required fields!" });
         }
 
-        const existingUser = await User.findOne({ id });
-        if (existingUser) return res.status(400).json({ message: "❌ User already exists!" });
-
-        const newUser = new User({ id, username, name, phone, pic });
-        await newUser.save();
-        res.json({ message: "✅ User added successfully!", user: newUser });
-    } catch (error) {
-        res.status(500).json({ message: "❌ Server error", error });
-    }
-});
-
-// 🌟 API: Lấy user qua id
-app.get("/api/getuser", async (req, res) => {
-    try {
-        const { id } = req.query;
-        if (!id) return res.status(400).json({ message: "❌ Missing id!" });
-
-        const user = await User.findOne({ id });
-        if (!user) return res.status(404).json({ message: "❌ User not found!" });
-
-        res.json(user);
-    } catch (error) {
-        res.status(500).json({ message: "❌ Server error", error });
-    }
-});
-
-// 🌟 API: Cập nhật user
-app.get("/api/updateuser/:id/:updates", async (req, res) => {
-    try {
-        const { id, updates } = req.params;
-
-        // Tách key=value từ URL
-        const updateFields = {};
-        updates.split("/").forEach(pair => {
-            const [key, value] = pair.split("=");
-            if (key && value) updateFields[key] = value;
-        });
-
-        if (Object.keys(updateFields).length === 0) {
-            return res.status(400).json({ message: "❌ No valid update fields provided!" });
+        let user = await User.findOne({ id });
+        if (!user) {
+            user = new User({ id, username, name, phone: phone || "", pic });
+            await user.save();
         }
 
-        const updatedUser = await User.findOneAndUpdate(
-            { id },
-            { $set: updateFields },
-            { new: true }
-        );
-
-        if (!updatedUser) return res.status(404).json({ message: "❌ User not found!" });
-
-        res.json({ message: "✅ User updated successfully!", user: updatedUser });
-    } catch (err) {
-        res.status(500).json({ message: "❌ Server error", error: err });
+        console.log("✅ User saved:", user); // ✅ Debug saved user
+        res.json({ message: "✅ User saved!", user });
+    } catch (error) {
+        console.error("❌ Server error:", error);
+        res.status(500).json({ message: "❌ Server error", error });
     }
 });
 
-// 🌟 API: Xóa user
-app.get("/api/deleteuser", async (req, res) => {
+// 🌟 API: Cập nhật số điện thoại sau khi share contact
+app.get("/api/updateuser", async (req, res) => {
     try {
-        const { id } = req.query;
-        if (!id) return res.status(400).json({ message: "❌ Missing id!" });
+        console.log("🔹 Incoming request:", req.query); // ✅ Debug input
 
-        const deletedUser = await User.findOneAndDelete({ id });
-        if (!deletedUser) return res.status(404).json({ message: "❌ User not found!" });
+        const { id, phone } = req.query;
+        if (!id || !phone) return res.status(400).json({ message: "❌ Missing id or phone!" });
 
-        res.json({ message: "✅ User deleted successfully!", user: deletedUser });
+        let user = await User.findOneAndUpdate({ id }, { phone }, { new: true });
+        if (!user) return res.status(404).json({ message: "❌ User not found!" });
+
+        console.log("✅ Phone updated:", user); // ✅ Debug updated user
+        res.json({ message: "✅ Phone updated!", user });
     } catch (error) {
+        console.error("❌ Server error:", error);
         res.status(500).json({ message: "❌ Server error", error });
     }
+});
+
+// Kiểm tra server có đang chạy không
+app.get("/", (req, res) => {
+    res.send("✅ Server is running!");
 });
 
 // Chạy server
