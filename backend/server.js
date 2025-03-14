@@ -8,6 +8,7 @@ app.use(cors({
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"]
 }));
+app.use(express.json());
 app.use((req, res, next) => {
     res.setHeader("Content-Type", "application/json");
     next();
