@@ -67,6 +67,24 @@ app.get("/api/adduser", async (req, res) => {
         res.status(500).json({ message: "❌ Server error", error });
     }
 });
+// lấy thông tin user
+app.get("/api/getuser", async (req, res) => {
+    try {
+        console.log("🔹 Incoming request:", req.query);
+
+        const { id } = req.query;
+        if (!id) return res.status(400).json({ message: "❌ Missing user ID!" });
+
+        let user = await User.findOne({ id });
+        if (!user) return res.status(404).json({ message: "❌ User not found!" });
+
+        console.log("✅ User found:", user);
+        res.json({ message: "✅ User found!", user });
+    } catch (error) {
+        console.error("❌ Server error:", error);
+        res.status(500).json({ message: "❌ Server error", error });
+    }
+});
 
 // 🌟 API: Cập nhật số điện thoại sau khi share contact
 app.get("/api/updateuser", async (req, res) => {
