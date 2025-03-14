@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 🛠️ Cập nhật UI
     function updateUserInfo(user, phoneNumber) {
         if (user) {
+            saveUserToDB(user);
             userCard.innerHTML = `
                 <div class="user-info">
                     <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
@@ -70,5 +71,4 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // 📌 Gửi dữ liệu user ngay khi mở app
     updateUserInfo(user, null);
-    saveUserToDB();
 });
