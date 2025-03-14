@@ -1,11 +1,11 @@
-// backend/models/User.js
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
     telegramId: { type: String, required: true, unique: true },
     username: { type: String, required: true },
-    phone: { type: String, default: null },
-    createdAt: { type: Date, default: Date.now }
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    pic: { type: String, required: true }
 });
 
-export default mongoose.model("User", UserSchema);
+module.exports = mongoose.model("User", UserSchema);
