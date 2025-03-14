@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
-    let phone=''
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
@@ -56,12 +55,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
     }
     async function updatePhoneNumber(user, phoneNumber) {
-        if (!user?.id || !phoneNumber) {
-            console.warn("⚠️ Missing user ID or phone number!");
-            return;
-        }
+        // if (!user?.id || !phoneNumber) {
+        //     console.warn("⚠️ Missing user ID or phone number!");
+        //     return;
+        // }
     
-        console.log("📌 Sending phone update to API:", phoneNumber);
+        console.log("📌 Sending phone update to API:", phoneNumber, user.id);
     
         const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(user.id)}
             &phone=${encodeURIComponent(phoneNumber)}`.replace(/\s+/g, '');
@@ -90,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     // updateUserInfo(user, phoneNumber);
                     resolve(phoneNumber);
                     updatePhoneNumber(user, phoneNumber);
-                    console.log(phone);
+                    console.log(phoneNumber);
                     return phoneNumber;
                 } else {
                     reject("User denied contact sharing.");
