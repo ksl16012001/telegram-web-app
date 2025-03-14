@@ -379,3 +379,6 @@ a{
 .order-button:hover {
     background: #ffaa00;
 }
+.bottom-menu button:hover {
+    color: #ffcc00;
+}
