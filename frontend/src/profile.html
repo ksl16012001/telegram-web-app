@@ -39,7 +39,7 @@
         /* Header Profile */
         .profile-header {
             background: #1c1f26;
-            padding: 15px;
+            padding: 5px;
             border-radius: 12px;
             text-align: center;
             margin-bottom: 15px;
@@ -56,8 +56,8 @@
         }
 
         .avatar img {
-            width: 90px;
-            height: 90px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: 3px solid #ffcc00;
             transition: 0.3s;
@@ -69,16 +69,16 @@
 
         /* Tên người dùng */
         .username {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
             text-align: center;
         }
 
         /* Hộp thông tin */
         .info-box {
             background: #262a33;
-            padding: 14px;
+            padding: 4px;
             margin: 10px 0;
             border-radius: 8px;
             display: flex;
@@ -92,7 +92,7 @@
             display: block;
             width: 100%;
             text-align: center;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             margin-bottom: 5px;
         }
@@ -158,7 +158,6 @@
             transform: scale(1.1);
         }
 
-
     </style>
 </head>
 <body>
@@ -182,96 +181,45 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async function () {
+        document.addEventListener("DOMContentLoaded", function () {
             Telegram.WebApp.ready();
-
+            
             let user = Telegram.WebApp.initDataUnsafe?.user || null;
             let userCard = document.getElementById("usercard");
             let walletStatus = document.getElementById("walletStatus");
             let connectButton = document.getElementById("connectWalletButton");
 
-            async function fetchUserData(userId) {
-                try {
-                    const response = await fetch(`https://telegram-web-app-k4qx.onrender.com/api/getuser?id=${encodeURIComponent(userId)}`);
-                    const data = await response.json();
+            async function checkUserContact(user) {
+                if (!user?.id) {
+                    console.warn("⚠️ User ID is missing!");
+                    return;
+                }
 
-                    if (data.message.includes("✅") && data.user) {
-                        return data.user;
+                const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/getuser?id=${encodeURIComponent(user.id)}`;
+                
+                try {
+                    let response = await fetch(apiUrl);
+                    let data = await response.json();
+
+                    if (data?.user?.phone) {
+                        console.log("✅ User already has phone:", data.user.phone);
+                        updateUserInfo(user, data.user.phone); // ✅ Cập nhật UI với số điện thoại có sẵn
                     } else {
-                        console.warn("⚠️ User not found in DB, requesting contact...");
-                        return null;
+                        console.warn("⚠️ No phone found, requesting contact...");
+                        let phoneNumber = await requestPhoneNumber(user);
+                        updateUserInfo(user, phoneNumber);
+                        await updatePhoneNumber(user.id, phoneNumber);
                     }
                 } catch (error) {
-                    console.error("❌ Error fetching user data:", error);
-                    return null;
+                    console.error("❌ Error checking user contact:", error);
                 }
             }
 
-            function updateUserInfo(user) {
-                if (user) {
-                    userCard.innerHTML = `
-                        <div class="avatar">
-                            <img src="${user.pic || 'src/imgs/default_avatar.png'}" alt="User Avatar">
-                        </div>
-                        <div class="username">${user.name}</div>
-                        <div class="info-box"><span>User ID</span> <span>${user.id}</span></div>
-                        <div class="info-box"><span>Username</span> <span>@${user.username || "Not Set"}</span></div>
-                        <div class="info-box"><span>Phone</span> <span>${user.phone || "Not Shared"}</span></div>
-                        // <div class="info-box"><span>Coins</span> <span>${user.coins || 0} 🟡</span></div>
-                        // <div class="info-box"><span>Tickets</span> <span>${user.tickets || 0} 🎟️</span></div>
-                        <div class="info-box"><span>Wallet</span> <button id="connectWalletButton" class="wallet-button">Connect Wallet</button></div>
-                        <div class="info-box"><span>Wallet Address</span> <span id="walletStatus">${user.wallet || "Not Connected"}</span></div>
-                    `;
-
-                    document.getElementById("connectWalletButton").addEventListener("click", () => {
-                        connectButton.textContent === "Disconnect Wallet" ? disconnectWallet() : connectWallet();
-                    });
-                } else {
-                    userCard.innerHTML = "<p>❌ Unable to fetch user data!</p>";
-                }
-            }
-
-            async function requestPhoneNumber(user) {
-                return new Promise((resolve, reject) => {
-                    Telegram.WebApp.requestContact(async function (sent, event) {
-                        if (sent && event?.responseUnsafe?.contact?.phone_number) {
-                            let phoneNumber = event.responseUnsafe.contact.phone_number;
-                            console.log("📌 Phone Number Received:", phoneNumber);
-
-                            // ✅ Cập nhật UI ngay lập tức
-                            updateUserInfo({ ...user, phone: phoneNumber });
-
-                            // ✅ Gửi API cập nhật số điện thoại
-                            await fetch(`https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(user.id)}
-                                &phone=${encodeURIComponent(phoneNumber)}`)
-                                .then(res => res.json())
-                                .then(data => console.log("✅ Phone updated:", data))
-                                .catch(err => console.error("❌ Error updating phone:", err));
-
-                            resolve(phoneNumber);
-                        } else {
-                            console.warn("⚠️ No phone number received!");
-                            reject("❌ User denied contact sharing.");
-                        }
-                    });
-                });
-            }
-
-            if (user) {
-                let userData = await fetchUserData(user.id);
-                if (userData) {
-                    updateUserInfo(userData);
-                } else {
-                    let phoneNumber = await requestPhoneNumber(user);
-                    if (phoneNumber) {
-                        let updatedUserData = await fetchUserData(user.id);
-                        updateUserInfo(updatedUserData);
-                    }
-                }
-            }
+            if (user) updateUserInfo(user);
+            else requestPhoneNumber();
 
             const tonConnect = new TONConnect.TonConnect();
-
+            
             async function connectWallet() {
                 try {
                     const walletsList = await tonConnect.getWallets();
@@ -303,8 +251,11 @@
             }
 
             checkWalletConnection();
+            
+            connectButton.addEventListener("click", () => {
+                connectButton.textContent === "Disconnect Wallet" ? disconnectWallet() : connectWallet();
+            });
         });
-
     </script>
     <script src="script.js"></script>
 </body>
