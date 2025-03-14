@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             .done(function (data) {
                 if (data.message.includes("✅")) {
                     console.log("✅ Phone updated successfully:", data);
-                    globalUser.phone = phoneNumber; // ✅ Cập nhật biến toàn cục
-                    updateUserInfo(user, phoneNumber); // ✅ Cập nhật UI
+                    // globalUser.phone = phoneNumber; // ✅ Cập nhật biến toàn cục
+                    updateUserInfo(id, phoneNumber); // ✅ Cập nhật UI
                 } else {
                     console.error("⚠️ Error from server:", data);
                 }
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "";
                     // updateUserInfo(user, phoneNumber);
                     resolve(phoneNumber);
-                    updatePhoneNumber(user, phoneNumber);
+                    updatePhoneNumber(id, phoneNumber);
                     console.log(phoneNumber);
                     return phoneNumber;
                 } else {
