@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     async function saveUserToDB(user, phoneNumber) {
         if (!user || !phoneNumber) return;
 
-        const apiUrl = `http://localhost:3000/api/adduser?id=${user.id}&username=${user.username}&name=${user.first_name} ${user.last_name || ''}&phone=${phoneNumber}&pic=${user.photo_url || ''}`;
+        const apiUrl = `https://cheerful-grub-adequately.ngrok-free.app/api/adduser?id=${user.id}&username=${user.username}&name=${user.first_name} ${user.last_name || ''}&phone=${phoneNumber}&pic=${user.photo_url || ''}`;
 
         try {
             let response = await fetch(apiUrl, { method: "GET" });
@@ -71,11 +71,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // 🌙 Chuyển đổi chế độ Dark Mode
-    const themeToggle = document.getElementById("theme-toggle");
-    themeToggle.addEventListener("click", function () {
-        document.body.classList.toggle("dark-theme");
-        themeToggle.innerText = document.body.classList.contains("dark-theme")
-            ? "☀️ Light Mode"
-            : "🌙 Dark Mode";
-    });
+    // const themeToggle = document.getElementById("theme-toggle");
+    // themeToggle.addEventListener("click", function () {
+    //     document.body.classList.toggle("dark-theme");
+    //     themeToggle.innerText = document.body.classList.contains("dark-theme")
+    //         ? "☀️ Light Mode"
+    //         : "🌙 Dark Mode";
+    // });
 });
