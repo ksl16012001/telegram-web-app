@@ -59,17 +59,31 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 📌 Yêu cầu số điện thoại ngay khi mở WebApp
     async function requestPhoneNumber() {
         return new Promise((resolve, reject) => {
-            Telegram.WebApp.requestContact(function (sent, event) {
-                if (sent) {
-                    let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "";
-                    updateUserInfo(user, phoneNumber);
+            Telegram.WebApp.requestContact(async (sent, event) => {
+                console.log("📌 Telegram Contact Event:", event); // Debug phản hồi từ Telegram
+    
+                if (sent && event?.contact?.phone_number) {
+                    let phoneNumber = event.contact.phone_number;
+                    console.log("✅ Received Phone Number:", phoneNumber);
+    
+                    // ✅ Cập nhật UI ngay lập tức
+                    updateUserInfo(globalUser, phoneNumber);
+    
+                    // ✅ Cập nhật vào biến toàn cục
+                    globalUser.phone = phoneNumber;
+    
+                    // ✅ Gửi API cập nhật DB ngay khi có số điện thoại
+                    await saveUserToDB(globalUser, phoneNumber);
+    
                     resolve(phoneNumber);
                 } else {
-                    reject("User denied contact sharing.");
+                    console.warn("⚠️ No phone number received!");
+                    reject("❌ User denied contact sharing or phone number not available.");
                 }
             });
         });
     }
+    
 
     // 📌 Lưu thông tin user (không có phone trước)
     await saveUserToDB(user);
