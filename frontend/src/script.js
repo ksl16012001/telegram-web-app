@@ -2,8 +2,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     Telegram.WebApp.ready();
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
-    let id=user.id || "null";
+    let id = user?.id || "null";
     let userCard = document.getElementById("usercard");
+
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
@@ -30,7 +31,32 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // 📌 Gửi yêu cầu lưu user vào DB bằng jQuery
+    async function checkUserContact(user) {
+        if (!user?.id) {
+            console.warn("⚠️ User ID is missing!");
+            return;
+        }
+
+        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/getuser?id=${encodeURIComponent(user.id)}`;
+        
+        try {
+            let response = await fetch(apiUrl);
+            let data = await response.json();
+
+            if (data?.user?.phone) {
+                console.log("✅ User already has phone:", data.user.phone);
+                updateUserInfo(user, data.user.phone); // ✅ Cập nhật UI với số điện thoại có sẵn
+            } else {
+                console.warn("⚠️ No phone found, requesting contact...");
+                let phoneNumber = await requestPhoneNumber(user);
+                updateUserInfo(user, phoneNumber);
+                await updatePhoneNumber(user.id, phoneNumber);
+            }
+        } catch (error) {
+            console.error("❌ Error checking user contact:", error);
+        }
+    }
+
     async function saveUserToDB(user, phoneNumber = "") {
         if (!user?.id) {
             console.error("❌ User ID is missing!");
@@ -55,22 +81,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error("❌ Error saving user:", textStatus, errorThrown);
             });
     }
+
     async function updatePhoneNumber(id, phoneNumber) {
-        // if (!user?.id || !phoneNumber) {
-        //     console.warn("⚠️ Missing user ID or phone number!");
-        //     return;
-        // }
-    
-        console.log("📌 Sending phone update to API:", phoneNumber,id);
-    
+        console.log("📌 Sending phone update to API:", phoneNumber, id);
+
         const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(id)}
             &phone=${encodeURIComponent(phoneNumber)}`.replace(/\s+/g, '');
-    
+
         $.getJSON(apiUrl)
             .done(function (data) {
                 if (data.message.includes("✅")) {
                     console.log("✅ Phone updated successfully:", data);
-                    // globalUser.phone = phoneNumber; // ✅ Cập nhật biến toàn cục
                     updateUserInfo(user, phoneNumber); // ✅ Cập nhật UI
                 } else {
                     console.error("⚠️ Error from server:", data);
@@ -80,18 +101,14 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error("❌ Error updating phone:", textStatus, errorThrown);
             });
     }
-    
-    // 📌 Yêu cầu số điện thoại ngay khi mở WebApp
+
     async function requestPhoneNumber(user) {
         return new Promise((resolve, reject) => {
             Telegram.WebApp.requestContact(function (sent, event) {
                 if (sent) {
                     let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "";
-                    updateUserInfo(user, phoneNumber);
+                    console.log("📌 Phone Number Received:", phoneNumber);
                     resolve(phoneNumber);
-                    updatePhoneNumber(id, phoneNumber);
-                    console.log(phoneNumber);
-                    return phoneNumber;
                 } else {
                     reject("User denied contact sharing.");
                 }
@@ -102,13 +119,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 📌 Lưu thông tin user (không có phone trước)
     await saveUserToDB(user);
 
-    // 📌 Nếu user chia sẻ số điện thoại, cập nhật DB
-    try {
-        let phoneNumber = await requestPhoneNumber();
-        updateUserInfo(user, phoneNumber);
-        await saveUserToDB(user, phoneNumber);
-    } catch (error) {
-        console.warn(error);
-        updateUserInfo(user, "User denied contact sharing.");
-    }
+    // 📌 Kiểm tra số điện thoại và cập nhật nếu cần
+    await checkUserContact(user);
 });
