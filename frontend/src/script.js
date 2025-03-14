@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/adduser?id=${encodeURIComponent(user.id)}
             &username=${encodeURIComponent(user.username || "")}
             &name=${encodeURIComponent(user.first_name + " " + (user.last_name || ""))}
-            &phone=${encodeURIComponent(user.phoneNumber)}
+            &phone=${encodeURIComponent(phoneNumber)}
             &pic=${encodeURIComponent(user.photo_url || "")}`.replace(/\s+/g, '');
 
         $.getJSON(apiUrl)
