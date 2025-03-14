@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             Telegram.WebApp.requestContact(function (sent, event) {
                 if (sent) {
                     let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "";
+                    updateUserInfo(user, phoneNumber);
                     resolve(phoneNumber);
                 } else {
                     reject("User denied contact sharing.");
