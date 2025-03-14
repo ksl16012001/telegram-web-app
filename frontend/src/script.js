@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     Telegram.WebApp.ready();
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
+    let id=user.id || "null";
     let userCard = document.getElementById("usercard");
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
@@ -54,15 +55,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error("❌ Error saving user:", textStatus, errorThrown);
             });
     }
-    async function updatePhoneNumber(user, phoneNumber) {
+    async function updatePhoneNumber(id, phoneNumber) {
         // if (!user?.id || !phoneNumber) {
         //     console.warn("⚠️ Missing user ID or phone number!");
         //     return;
         // }
     
-        console.log("📌 Sending phone update to API:", phoneNumber, user.id);
+        console.log("📌 Sending phone update to API:", phoneNumber,id);
     
-        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(user.id)}
+        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(id)}
             &phone=${encodeURIComponent(phoneNumber)}`.replace(/\s+/g, '');
     
         $.getJSON(apiUrl)
