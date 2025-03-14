@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
 
-    const API_BASE = "https://telegram-backend.ngrok.io"; // URL backend cố định
+    const API_BASE = "https://cheerful-grub-adequately.ngrok-free.app/"; // URL backend cố định
 
     // 🛠️ Cập nhật UI
     function updateUserInfo(user, phoneNumber) {
