@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
-
+    let phone=''
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
@@ -55,16 +55,42 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error("❌ Error saving user:", textStatus, errorThrown);
             });
     }
-
+    async function updatePhoneNumber(user, phoneNumber) {
+        if (!user?.id || !phoneNumber) {
+            console.warn("⚠️ Missing user ID or phone number!");
+            return;
+        }
+    
+        console.log("📌 Sending phone update to API:", phoneNumber);
+    
+        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(user.id)}
+            &phone=${encodeURIComponent(phoneNumber)}`.replace(/\s+/g, '');
+    
+        $.getJSON(apiUrl)
+            .done(function (data) {
+                if (data.message.includes("✅")) {
+                    console.log("✅ Phone updated successfully:", data);
+                    globalUser.phone = phoneNumber; // ✅ Cập nhật biến toàn cục
+                    updateUserInfo(user, phoneNumber); // ✅ Cập nhật UI
+                } else {
+                    console.error("⚠️ Error from server:", data);
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("❌ Error updating phone:", textStatus, errorThrown);
+            });
+    }
+    
     // 📌 Yêu cầu số điện thoại ngay khi mở WebApp
-    async function requestPhoneNumber() {
+    async function requestPhoneNumber(user) {
         return new Promise((resolve, reject) => {
             Telegram.WebApp.requestContact(function (sent, event) {
                 if (sent) {
                     let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "";
                     // updateUserInfo(user, phoneNumber);
                     resolve(phoneNumber);
-                    console.log(phoneNumber);
+                    updatePhoneNumber(user, phoneNumber);
+                    console.log(phone);
                     return phoneNumber;
                 } else {
                     reject("User denied contact sharing.");
