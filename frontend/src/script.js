@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userCard = document.getElementById("usercard");
-    
+
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     `;
     document.body.appendChild(bottomMenu);
 
-    // 📌 Cập nhật thông tin UI
     function updateUserInfo(user, phoneNumber = "Click to share your contact") {
         if (user) {
             userCard.innerHTML = `
@@ -31,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // 📌 Gửi yêu cầu lưu user vào DB
+    // 📌 Gửi yêu cầu lưu user vào DB bằng jQuery
     async function saveUserToDB(user, phoneNumber = "") {
         if (!user?.id) {
             console.error("❌ User ID is missing!");
@@ -41,21 +40,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         const apiUrl = `https://cheerful-grub-adequately.ngrok-free.app/api/adduser?id=${encodeURIComponent(user.id)}
             &username=${encodeURIComponent(user.username || "")}
             &name=${encodeURIComponent(user.first_name + " " + (user.last_name || ""))}
-            &phone=${encodeURIComponent(phoneNumber)}
+            &phone=${encodeURIComponent(user.phoneNumber)}
             &pic=${encodeURIComponent(user.photo_url || "")}`.replace(/\s+/g, '');
 
-        try {
-            let response = await fetch(apiUrl, { method: "GET" });
-            let data = await response.json();
-
-            if (data.message.includes("✅")) {
-                console.log("✅ User saved:", data);
-            } else {
-                console.error("⚠️ Error from server:", data);
-            }
-        } catch (error) {
-            console.error("❌ Error saving user:", error);
-        }
+        $.getJSON(apiUrl)
+            .done(function (data) {
+                if (data.message.includes("✅")) {
+                    console.log("✅ User saved:", data);
+                } else {
+                    console.error("⚠️ Error from server:", data);
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("❌ Error saving user:", textStatus, errorThrown);
+            });
     }
 
     // 📌 Yêu cầu số điện thoại ngay khi mở WebApp
