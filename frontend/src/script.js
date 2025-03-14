@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 if (data.message.includes("✅")) {
                     console.log("✅ Phone updated successfully:", data);
                     // globalUser.phone = phoneNumber; // ✅ Cập nhật biến toàn cục
-                    updateUserInfo(id, phoneNumber); // ✅ Cập nhật UI
+                    updateUserInfo(user, phoneNumber); // ✅ Cập nhật UI
                 } else {
                     console.error("⚠️ Error from server:", data);
                 }
