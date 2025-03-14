@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             if (sent) {
                 let phoneNumber = event?.responseUnsafe?.contact?.phone_number || "No phone number";
-                phoneStatus.innerHTML = `📞 +${phoneNumber}`;
+                phoneStatus.innerHTML = `📞 ${phoneNumber}`;
                 phoneStatus.className = "ok"; // Màu xanh nếu thành công
 
                 // 🛠️ Gửi số điện thoại lên DB để update
@@ -69,6 +69,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     // 📌 Gửi dữ liệu user ngay khi mở app
-    await saveUserToDB();
     updateUserInfo(user, null);
+    saveUserToDB();
 });
