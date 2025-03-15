@@ -2,14 +2,22 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const Order = require("../models/Order");
 
-const TONCENTER_API_URL = "https://toncenter.com/api/v2";
+const TONAPI_URL = "https://tonapi.io/v2/rates?tokens=ton&currencies=usd";
 
 // ✅ Lấy tỷ giá TON/USD
 async function fetchTonPrice() {
     try {
-        const response = await fetch(`${TONCENTER_API_URL}/rates?tokens=ton&currencies=usd`);
+        console.log("🔄 Fetching TON price from `tonapi.io`...");
+        const response = await fetch(TONAPI_URL);
+        if (!response.ok) throw new Error(`TONAPI.io failed: ${response.status}`);
+
         const data = await response.json();
-        return data.rates.TON.prices.USD;
+        console.log("📌 API Response:", data);
+
+        const tonPrice = data.rates?.TON?.prices?.USD;
+        if (!tonPrice) throw new Error("Invalid response structure from TONAPI.io");
+
+        return tonPrice;
     } catch (error) {
         console.error("❌ Error fetching TON price:", error);
         return null;
@@ -19,10 +27,10 @@ async function fetchTonPrice() {
 // ✅ Kiểm tra trạng thái giao dịch
 async function checkTransactionStatus(address, transactionId) {
     try {
-        const response = await fetch(`${TONCENTER_API_URL}/getTransactions?address=${address}&limit=10&to_lt=0&archival=false`);
+        const response = await fetch(`https://tonapi.io/v2/blockchain/getTransactions?account=${address}&limit=10`);
         const data = await response.json();
 
-        const transactions = data.result;
+        const transactions = data.transactions || [];
         const transaction = transactions.find(tx => tx.transaction_id.hash === transactionId);
 
         if (transaction) {
@@ -43,7 +51,7 @@ async function processPayment(amount, username) {
     }
 
     // 📌 Gói sao được chọn (Chỉnh sửa theo nhu cầu)
-    const selectedPackage = { amount: 100, price: 1.7 };
+    const selectedPackage = { amount, price: (amount / 100) * 1.7 }; // Giá linh động theo số sao
 
     // 📌 Lấy tỷ giá TON/USD
     const tonPriceInUsd = await fetchTonPrice();
@@ -76,4 +84,4 @@ function generatePaymentLink(username, tonPrice) {
     return `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmountInNano}&text=${encodeURIComponent(username)}`;
 }
 
-module.exports = { processPayment, checkTransactionStatus };
+module.exports = { processPayment, checkTransactionStatus, fetchTonPrice };

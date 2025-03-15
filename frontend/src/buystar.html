@@ -129,8 +129,12 @@
         });
 
         const starsPackages = [
-            { amount: 100, price: 1.7 }, { amount: 500, price: 8.5 }, { amount: 1000, price: 16.5 },
-            { amount: 5000, price: 84 }, { amount: 10000, price: 165 }, { amount: 50000, price: 810 }
+            { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },
+            { amount: 350, price: 5.95 }, { amount: 500, price: 8.5 }, { amount: 750, price: 12.75 },
+            { amount: 1000, price: 16.5 }, { amount: 1500, price: 25 }, { amount: 2500, price: 42 },
+            { amount: 5000, price: 84 }, { amount: 10000, price: 165 }, { amount: 25000, price: 410 },
+            { amount: 35000, price: 570 }, { amount: 50000, price: 810 }, { amount: 100000, price: 1600 },
+            { amount: 150000, price: 2380 }, { amount: 500000, price: 7700 }, { amount: 1000000, price: 15500 }
         ];
 
         const starList = document.getElementById("starList");
@@ -162,11 +166,17 @@
 
         async function fetchTonPrice() {
             try {
-                const response = await fetch('https://toncenter.com/api/v2/rates?tokens=ton&currencies=usd');
+                console.log("🔄 Fetching TON price from backend...");
+                const response = await fetch('/api/get-ton-price');
+                if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+
                 const data = await response.json();
-                return data.rates.TON.prices.USD;
+                console.log("📌 API Response:", data);
+
+                if (data.tonPrice) return data.tonPrice;
+                throw new Error("Invalid response structure from backend");
             } catch (error) {
-                console.error('Error fetching TON price:', error);
+                console.error('❌ Error fetching TON price:', error);
                 return null;
             }
         }
@@ -210,6 +220,7 @@
                 alert("An error occurred while processing your payment. Please try again later.");
             }
         }
+
     </script>
     <script src="script.js"></script>
 </body>

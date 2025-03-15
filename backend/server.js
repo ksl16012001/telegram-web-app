@@ -1,14 +1,15 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("./config/db"); // ✅ Import file kết nối MongoDB
-const userRoutes = require("./routes/userRoutes"); // ✅ Import API của User
-const { bot } = require("./services/bot"); // ✅ Import bot.js để dùng Webhook
-const paymentService = require("./services/paymentService"); // ✅ Import service thanh toán
+const mongoose = require("./config/db"); // ✅ Kết nối MongoDB
+const userRoutes = require("./routes/userRoutes"); // ✅ API User
+const { bot } = require("./services/bot"); // ✅ Telegram Bot
+const paymentService = require("./services/paymentService"); // ✅ Xử lý thanh toán
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ Cấu hình CORS
 app.use(cors({
     origin: "*",
     methods: ["GET", "POST"],
@@ -23,7 +24,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// ✅ Sử dụng các routes API
+// ✅ Sử dụng API User
 app.use("/api", userRoutes);
 
 // ✅ Webhook Telegram
@@ -37,37 +38,50 @@ app.get("/", (req, res) => {
     res.send("✅ Server is running with Webhook enabled!");
 });
 
-// ✅ Endpoint xử lý giao dịch mua sao
-app.post("/process-payment", async (req, res) => {
+// ✅ API lấy giá TON/USD từ Backend
+app.get("/api/get-ton-price", async (req, res) => {
+    try {
+        const tonPrice = await paymentService.fetchTonPrice();
+        if (!tonPrice) return res.status(500).json({ error: "Failed to fetch TON price" });
+
+        res.json({ tonPrice });
+    } catch (error) {
+        console.error("❌ Error fetching TON price:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// ✅ Xử lý giao dịch mua sao
+app.post("/api/process-payment", async (req, res) => {
     const { amount, username } = req.body;
 
     try {
         const result = await paymentService.processPayment(amount, username);
-        return res.status(200).json({
+        res.status(200).json({
             message: "Transaction processed successfully",
             paymentLink: result.paymentLink,
             amount: result.amount,
             price: result.price,
-            orderId: result.orderId  // trả về ID đơn hàng
+            orderId: result.orderId
         });
     } catch (error) {
-        console.error("Error processing payment:", error);
-        return res.status(500).json({ error: error.message });
+        console.error("❌ Error processing payment:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 
-// ✅ Endpoint kiểm tra trạng thái giao dịch
-app.post("/check-transaction", async (req, res) => {
+// ✅ Kiểm tra trạng thái giao dịch
+app.post("/api/check-transaction", async (req, res) => {
     const { address, transactionId } = req.body;
 
     try {
         const result = await paymentService.checkTransactionStatus(address, transactionId);
-        return res.status(200).json(result);
+        res.status(200).json(result);
     } catch (error) {
-        console.error("Error checking transaction:", error);
-        return res.status(500).json({ error: error.message });
+        console.error("❌ Error checking transaction:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 
-// ✅ Chạy server
+// ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
