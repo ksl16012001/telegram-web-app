@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
     <!-- <link rel="stylesheet" href="styles.css"> -->
     <style>
         body {
@@ -22,7 +21,7 @@
         }
 
         .container {
-            background: #2a2d35;
+            background: #1e1e1e;
             border-radius: 12px;
             padding: 15px;
             text-align: center;
@@ -88,7 +87,7 @@
             justify-content: space-around;
             padding: 8px;
             margin-top: 15px;
-            background: rgba(0, 0, 0, 0.2);
+            background: #2a2a2a;
             border-radius: 8px;
             width: 100%;
             max-width: 320px;
@@ -115,7 +114,7 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 900px;
-            background-color: var(--card-bg);
+            /* background-color: #1c1f26; */
             display: flex;
             justify-content: space-around;
             padding: 10px;
@@ -157,7 +156,7 @@
 <body>
     <div class="container">
         <div class="profile-header" id="usercard">
-            <div class="avatar"><img src="src/imgs/default_avatar.png" alt="User Avatar"></div>
+            <div class="avatar"><img src="../public/imgs/avt.avif" alt="User Avatar"></div>
             <div class="username">Loading...</div>
             <div class="info-box"><span>User ID:</span> <span>Loading...</span></div>
             <div class="info-box"><span>Username:</span> <span>Loading...</span></div>
@@ -249,6 +248,7 @@
         });
     </script>
     <script src="script.js"></script>
+    <!-- <script src="https://unpkg.com/@tonconnect/sdk@latest"></script> -->
 </body>
 
 </html>
