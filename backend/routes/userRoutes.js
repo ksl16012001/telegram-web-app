@@ -1,35 +1,64 @@
 const express = require("express");
-const router = express.Router();
 const User = require("../models/User");
 
-// 🛠 Thêm người dùng (Không mã hóa)
-router.post("/add", async (req, res) => {
-    try {
-        const { telegramId, username, name, phone, pic } = req.body;
-        const existingUser = await User.findOne({ telegramId });
+const router = express.Router();
 
-        if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
+// 🌟 Thêm user vào database
+router.get("/adduser", async (req, res) => {
+    try {
+        console.log("🔹 Incoming request:", req.query);
+        const { id, username, name, phone, pic } = req.query;
+        if (!id || !username || !name) {
+            return res.status(400).json({ message: "❌ Missing required fields!" });
         }
 
-        const newUser = new User({ telegramId, username, name, phone, pic });
-        await newUser.save();
+        let user = await User.findOne({ id });
+        if (!user) {
+            user = new User({ id, username, name, phone: phone || "", pic });
+            await user.save();
+        }
 
-        res.json({ message: "User added successfully", user: newUser });
+        console.log("✅ User saved:", user);
+        res.json({ message: "✅ User saved!", user });
     } catch (error) {
-        res.status(500).json({ message: "Error adding user", error });
+        console.error("❌ Server error:", error);
+        res.status(500).json({ message: "❌ Server error", error });
     }
 });
 
-// 🔍 Lấy thông tin user
-router.get("/:telegramId", async (req, res) => {
+// 🌟 Lấy thông tin user
+router.get("/getuser", async (req, res) => {
     try {
-        const user = await User.findOne({ telegramId: req.params.telegramId });
-        if (!user) return res.status(404).json({ message: "User not found" });
+        console.log("🔹 Incoming request:", req.query);
+        const { id } = req.query;
+        if (!id) return res.status(400).json({ message: "❌ Missing user ID!" });
 
-        res.json(user);
+        let user = await User.findOne({ id });
+        if (!user) return res.status(404).json({ message: "❌ User not found!" });
+
+        console.log("✅ User found:", user);
+        res.json({ message: "✅ User found!", user });
     } catch (error) {
-        res.status(500).json({ message: "Error retrieving user", error });
+        console.error("❌ Server error:", error);
+        res.status(500).json({ message: "❌ Server error", error });
+    }
+});
+
+// 🌟 Cập nhật số điện thoại
+router.get("/updateuser", async (req, res) => {
+    try {
+        console.log("🔹 Incoming request:", req.query);
+        const { id, phone } = req.query;
+        if (!id || !phone) return res.status(400).json({ message: "❌ Missing id or phone!" });
+
+        let user = await User.findOneAndUpdate({ id }, { phone }, { new: true });
+        if (!user) return res.status(404).json({ message: "❌ User not found!" });
+
+        console.log("✅ Phone updated:", user);
+        res.json({ message: "✅ Phone updated!", user });
+    } catch (error) {
+        console.error("❌ Server error:", error);
+        res.status(500).json({ message: "❌ Server error", error });
     }
 });
 
