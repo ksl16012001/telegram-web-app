@@ -1,72 +1,79 @@
+require("dotenv").config();
+const fetch = require("node-fetch");
+const Order = require("../models/Order");
+
 const TONCENTER_API_URL = "https://toncenter.com/api/v2";
 
-// Lấy tỷ giá TON/USD
+// ✅ Lấy tỷ giá TON/USD
 async function fetchTonPrice() {
-  try {
-    const response = await fetch(`${TONCENTER_API_URL}/rates?tokens=ton&currencies=usd`);
-    const data = await response.json();
-    return data.rates.TON.prices.USD;
-  } catch (error) {
-    console.error('Error fetching TON price:', error);
-    return null;
-  }
-}
-
-// Kiểm tra giao dịch trên địa chỉ ví
-async function checkTransactionStatus(address, transactionId) {
-  try {
-    const response = await fetch(`${TONCENTER_API_URL}/getTransactions?address=${address}&limit=10&to_lt=0&archival=false`);
-    const data = await response.json();
-
-    const transactions = data.result;
-    const transaction = transactions.find(tx => tx.transaction_id.hash === transactionId);
-
-    if (transaction) {
-      return { success: true, status: "Transaction found and completed." };
-    } else {
-      return { success: false, status: "Transaction not found or not completed yet." };
+    try {
+        const response = await fetch(`${TONCENTER_API_URL}/rates?tokens=ton&currencies=usd`);
+        const data = await response.json();
+        return data.rates.TON.prices.USD;
+    } catch (error) {
+        console.error("❌ Error fetching TON price:", error);
+        return null;
     }
-  } catch (error) {
-    console.error("Error checking transaction status:", error);
-    return { success: false, status: "Error checking transaction status." };
-  }
 }
 
-// Xử lý thanh toán và lưu đơn hàng vào DB
+// ✅ Kiểm tra trạng thái giao dịch
+async function checkTransactionStatus(address, transactionId) {
+    try {
+        const response = await fetch(`${TONCENTER_API_URL}/getTransactions?address=${address}&limit=10&to_lt=0&archival=false`);
+        const data = await response.json();
+
+        const transactions = data.result;
+        const transaction = transactions.find(tx => tx.transaction_id.hash === transactionId);
+
+        if (transaction) {
+            return { success: true, status: "Transaction found and completed." };
+        } else {
+            return { success: false, status: "Transaction not found or not completed yet." };
+        }
+    } catch (error) {
+        console.error("❌ Error checking transaction status:", error);
+        return { success: false, status: "Error checking transaction status." };
+    }
+}
+
+// ✅ Xử lý thanh toán và tạo đơn hàng
 async function processPayment(amount, username) {
-  if (!amount || !username) {
-    throw new Error("Amount and username are required");
-  }
+    if (!amount || !username) {
+        throw new Error("❌ Amount and username are required");
+    }
 
-  // Giả sử bạn đã có gói sao được chọn từ danh sách
-  const selectedPackage = { amount: 100, price: 1.7 }; // Example package, replace with your actual package selection logic
+    // 📌 Gói sao được chọn (Chỉnh sửa theo nhu cầu)
+    const selectedPackage = { amount: 100, price: 1.7 };
 
-  const tonPriceInUsd = await fetchTonPrice();
-  if (!tonPriceInUsd) {
-    throw new Error("Failed to fetch TON price");
-  }
+    // 📌 Lấy tỷ giá TON/USD
+    const tonPriceInUsd = await fetchTonPrice();
+    if (!tonPriceInUsd) {
+        throw new Error("❌ Failed to fetch TON price");
+    }
 
-  const tonPrice = (selectedPackage.price / tonPriceInUsd + 0.01).toFixed(2); // Convert USD to TON
-  const paymentLink = generatePaymentLink(username, tonPrice); // Tạo link thanh toán
+    // 📌 Chuyển đổi giá sang TON
+    const tonPrice = (selectedPackage.price / tonPriceInUsd + 0.01).toFixed(2); // Convert USD to TON
+    const paymentLink = generatePaymentLink(username, tonPrice);
 
-  // Lưu đơn hàng vào DB
-  const order = new Order({
-    username: username,
-    packageAmount: selectedPackage.amount,
-    packagePrice: selectedPackage.price,
-    tonPriceInUsd: tonPriceInUsd,
-    tonAmount: tonPrice,
-    paymentLink: paymentLink
-  });
+    // 📌 Lưu đơn hàng vào MongoDB
+    const order = new Order({
+        username: username,
+        packageAmount: selectedPackage.amount,
+        packagePrice: selectedPackage.price,
+        tonPriceInUsd: tonPriceInUsd,
+        tonAmount: tonPrice,
+        paymentLink: paymentLink
+    });
 
-  await order.save();  // Lưu đơn hàng vào MongoDB
+    await order.save();  // ✅ Lưu đơn hàng vào DB
 
-  return { paymentLink, amount: selectedPackage.amount, price: selectedPackage.price, orderId: order._id };
+    return { paymentLink, amount: selectedPackage.amount, price: selectedPackage.price, orderId: order._id };
 }
 
+// ✅ Tạo link thanh toán TON Keeper
 function generatePaymentLink(username, tonPrice) {
-  const tonAmountInNano = (tonPrice * 1000000000).toFixed(0); // Convert to nanoTON
-  return `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmountInNano}&text=${encodeURIComponent(username)}`;
+    const tonAmountInNano = (tonPrice * 1e9).toFixed(0); // Convert to nanoTON
+    return `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmountInNano}&text=${encodeURIComponent(username)}`;
 }
 
 module.exports = { processPayment, checkTransactionStatus };
