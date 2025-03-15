@@ -21,7 +21,7 @@ bot.on("message", async (msg) => {
             }
         });
     } else {
-        bot.sendMessage(chatId, `📌 Bạn đã gửi: ${text}`);
+        // bot.sendMessage(chatId, `📌 Bạn đã gửi: ${text}`);
     }
 });
 
