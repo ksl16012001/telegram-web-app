@@ -1,11 +1,11 @@
 import "dotenv/config";  // ✅ Thay thế require("dotenv").config();
 const express = require("express");
-const Order = require("./models/Order");
+const Order = require("./models/Order.js");
 const cors = require("cors");
-const mongoose = require("./config/db"); // ✅ Kết nối MongoDB
-const userRoutes = require("./routes/userRoutes"); // ✅ API User
-const { bot } = require("./services/bot"); // ✅ Telegram Bot
-const paymentService = require("./services/paymentService"); // ✅ Xử lý thanh toán
+const mongoose = require("./config/db.js"); // ✅ Kết nối MongoDB
+const userRoutes = require("./routes/userRoutes.js"); // ✅ API User
+const { bot } = require("./services/bot.js"); // ✅ Telegram Bot
+const paymentService = require("./services/paymentService.js"); // ✅ Xử lý thanh toán
 
 const app = express();
 const PORT = process.env.PORT || 3000;
