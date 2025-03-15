@@ -52,30 +52,34 @@ app.get("/api/get-ton-price", async (req, res) => {
 });
 
 // ✅ Xử lý giao dịch mua sao
-app.post("/api/process-payment", async (req, res) => {
-    const { amount, username, price, tonAmount, paymentLink } = req.body;
-
-    if (!amount || !username || !price || !tonAmount || !paymentLink) {
-        return res.status(400).json({ error: "❌ Missing required fields" });
-    }
-
+app.get("/api/process-payment", async (req, res) => {
     try {
-        // 🔹 Tạo đơn hàng với trạng thái `pending`
-        const newOrder = new Order({
-            username,
+        const { amount, username, price, tonAmount, paymentLink } = req.query;
+
+        if (!amount || !username || !price || !tonAmount || !paymentLink) {
+            return res.status(400).json({ error: "❌ Missing required parameters" });
+        }
+
+        // ✅ Lưu đơn hàng vào MongoDB với trạng thái `pending`
+        const order = new Order({
+            username: username,
             packageAmount: amount,
             packagePrice: price,
-            tonPriceInUsd: (price / tonAmount).toFixed(2), // Giá 1 TON
-            tonAmount,
-            paymentLink,
+            tonAmount: tonAmount,
+            paymentLink: paymentLink,
             status: "pending",
-            createdAt: new Date(),
-            updatedAt: new Date()
+            createdAt: new Date()
         });
 
-        await newOrder.save(); // ✅ Lưu vào MongoDB
+        await order.save();
+        console.log(`✅ New order created (PENDING): ${order._id}`);
 
-        res.status(200).json({ message: "✅ Order created successfully", orderId: newOrder._id });
+        res.status(200).json({
+            message: "✅ Order created successfully",
+            orderId: order._id,
+            paymentLink: paymentLink
+        });
+
     } catch (error) {
         console.error("❌ Error processing payment:", error);
         res.status(500).json({ error: error.message });

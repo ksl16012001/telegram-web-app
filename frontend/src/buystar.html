@@ -224,11 +224,29 @@
             const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1000000000}&text=${encodeURIComponent(username)}`;
 
             // 🔹 Gửi order lên backend (không chờ phản hồi)
-            fetch("https://telegram-web-app-k4qx.onrender.com/api/process-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount, username, price, tonAmount, paymentLink })
-            });
+            const queryParams = new URLSearchParams({
+                amount: amount,
+                username: username,
+                price: price,
+                tonAmount: tonAmount,
+                paymentLink: paymentLink
+            }).toString();
+
+            fetch(`/api/process-payment?${queryParams}`, { method: "GET" })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.paymentLink) {
+                        alert("✅ Order created! Complete your payment.");
+                        window.open(data.paymentLink, "_blank");
+                    } else {
+                        alert(data.error || "❌ Error processing your order.");
+                    }
+                })
+                .catch(error => {
+                    console.error("❌ Error processing payment:", error);
+                    alert("❌ An error occurred. Please try again later.");
+                });
+
 
             // 🔹 Mở link thanh toán ngay lập tức
             window.open(paymentLink, "_blank");
