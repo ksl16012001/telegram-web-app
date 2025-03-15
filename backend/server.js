@@ -9,7 +9,7 @@ const paymentService = require("./services/paymentService"); // ✅ Xử lý tha
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const tonPriceInUsd = await paymentService.fetchTonPrice();
 // ✅ Cấu hình CORS
 app.use(cors({
     origin: "*",

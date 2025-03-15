@@ -48,4 +48,16 @@ async function checkTransactionStatus(transactionId) {
     return { success: false, message: "❌ Payment not found" };
 }
 
-module.exports = { processPayment, checkTransactionStatus };
+async function fetchTonPrice() {
+    try {
+        const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
+        const data = await response.json();
+        return data.rates.TON.prices.USD; // ✅ Lấy tỷ giá USD/TON
+    } catch (error) {
+        console.error('❌ Error fetching TON price:', error);
+        return null;
+    }
+}
+
+// ✅ Export tất cả các hàm (bao gồm `fetchTonPrice`)
+module.exports = { fetchTonPrice, processPayment, checkTransactionStatus };
