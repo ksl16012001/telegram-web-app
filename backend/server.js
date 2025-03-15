@@ -53,17 +53,15 @@ app.get("/api/get-ton-price", async (req, res) => {
 
 // ✅ Xử lý giao dịch mua sao
 app.post("/api/process-payment", async (req, res) => {
-    const { amount, username } = req.body;
+    const { amount, username, price, tonAmount, paymentLink } = req.body;
+
+    if (!amount || !username || !price || !tonAmount || !paymentLink) {
+        return res.status(400).json({ error: "❌ Missing required fields" });
+    }
 
     try {
-        const result = await paymentService.processPayment(amount, username);
-        res.status(200).json({
-            message: "Transaction processed successfully",
-            paymentLink: result.paymentLink,
-            amount: result.amount,
-            price: result.price,
-            orderId: result.orderId
-        });
+        await paymentService.processPayment(amount, username, price, tonAmount, paymentLink);
+        res.sendStatus(200); // ✅ Chỉ trả về 200, không gửi JSON về frontend
     } catch (error) {
         console.error("❌ Error processing payment:", error);
         res.status(500).json({ error: error.message });

@@ -221,27 +221,19 @@
             }
 
             const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2); // Convert USD → TON
+            const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1000000000}&text=${encodeURIComponent(username)}`;
 
-            try {
-                const response = await fetch("/api/process-payment", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amount, username, price, tonAmount })
-                });
+            // 🔹 Gửi order lên backend (không chờ phản hồi)
+            fetch("/api/process-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount, username, price, tonAmount, paymentLink })
+            });
 
-                const data = await response.json();
-                if (response.ok) {
-                    alert("Payment link generated. Please complete the payment.");
-                    window.open(data.paymentLink, "_blank");
+            // 🔹 Mở link thanh toán ngay lập tức
+            window.open(paymentLink, "_blank");
 
-                    alert("We will automatically update your order once the transaction is confirmed.");
-                } else {
-                    alert(data.error || "An error occurred while processing your payment.");
-                }
-            } catch (error) {
-                console.error("Error processing payment:", error);
-                alert("An error occurred while processing your payment. Please try again later.");
-            }
+            alert("Order created! Your transaction will be verified automatically.");
         }
     </script>
     <script src="script.js"></script>
