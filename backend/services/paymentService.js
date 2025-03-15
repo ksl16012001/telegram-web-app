@@ -88,6 +88,6 @@ async function autoUpdatePaidOrders() {
 }
 
 // ✅ Kiểm tra mỗi 5 phút
-setInterval(autoUpdatePaidOrders, 300000);
+setInterval(autoUpdatePaidOrders, 300);
 // ✅ Export tất cả các hàm (bao gồm `fetchTonPrice`)
 module.exports = { fetchTonPrice, processPayment, checkTransaction };
