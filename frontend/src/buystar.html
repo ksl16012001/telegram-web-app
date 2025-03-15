@@ -232,7 +232,7 @@
                 paymentLink: paymentLink
             }).toString();
 
-            fetch(`/api/process-payment?${queryParams}`, { method: "GET" })
+            fetch(`https://telegram-web-app-k4qx.onrender.com/api/process-payment?${queryParams}`, { method: "GET" })
                 .then(response => response.json())
                 .then(data => {
                     if (data.paymentLink) {
