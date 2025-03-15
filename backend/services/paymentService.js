@@ -27,22 +27,28 @@ async function processPayment(amount, username) {
 }
 
 // ✅ Cập nhật trạng thái đơn hàng thành `paid` sau khi kiểm tra giao dịch
-async function checkTransaction(orderId, expectedTonAmount) {
+async function checkTransaction(orderId) {
     try {
         // 📌 Lấy đơn hàng từ DB
         const order = await Order.findById(orderId);
         if (!order) return { success: false, message: "Order not found" };
 
         // 📌 Gọi API lấy danh sách giao dịch
-        const url = `${TON_API_URL}?account=${process.env.TON_RECEIVER}&limit=10`;  
+        const url = `${TON_API_URL}?account=${process.env.TON_RECEIVER}&limit=10`;
         const response = await fetch(url);
-        const data = await response.json();
+        if (!response.ok) throw new Error("Failed to fetch transaction data");
 
-        // 📌 Tìm giao dịch khớp `orderId` & `amount`
-        const transaction = data.result.find(tx =>
-            tx.in_msg?.msg_data?.body.includes(`Order_${orderId}`) && 
-            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount)
-        );
+        const data = await response.json();
+        if (!data.result || data.result.length === 0) {
+            return { success: false, message: "No transactions found" };
+        }
+
+        // 📌 Tìm giao dịch có `message` chứa `orderId` & số tiền hợp lệ
+        const transaction = data.result.find(tx => {
+            const msgText = tx.in_msg?.message || ""; // Lấy nội dung `message`
+            const txAmount = parseFloat(tx.in_msg.value) / 1e9; // Chuyển từ nanoTON sang TON
+            return msgText.includes(orderId) && txAmount === parseFloat(order.tonAmount);
+        });
 
         if (transaction) {
             // ✅ Cập nhật trạng thái đơn hàng
@@ -62,6 +68,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
         return { success: false, message: "Error fetching transaction data" };
     }
 }
+
 
 
 async function fetchTonPrice() {
