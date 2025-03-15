@@ -119,10 +119,10 @@ async function autoUpdatePaidOrders() {
 
 // ✅ Kiểm tra trạng thái giao dịch
 app.post("/api/check-transaction", async (req, res) => {
-    const { address, transactionId } = req.body;
+    const { orderId } = req.body;
 
     try {
-        const result = await paymentService.checkTransactionStatus(address, transactionId);
+        const result = await checkTransaction(orderId);
         res.status(200).json(result);
     } catch (error) {
         console.error("❌ Error checking transaction:", error);
