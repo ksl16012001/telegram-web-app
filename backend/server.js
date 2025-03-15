@@ -56,17 +56,33 @@ app.get("/api/process-payment", async (req, res) => {
     try {
         const { amount, username, price, tonAmount, paymentLink } = req.query;
 
+        // ✅ Kiểm tra nếu thiếu tham số
         if (!amount || !username || !price || !tonAmount || !paymentLink) {
-            return res.status(400).json({ error: "❌ Missing required parameters" });
+            console.error("❌ Missing parameters:", { amount, username, price, tonAmount, paymentLink });
+            return res.status(400).json({ error: "❌ Missing required parameters", details: { amount, username, price, tonAmount, paymentLink } });
+        }
+
+        console.log("📌 Received payment request:", { amount, username, price, tonAmount, paymentLink });
+
+        // ✅ Kiểm tra nếu `amount`, `price`, `tonAmount` không phải số
+        if (isNaN(amount) || isNaN(price) || isNaN(tonAmount)) {
+            console.error("❌ Invalid number format:", { amount, price, tonAmount });
+            return res.status(400).json({ error: "❌ Invalid number format", details: { amount, price, tonAmount } });
+        }
+
+        // ✅ Kiểm tra kết nối với MongoDB trước khi lưu
+        if (mongoose.connection.readyState !== 1) {
+            console.error("❌ MongoDB is not connected!");
+            return res.status(500).json({ error: "❌ MongoDB connection error" });
         }
 
         // ✅ Lưu đơn hàng vào MongoDB với trạng thái `pending`
         const order = new Order({
-            username: username,
-            packageAmount: amount,
-            packagePrice: price,
-            tonAmount: tonAmount,
-            paymentLink: paymentLink,
+            username,
+            packageAmount: Number(amount),
+            packagePrice: Number(price),
+            tonAmount: Number(tonAmount),
+            paymentLink,
             status: "pending",
             createdAt: new Date()
         });
@@ -77,12 +93,12 @@ app.get("/api/process-payment", async (req, res) => {
         res.status(200).json({
             message: "✅ Order created successfully",
             orderId: order._id,
-            paymentLink: paymentLink
+            paymentLink
         });
 
     } catch (error) {
         console.error("❌ Error processing payment:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "❌ Internal Server Error", details: error.message });
     }
 });
 async function autoUpdatePaidOrders() {
