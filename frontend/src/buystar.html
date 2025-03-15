@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,9 +32,11 @@
             background-image: url('../public/imgs/star.gif');
             background-size: cover;
         }
+
         h2 {
             margin-top: 10px;
         }
+
         .recipient-box {
             background-color: #333;
             padding: 10px;
@@ -44,12 +47,14 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .star-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-bottom: 20px;
         }
+
         .star-item {
             background-color: #444;
             padding: 15px;
@@ -57,13 +62,16 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .star-item:hover, .star-item.selected {
+
+        .star-item:hover,
+        .star-item.selected {
             background-color: #007bff;
         }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
 </head>
+
 <body>
     <div class="container">
         <!-- Hộp quà GIF -->
@@ -71,7 +79,7 @@
         <div id="user-info" style="color: white; padding: 10px;"></div>
         <h2>Telegram Stars</h2>
         <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
-        
+
         <!-- Chọn người nhận -->
         <div style="margin: 10px 0; text-align: center;">
             <label style="margin-right: 15px;">
@@ -81,16 +89,19 @@
                 <input type="radio" name="purchase-type" value="gift" onclick="updateRecipient()"> Gift
             </label>
         </div>
-        
+
         <!-- Recipient Selection -->
-        <div style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: white; display: flex; align-items: center; justify-content: space-between;">
-            <input type="text" id="username-input" placeholder="Enter username" style="background-color: #222; color: white; border: none; padding: 8px; width: 100%; text-align: center; border-radius: 5px;">
+        <div
+            style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: white; display: flex; align-items: center; justify-content: space-between;">
+            <input type="text" id="username-input" placeholder="Enter username"
+                style="background-color: #222; color: white; border: none; padding: 8px; width: 100%; text-align: center; border-radius: 5px;">
         </div>
         <!-- Gói sao -->
         <div class="star-grid" id="starList"></div>
 
         <!-- Hiển thị gói đã chọn -->
-        <div id="selectedPackage" class="selected-package" style="display: none; background: #444; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+        <div id="selectedPackage" class="selected-package"
+            style="display: none; background: #444; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
             <p id="selectedAmount"></p>
             <p id="selectedPrice"></p>
         </div>
@@ -173,7 +184,7 @@
             selectedPackageDiv.style.display = 'block';
             selectedAmount.textContent = `Number of stars: ${formatAmount(amount)}`;
             selectedPrice.textContent = `Price: $${price.toFixed(2)}`;
-            
+
             // Cập nhật nội dung nút
             orderButton.innerText = `Order ${amount} Stars`;
             orderButton.setAttribute("data-amount", amount);
@@ -192,6 +203,7 @@
             }
         }
 
+        // Xử lý khi người dùng click nút thanh toán
         async function buyStars() {
             const amount = orderButton.getAttribute("data-amount");
             const price = orderButton.getAttribute("data-price");
@@ -211,10 +223,31 @@
             const tonPrice = (price / tonPriceInUsd + 0.01).toFixed(2); // Price in TON
             const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonPrice * 1000000000}&text=${encodeURIComponent(username)}`;
 
-            window.open(paymentLink, "_blank");
-        }
+            // Gửi yêu cầu thanh toán lên server
+            try {
+                const response = await fetch("/process-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount, username })
+                });
 
+                const data = await response.json();
+                if (response.ok) {
+                    // Nếu thanh toán thành công, hiển thị link thanh toán và thông tin đơn hàng
+                    alert("Payment link generated. Please complete the payment.");
+                    window.open(data.paymentLink, "_blank");
+                    console.log("Order ID:", data.orderId); // Để bạn có thể theo dõi đơn hàng
+
+                } else {
+                    alert(data.error || "An error occurred while processing your payment.");
+                }
+            } catch (error) {
+                console.error("Error processing payment:", error);
+                alert("An error occurred while processing your payment. Please try again later.");
+            }
+        }
     </script>
     <script src="script.js"></script>
 </body>
+
 </html>
