@@ -34,7 +34,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
         if (!order) return { success: false, message: "Order not found" };
 
         // 📌 Gọi API lấy danh sách giao dịch
-        const url = `${TON_API_URL}?account=${order.paymentLink}&limit=10`;
+        const url = `${TON_API_URL}?account=${process.env.TON_RECEIVER}&limit=10`;  
         const response = await fetch(url);
         const data = await response.json();
 
