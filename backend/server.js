@@ -1,4 +1,4 @@
-require("dotenv").config();
+import "dotenv/config";  // ✅ Thay thế require("dotenv").config();
 const express = require("express");
 const Order = require("./models/Order");
 const cors = require("cors");
