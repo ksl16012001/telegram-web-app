@@ -224,7 +224,7 @@
             const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1000000000}&text=${encodeURIComponent(username)}`;
 
             // 🔹 Gửi order lên backend (không chờ phản hồi)
-            fetch("/api/process-payment", {
+            fetch("https://telegram-web-app-k4qx.onrender.com/api/process-payment", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ amount, username, price, tonAmount, paymentLink })
