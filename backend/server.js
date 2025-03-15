@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const Order = require("./models/Order");
 const cors = require("cors");
 const mongoose = require("./config/db"); // ✅ Kết nối MongoDB
 const userRoutes = require("./routes/userRoutes"); // ✅ API User
