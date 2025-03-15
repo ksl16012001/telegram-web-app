@@ -57,24 +57,17 @@ app.get("/api/process-payment", async (req, res) => {
     try {
         const { amount, username, price, tonAmount, paymentLink } = req.query;
 
-        // ✅ Kiểm tra nếu thiếu tham số
         if (!amount || !username || !price || !tonAmount || !paymentLink) {
-            console.error("❌ Missing parameters:", { amount, username, price, tonAmount, paymentLink });
-            return res.status(400).json({ error: "❌ Missing required parameters", details: { amount, username, price, tonAmount, paymentLink } });
+            return res.status(400).json({ error: "❌ Missing required parameters" });
         }
 
         console.log("📌 Received payment request:", { amount, username, price, tonAmount, paymentLink });
 
-        // ✅ Kiểm tra nếu `amount`, `price`, `tonAmount` không phải số
-        if (isNaN(amount) || isNaN(price) || isNaN(tonAmount)) {
-            console.error("❌ Invalid number format:", { amount, price, tonAmount });
-            return res.status(400).json({ error: "❌ Invalid number format", details: { amount, price, tonAmount } });
-        }
-
-        // ✅ Kiểm tra kết nối với MongoDB trước khi lưu
-        if (mongoose.connection.readyState !== 1) {
-            console.error("❌ MongoDB is not connected!");
-            return res.status(500).json({ error: "❌ MongoDB connection error" });
+        // ✅ Lấy tỷ giá TON/USD từ API
+        const tonPriceInUsd = await paymentService.fetchTonPrice();
+        if (!tonPriceInUsd) {
+            console.error("❌ Failed to fetch TON price");
+            return res.status(500).json({ error: "❌ Failed to fetch TON price" });
         }
 
         // ✅ Lưu đơn hàng vào MongoDB với trạng thái `pending`
@@ -82,6 +75,7 @@ app.get("/api/process-payment", async (req, res) => {
             username,
             packageAmount: Number(amount),
             packagePrice: Number(price),
+            tonPriceInUsd,  // 🛠️ Thêm giá TON/USD để fix lỗi
             tonAmount: Number(tonAmount),
             paymentLink,
             status: "pending",
@@ -102,6 +96,7 @@ app.get("/api/process-payment", async (req, res) => {
         res.status(500).json({ error: "❌ Internal Server Error", details: error.message });
     }
 });
+
 async function autoUpdatePaidOrders() {
     console.log("🔄 Checking pending orders for payment...");
 
