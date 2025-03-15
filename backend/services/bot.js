@@ -16,6 +16,7 @@ console.log(`🤖 Telegram Bot is running via Webhook at ${TELEGRAM_WEBHOOK_URL}
 bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
     const firstName = msg.chat.first_name || "User";
+    const lastName = msg.chat.last_name || "User";
     const username = msg.chat.username ? `@${msg.chat.username}` : "No username";
     const text = msg.text;
 
@@ -24,7 +25,7 @@ bot.on("message", async (msg) => {
     if (text === "/start") {
         // ✅ Gửi tin nhắn chào mừng
         bot.sendMessage(chatId, 
-        `👋 *Welcome, ${firstName}!* 🚀  
+        `👋 *Welcome, ${firstName}" "${lastName}!* 🚀  
 
 📌 *This is our official Telegram MiniApp!*  
 🔹 Manage your profile  
