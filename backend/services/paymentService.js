@@ -1,13 +1,11 @@
-const axios = require("axios");
-const Order = require("../models/Order"); // Import model Order
-
 const TONCENTER_API_URL = "https://toncenter.com/api/v2";
 
 // Lấy tỷ giá TON/USD
 async function fetchTonPrice() {
   try {
-    const response = await axios.get(`${TONCENTER_API_URL}/rates?tokens=ton&currencies=usd`);
-    return response.data.rates.TON.prices.USD;
+    const response = await fetch(`${TONCENTER_API_URL}/rates?tokens=ton&currencies=usd`);
+    const data = await response.json();
+    return data.rates.TON.prices.USD;
   } catch (error) {
     console.error('Error fetching TON price:', error);
     return null;
@@ -17,16 +15,10 @@ async function fetchTonPrice() {
 // Kiểm tra giao dịch trên địa chỉ ví
 async function checkTransactionStatus(address, transactionId) {
   try {
-    const response = await axios.get(`${TONCENTER_API_URL}/getTransactions`, {
-      params: {
-        address: address,
-        limit: 10,
-        to_lt: 0,
-        archival: false
-      }
-    });
+    const response = await fetch(`${TONCENTER_API_URL}/getTransactions?address=${address}&limit=10&to_lt=0&archival=false`);
+    const data = await response.json();
 
-    const transactions = response.data.result;
+    const transactions = data.result;
     const transaction = transactions.find(tx => tx.transaction_id.hash === transactionId);
 
     if (transaction) {
