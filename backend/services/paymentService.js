@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
-
+const fetch = require("node-fetch");
 // ✅ Xử lý thanh toán & lưu đơn hàng ngay lập tức với trạng thái `pending`
+
 async function processPayment(amount, username) {
     if (!amount || !username) {
         throw new Error("❌ Amount and username are required");
@@ -48,4 +49,6 @@ async function checkTransactionStatus(transactionId) {
     return { success: false, message: "❌ Payment not found" };
 }
 
-module.exports = { processPayment, checkTransactionStatus };
+
+// ✅ Export tất cả các hàm (bao gồm `fetchTonPrice`)
+module.exports = {  processPayment, checkTransactionStatus };

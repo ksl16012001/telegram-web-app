@@ -19,7 +19,7 @@ async function fetchTonPrice() {
         return null;
     }
 }
-const tonPriceInUsd = fetchTonPrice();
+
 // ✅ Cấu hình CORS
 app.use(cors({
     origin: "*",
