@@ -113,21 +113,32 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async function () {
+        document.addEventListener("DOMContentLoaded", function () {
             let user = Telegram.WebApp.initDataUnsafe?.user || null;
             const usernameInput = document.getElementById("username-input");
             const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
 
+            // 📌 Cập nhật giá trị input theo chế độ mua
             function updateRecipient() {
                 const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
-                usernameInput.value = selectedOption === "self" ? (user?.username || "No username") : "";
-                usernameInput.disabled = selectedOption === "self";
+                if (selectedOption === "self") {
+                    usernameInput.value = user?.username || "No username found";
+                    usernameInput.disabled = true;
+                } else {
+                    usernameInput.value = "";
+                    usernameInput.disabled = false;
+                }
             }
 
-            purchaseTypeRadios.forEach(radio => radio.addEventListener("change", updateRecipient));
+            // 📌 Gán sự kiện click cho radio buttons để cập nhật ngay khi thay đổi
+            purchaseTypeRadios.forEach(radio => {
+                radio.addEventListener("change", updateRecipient);
+            });
+
+            // 📌 Cập nhật ngay khi trang tải xong
             updateRecipient();
         });
-
+        // Danh sách gói sao và giá
         const starsPackages = [
             { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },
             { amount: 350, price: 5.95 }, { amount: 500, price: 8.5 }, { amount: 750, price: 12.75 },
@@ -142,48 +153,59 @@
         const selectedAmount = document.getElementById("selectedAmount");
         const selectedPrice = document.getElementById("selectedPrice");
         const orderButton = document.getElementById("orderButton");
-
+        function formatAmount(amount) {
+            if (amount >= 1000000) {
+                return (amount / 1000000) + 'M';
+            }
+            if (amount >= 1000) {
+                return (amount / 1000) + 'K';
+            }
+            return amount.toString();
+        }
+        // Hiển thị danh sách gói sao
         starsPackages.forEach((pkg, index) => {
             const item = document.createElement("div");
             item.className = "star-item";
-            item.innerHTML = `${pkg.amount} ⭐`;
+            item.innerHTML = `${formatAmount(pkg.amount)} ⭐`;
 
             item.onclick = function () {
-                document.querySelectorAll('.star-item').forEach(item => item.classList.remove('selected'));
-                item.classList.add('selected');
-
-                selectedPackageDiv.style.display = 'block';
-                selectedAmount.textContent = `Stars: ${pkg.amount}`;
-                selectedPrice.textContent = `Price: $${pkg.price.toFixed(2)}`;
-
-                orderButton.innerText = `Order ${pkg.amount} Stars`;
-                orderButton.dataset.amount = pkg.amount;
-                orderButton.dataset.price = pkg.price;
+                selectStarPackage(index, pkg.amount, pkg.price);
             };
 
             starList.appendChild(item);
         });
 
+        // Chọn gói sao
+        function selectStarPackage(index, amount, price) {
+            document.querySelectorAll('.star-item').forEach(item => item.classList.remove('selected'));
+            document.querySelectorAll('.star-item')[index].classList.add('selected');
+
+            // Hiển thị gói đã chọn
+            selectedPackageDiv.style.display = 'block';
+            selectedAmount.textContent = `Number of stars: ${formatAmount(amount)}`;
+            selectedPrice.textContent = `Price: $${price.toFixed(2)}`;
+
+            // Cập nhật nội dung nút
+            orderButton.innerText = `Order ${amount} Stars`;
+            orderButton.setAttribute("data-amount", amount);
+            orderButton.setAttribute("data-price", price);
+        }
+
+        // Xử lý thanh toán
         async function fetchTonPrice() {
             try {
-                console.log("🔄 Fetching TON price from backend...");
-                const response = await fetch('/api/get-ton-price');
-                if (!response.ok) throw new Error(`Backend error: ${response.status}`);
-
+                const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
                 const data = await response.json();
-                console.log("📌 API Response:", data);
-
-                if (data.tonPrice) return data.tonPrice;
-                throw new Error("Invalid response structure from backend");
+                return data.rates.TON.prices.USD; // Lấy tỷ giá USD/TON
             } catch (error) {
-                console.error('❌ Error fetching TON price:', error);
+                console.error('Error fetching TON price:', error);
                 return null;
             }
         }
 
         async function buyStars() {
-            const amount = orderButton.dataset.amount;
-            const price = orderButton.dataset.price;
+            const amount = orderButton.getAttribute("data-amount");
+            const price = orderButton.getAttribute("data-price");
             const username = document.getElementById("username-input").value.trim();
 
             if (!amount || !price || !username) {
@@ -197,21 +219,21 @@
                 return;
             }
 
-            const tonPrice = (price / tonPriceInUsd + 0.01).toFixed(2);
-            const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonPrice * 1000000000}&text=${encodeURIComponent(username)}`;
+            const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2); // Convert USD → TON
 
             try {
-                const response = await fetch("/api/payment/process-payment", {
+                const response = await fetch("/api/process-payment", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amount, username })
+                    body: JSON.stringify({ amount, username, price, tonAmount })
                 });
 
                 const data = await response.json();
                 if (response.ok) {
                     alert("Payment link generated. Please complete the payment.");
                     window.open(data.paymentLink, "_blank");
-                    console.log("Order ID:", data.orderId);
+
+                    alert("We will automatically update your order once the transaction is confirmed.");
                 } else {
                     alert(data.error || "An error occurred while processing your payment.");
                 }
@@ -220,7 +242,6 @@
                 alert("An error occurred while processing your payment. Please try again later.");
             }
         }
-
     </script>
     <script src="script.js"></script>
 </body>
