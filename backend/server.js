@@ -64,7 +64,7 @@ app.get("/api/process-payment", async (req, res) => {
         console.log("📌 Received payment request:", { amount, username, price, tonAmount, paymentLink });
 
         // ✅ Lấy tỷ giá TON/USD từ API
-        const tonPriceInUsd = fetchTonPrice();
+        const tonPriceInUsd =await  fetchTonPrice();
         if (!tonPriceInUsd) {
             console.error("❌ Failed to fetch TON price");
             return res.status(500).json({ error: "❌ Failed to fetch TON price" });
