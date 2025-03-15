@@ -1,15 +1,25 @@
-import "dotenv/config";  // ✅ Thay thế require("dotenv").config();
+require("dotenv").config();
 const express = require("express");
-const Order = require("./models/Order.js");
+const Order = require("./models/Order");
 const cors = require("cors");
-const mongoose = require("./config/db.js"); // ✅ Kết nối MongoDB
-const userRoutes = require("./routes/userRoutes.js"); // ✅ API User
-const { bot } = require("./services/bot.js"); // ✅ Telegram Bot
-const paymentService = require("./services/paymentService.js"); // ✅ Xử lý thanh toán
+const mongoose = require("./config/db"); // ✅ Kết nối MongoDB
+const userRoutes = require("./routes/userRoutes"); // ✅ API User
+const { bot } = require("./services/bot"); // ✅ Telegram Bot
+const paymentService = require("./services/paymentService"); // ✅ Xử lý thanh toán
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const tonPriceInUsd = await paymentService.fetchTonPrice();
+async function fetchTonPrice() {
+    try {
+        const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
+        const data = await response.json();
+        return data.rates.TON.prices.USD; // ✅ Lấy tỷ giá USD/TON
+    } catch (error) {
+        console.error('❌ Error fetching TON price:', error);
+        return null;
+    }
+}
+const tonPriceInUsd = fetchTonPrice();
 // ✅ Cấu hình CORS
 app.use(cors({
     origin: "*",
@@ -40,17 +50,7 @@ app.get("/", (req, res) => {
 });
 
 // ✅ API lấy giá TON/USD từ Backend
-app.get("/api/get-ton-price", async (req, res) => {
-    try {
-        const tonPrice = await paymentService.fetchTonPrice();
-        if (!tonPrice) return res.status(500).json({ error: "Failed to fetch TON price" });
 
-        res.json({ tonPrice });
-    } catch (error) {
-        console.error("❌ Error fetching TON price:", error);
-        res.status(500).json({ error: "Server error" });
-    }
-});
 
 // ✅ Xử lý giao dịch mua sao
 app.get("/api/process-payment", async (req, res) => {
