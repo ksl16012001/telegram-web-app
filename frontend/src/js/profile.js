@@ -179,9 +179,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <div class="info-box"><span>Username:</span> <span>@${user.username || "Not Set"}</span></div>
                 <div class="info-box"><span>Phone:</span> <span>${user.phone || "Not Shared"}</span></div>
                 <div class="info-box"><span>Coins:</span> <span>${user.coins || 0} 🟡</span></div>
-                <div class="info-box"><span>Tickets:</span> <span>${user.tickets || 0} 🎟️</span></div>
-                <div class="info-box"><span>Wallet:</span> <button id="connectWalletButton" class="wallet-button">Connect Wallet</button></div>
-                <div class="info-box"><span>Wallet Address:</span> <span id="walletStatus">${user.wallet || "Not Connected"}</span></div>
             `;
         } else {
             userCard.innerHTML = "<p>❌ Unable to fetch user data!</p>";
