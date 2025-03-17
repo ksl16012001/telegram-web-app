@@ -123,7 +123,7 @@ async function autoUpdatePaidOrders() {
         }
     }
 }
-const TON_API_URL="https://toncenter.com/api/v2/getTransactions?"
+const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
 async function checkTransaction(orderId, expectedTonAmount) {
     try {
         // 📌 Lấy đơn hàng từ DB
@@ -164,31 +164,44 @@ async function checkTransaction(orderId, expectedTonAmount) {
     }
 }
 app.post("/api/cancel-order", async (req, res) => {
-    const { orderId } = req.body;
-
     try {
+        const { orderId } = req.body;
+
+        // 🔹 Kiểm tra nếu `orderId` không tồn tại
+        if (!orderId) {
+            return res.status(400).json({ success: false, message: "Missing orderId" });
+        }
+
+        console.log(`📌 Attempting to cancel order: ${orderId}`);
+
+        // 🔹 Tìm đơn hàng theo `orderId`
         const order = await Order.findOne({ orderId });
 
         if (!order) {
+            console.log(`❌ Order not found: ${orderId}`);
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
+        // 🔹 Kiểm tra nếu đơn hàng đã được thanh toán
         if (order.status === "paid") {
+            console.log(`⚠️ Cannot cancel a paid order: ${orderId}`);
             return res.status(400).json({ success: false, message: "Cannot cancel a paid order" });
         }
 
+        // 🔹 Cập nhật trạng thái đơn hàng thành "canceled"
         order.status = "canceled";
         order.updatedAt = new Date();
         await order.save();
 
-        console.log(`❌ Order ${orderId} has been canceled`);
+        console.log(`✅ Order ${orderId} has been canceled`);
 
-        res.status(200).json({ success: true, message: "Order canceled successfully" });
+        return res.status(200).json({ success: true, message: "Order canceled successfully" });
     } catch (error) {
         console.error("❌ Error canceling order:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
+
 
 // ✅ Kiểm tra trạng thái giao dịch
 app.post("/api/check-transaction", async (req, res) => {
