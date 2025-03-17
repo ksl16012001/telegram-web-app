@@ -120,7 +120,7 @@ async function buyStars(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd + 0.01);
+    const tonAmount = (price / tonPriceInUsd)+0.01;
 
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
@@ -134,7 +134,7 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1000000000}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
     // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({

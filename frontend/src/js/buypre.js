@@ -52,7 +52,7 @@ async function buyPremium() {
         return;
     }
 
-    const tonAmount = (priceInUsd / tonPriceInUsd + 0.01).toFixed(2);
+    const tonAmount = (price / tonPriceInUsd)+0.01;
     const orderId = await generateOrderId(username, months);
 
     const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1e9}&text=${orderId}`;
