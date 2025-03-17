@@ -222,8 +222,17 @@
 
             const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2); // Convert USD → TON
 
-            // 🔹 Tạo orderId duy nhất
-            const orderId = `ORDER-${Date.now()}`;
+            // 🔹 Tạo orderId bằng cách mã hóa dữ liệu
+            const timestamp = Date.now();
+            const randomString = Math.random().toString(36).substring(2, 10); // Chuỗi ngẫu nhiên
+            const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
+
+            // 🔹 Mã hóa orderId bằng SHA-256
+            const encoder = new TextEncoder();
+            const data = encoder.encode(rawOrderId);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20); // Cắt ngắn để dễ đọc
 
             const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1000000000}&text=${encodeURIComponent(orderId)}`;
 

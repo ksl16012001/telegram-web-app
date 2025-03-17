@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
+    orderId: { type: String, required: true, unique: true }, // 🔹 Thêm orderId để định danh đơn hàng
     username: { type: String, required: true },
     packageAmount: { type: Number, required: true },
     packagePrice: { type: Number, required: true },
