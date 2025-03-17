@@ -109,8 +109,7 @@
         </div>
 
         <!-- Nút đặt hàng -->
-        <button id="orderButton" class="order-button" onclick="buyStars()">Order</button>
-
+        <button id="orderButton" class="order-button" onclick="buyStars('Buy Star')">Order</button>
         <!-- Footer -->
     </div>
 
@@ -205,10 +204,14 @@
             }
         }
 
-        async function buyStars() {
+        async function buyStars(serviceType) {
             const amount = orderButton.getAttribute("data-amount");
             const price = orderButton.getAttribute("data-price");
             const username = document.getElementById("username-input").value.trim();
+
+            // 🔹 Lấy userId từ Telegram WebApp
+            let user = Telegram.WebApp.initDataUnsafe?.user || null;
+            let userId = user?.id || "null"; // Nếu không có user, đặt là "null"
 
             if (!amount || !price || !username) {
                 Swal.fire({
@@ -251,39 +254,20 @@
 
             // 🔹 Gửi order lên backend
             const queryParams = new URLSearchParams({
+                userId: userId,
                 amount: amount,
                 username: username,
                 price: price,
                 tonAmount: tonAmount,
                 paymentLink: paymentLink,
-                orderId: orderId
+                orderId: orderId,
+                service: serviceType // 🔹 Gửi loại dịch vụ (Buy Star hoặc Buy Premium)
             }).toString();
 
             fetch(`https://telegram-web-app-k4qx.onrender.com/api/process-payment?${queryParams}`, { method: "GET" });
 
             // 🔹 Hiển thị thông tin đơn hàng
-            Swal.fire({
-                title: "✅ Order Created!",
-                html: `
-            <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Username:</strong> ${username}</p>
-            <p><strong>Amount:</strong> ${amount} Stars</p>
-            <p><strong>Price:</strong> $${price}</p>
-            <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
-            <a href="${paymentLink}" target="_blank" class="swal2-confirm swal2-styled" style="background-color:#3085d6">💳 Pay Now</a>
-        `,
-                showCancelButton: true,
-                cancelButtonText: "❌ Cancel Order",
-                confirmButtonText: "✅ Check Transaction",
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#d33"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    checkTransaction(orderId);
-                } else {
-                    cancelOrder(orderId);
-                }
-            });
+            showOrderModal(orderId, username, amount, price, tonAmount, paymentLink);
 
             // 🔹 Mở link thanh toán
             window.open(paymentLink, "_blank");

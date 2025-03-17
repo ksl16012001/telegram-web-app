@@ -55,28 +55,34 @@ app.get("/", (req, res) => {
 // ✅ Xử lý giao dịch mua sao
 app.get("/api/process-payment", async (req, res) => {
     try {
-        const { amount, username, price, tonAmount, paymentLink, orderId } = req.query;
+        const { userId, amount, username, price, tonAmount, paymentLink, orderId, service } = req.query;
 
-        if (!amount || !username || !price || !tonAmount || !paymentLink || !orderId) {
+        if (!userId || !amount || !username || !price || !tonAmount || !paymentLink || !orderId || !service) {
             return res.status(400).json({ error: "❌ Missing required parameters" });
         }
 
-        console.log("📌 Received payment request:", { amount, username, price, tonAmount, paymentLink, orderId });
+        console.log("📌 Received payment request:", { orderId, userId, username, service });
 
-        // ✅ Lấy tỷ giá TON/USD từ API
         const tonPriceInUsd = await fetchTonPrice();
         if (!tonPriceInUsd) {
-            console.error("❌ Failed to fetch TON price");
             return res.status(500).json({ error: "❌ Failed to fetch TON price" });
         }
 
-        // ✅ Lưu đơn hàng vào MongoDB với trạng thái `pending`
+        // 📌 Kiểm tra userId có tồn tại không
+        const userExists = await User.findOne({ id: userId });
+        if (!userExists) {
+            return res.status(404).json({ error: "❌ User not found" });
+        }
+
+        // 📌 Lưu đơn hàng vào MongoDB
         const order = new Order({
-            orderId, // Lưu orderId từ text trong paymentLink
+            orderId,
+            userId,
             username,
+            service, // 🔹 Thêm loại dịch vụ
             packageAmount: Number(amount),
             packagePrice: Number(price),
-            tonPriceInUsd,  
+            tonPriceInUsd,
             tonAmount: Number(tonAmount),
             paymentLink,
             status: "pending",
@@ -91,7 +97,6 @@ app.get("/api/process-payment", async (req, res) => {
             orderId,
             paymentLink
         });
-
     } catch (error) {
         console.error("❌ Error processing payment:", error);
         res.status(500).json({ error: "❌ Internal Server Error", details: error.message });
