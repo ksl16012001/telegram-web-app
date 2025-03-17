@@ -125,6 +125,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                     title: "❌ Order Canceled!",
                     text: "Your order has been canceled successfully.",
                     confirmButtonColor: "#d33"
+                }).then(() => {
+                    // 🔹 Đóng modal chi tiết đơn hàng nếu đang mở
+                    closeModal();
+    
+                    // 🔹 Cập nhật lại danh sách đơn hàng để hiển thị trạng thái mới
+                    fetchUserOrders(userId);
                 });
             } else {
                 Swal.fire({
@@ -143,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 confirmButtonColor: "#d33"
             });
         }
-    }
+    }    
 
     // 🔹 Đóng modal
     function closeModal() {
