@@ -118,6 +118,72 @@ async function autoUpdatePaidOrders() {
         }
     }
 }
+const TON_API_URL="https://toncenter.com/api/v2/getTransactions?"
+async function checkTransaction(orderId, expectedTonAmount) {
+    try {
+        // 📌 Lấy đơn hàng từ DB
+        const order = await Order.findOne({ orderId }); // Tìm đơn hàng theo orderId
+        if (!order) return { success: false, message: "Order not found" };
+
+        // 📌 Gọi API lấy danh sách giao dịch
+        const url = `${TON_API_URL}?address=${process.env.TON_RECEIVER}&limit=100`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data.result || data.result.length === 0) {
+            return { success: false, message: "No transactions found" };
+        }
+
+        // 📌 Tìm giao dịch khớp orderId trong message & amount
+        const transaction = data.result.find(tx =>
+            tx.in_msg?.message?.includes(orderId) &&  // Kiểm tra orderId trong message
+            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount) // Kiểm tra số tiền
+        );
+
+        if (transaction) {
+            // ✅ Cập nhật trạng thái đơn hàng
+            order.status = "paid";
+            order.transactionId = transaction.transaction_id.hash;
+            order.updatedAt = new Date();
+            await order.save();
+
+            console.log(`✅ Order ${order.orderId} marked as PAID`);
+
+            return { success: true, transactionId: transaction.transaction_id.hash };
+        } else {
+            return { success: false, message: "Transaction not found or incorrect amount" };
+        }
+    } catch (error) {
+        console.error("❌ Error checking transaction:", error);
+        return { success: false, message: "Error fetching transaction data" };
+    }
+}
+app.post("/api/cancel-order", async (req, res) => {
+    const { orderId } = req.body;
+
+    try {
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status === "paid") {
+            return res.status(400).json({ success: false, message: "Cannot cancel a paid order" });
+        }
+
+        order.status = "canceled";
+        order.updatedAt = new Date();
+        await order.save();
+
+        console.log(`❌ Order ${orderId} has been canceled`);
+
+        res.status(200).json({ success: true, message: "Order canceled successfully" });
+    } catch (error) {
+        console.error("❌ Error canceling order:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
 
 // ✅ Kiểm tra trạng thái giao dịch
 app.post("/api/check-transaction", async (req, res) => {
