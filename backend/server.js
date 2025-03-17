@@ -211,6 +211,23 @@ app.post("/api/check-transaction", async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error", error: error.message });
     }
 });
+app.get("/api/user-orders/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // 📌 Tìm đơn hàng theo userId
+        const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+
+        if (!orders.length) {
+            return res.status(404).json({ success: false, message: "No orders found" });
+        }
+
+        res.status(200).json({ success: true, orders });
+    } catch (error) {
+        console.error("❌ Error fetching user orders:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
 
 
 // ✅ Khởi chạy server
