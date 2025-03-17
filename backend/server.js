@@ -6,7 +6,7 @@ const mongoose = require("./config/db"); // ✅ Kết nối MongoDB
 const userRoutes = require("./routes/userRoutes"); // ✅ API User
 const { bot } = require("./services/bot"); // ✅ Telegram Bot
 const paymentService = require("./services/paymentService"); // ✅ Xử lý thanh toán
-
+const User = require("./models/User"); // Đảm bảo đường dẫn đúng
 const app = express();
 const PORT = process.env.PORT || 3000;
 async function fetchTonPrice() {
