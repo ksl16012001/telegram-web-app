@@ -19,6 +19,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
+            /* 🔹 Ngăn body bị kéo dài khi thêm nội dung */
         }
 
         .container {
@@ -27,7 +29,13 @@
             padding: 15px;
             text-align: center;
             width: 320px;
+            height: 500px;
+            /* 🔹 Cố định chiều cao để tránh nhảy */
             box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* 🔹 Ngăn nội dung bên trong đẩy giãn container */
         }
 
         .profile-header {
@@ -74,6 +82,7 @@
             background: #0056b3;
         }
 
+        /* 🔹 Đảm bảo danh sách giao dịch không đẩy nội dung khác */
         .transactions {
             background: #1c1f26;
             padding: 10px;
@@ -81,31 +90,12 @@
             margin-top: 15px;
             text-align: center;
             font-size: 14px;
-        }
-
-        .bottom-menu {
-            display: flex;
-            justify-content: space-around;
-            padding: 8px;
-            margin-top: 15px;
-            background: #2a2a2a;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        .bottom-menu button {
-            background: none;
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 6px;
-            font-size: 14px;
-        }
-
-        .bottom-menu button:hover {
-            color: #ffcc00;
+            flex-grow: 1;
+            /* 🔹 Duy trì khoảng trống bên trong container */
+            overflow-y: auto;
+            /* 🔹 Tạo cuộn thay vì đẩy nội dung */
+            max-height: 200px;
+            /* 🔹 Giới hạn chiều cao */
         }
 
         .bottom-menu {
@@ -115,11 +105,10 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 900px;
-            /* background-color: #1c1f26; */
+            background: #2a2a2a;
             display: flex;
             justify-content: space-around;
             padding: 10px;
-            /* box-shadow: 0px -2px 5px var(--card-shadow); */
         }
 
         .bottom-menu button {
@@ -146,10 +135,6 @@
         a {
             text-decoration: none;
             color: #ffffff;
-        }
-
-        .bottom-menu button:hover {
-            color: var(--accent-color);
         }
     </style>
 </head>
@@ -179,4 +164,5 @@
     <script src="./js/index.js"></script>
     <script src="./js/profile.js"></script>
 </body>
+
 </html>
