@@ -78,7 +78,7 @@ bot.onText(/\/admin/, async (msg) => {
 
         orders.forEach(order => {
             message += `🆔 Order ID: \`${order.orderId}\`\n`;
-            message += `👤 User: *${order.username}*\n`;tonPriceInUsd
+            message += `👤 User: *${order.username}*\n`;
             message += `⭐ Stars: *${order.packageAmount}*\n`;
             message += `💰 Price: *$${order.packagePrice}*\n`;
             message += `⭐ TonPriceInUsd: *${order.tonPriceInUsd}*\n`;
