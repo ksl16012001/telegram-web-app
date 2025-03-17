@@ -1,0 +1,42 @@
+.gift-box {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background-image: url('../public/imgs/star.gif');
+    background-size: cover;
+}
+
+h2 {
+    margin-top: 10px;
+}
+
+.recipient-box {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.star-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.star-item {
+    background-color: #444;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.star-item:hover,
+.star-item.selected {
+    background-color: #007bff;
+}

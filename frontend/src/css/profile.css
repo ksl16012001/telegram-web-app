@@ -1,0 +1,128 @@
+body {
+    font-family: "Arial", sans-serif;
+    background: linear-gradient(135deg, #1e1f22, #2a2d35);
+    color: white;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    /* 🔹 Ngăn body bị kéo dài khi thêm nội dung */
+}
+
+.container {
+    background: #1e1e1e;
+    border-radius: 12px;
+    margin-bottom: 60px;
+    padding: 15px;
+    text-align: center;
+    width: 320px;
+    height: 100%;
+    /* 🔹 Cố định chiều cao để tránh nhảy */
+    box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* 🔹 Ngăn nội dung bên trong đẩy giãn container */
+}
+
+.profile-header {
+    background: #1c1f26;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.avatar img {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    border: 2px solid #ffcc00;
+}
+
+.username {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.info-box {
+    background: #262a33;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.wallet-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.wallet-button:hover {
+    background: #0056b3;
+}
+
+/* 🔹 Đảm bảo danh sách giao dịch không đẩy nội dung khác */
+.transactions {
+    background: #1c1f26;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    flex-grow: 1;
+    /* 🔹 Duy trì khoảng trống bên trong container */
+    overflow-y: auto;
+    /* 🔹 Tạo cuộn thay vì đẩy nội dung */
+    max-height: 100%;
+    /* 🔹 Giới hạn chiều cao */
+}
+
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 900px;
+    background: #2a2a2a;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+}
+
+.bottom-menu button {
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+}
+
+.bottom-menu button:hover {
+    color: #ffcc00;
+    transform: scale(1.1);
+}
+
+.bottom-menu button:active {
+    transform: scale(0.95);
+    opacity: 0.7;
+}
+
+a {
+    text-decoration: none;
+    color: #ffffff;
+}
