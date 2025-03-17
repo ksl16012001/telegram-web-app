@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async function () {
     Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
+    Telegram.WebApp.setViewportHeight(1000);
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let id = user?.id || "null";
     let userCard = document.getElementById("usercard");
