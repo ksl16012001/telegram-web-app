@@ -212,39 +212,51 @@
                     let orderItem = document.createElement("div");
                     orderItem.classList.add("order-item");
                     orderItem.innerHTML = `
-                <div class="info-box" onclick="showOrderDetails('${order.orderId}', '${order.service}', '${order.packageAmount}', '${order.packagePrice}', '${order.tonAmount}', '${order.status}', '${order.paymentLink}')">
-                    <strong>${order.service}</strong> - ${order.packageAmount} Stars
-                    <br> Status: <span style="color: ${order.status === 'pending' ? 'orange' : (order.status === 'paid' ? 'green' : 'red')}">
-                        ${order.status.toUpperCase()}
-                    </span>
-                </div>
-            `;
+            <div class="info-box">
+                <strong>${order.service}</strong> - ${order.packageAmount} Stars
+                <br> Status: <span style="color: ${order.status === 'pending' ? 'orange' : (order.status === 'paid' ? 'green' : 'red')}">
+                    ${order.status.toUpperCase()}
+                </span>
+            </div>
+        `;
+                    // 🔥 Thêm sự kiện click bằng `addEventListener`
+                    orderItem.addEventListener("click", function () {
+                        showOrderDetails(order.orderId, order.service, order.packageAmount, order.packagePrice, order.tonAmount, order.status, order.paymentLink);
+                    });
+
                     orderList.appendChild(orderItem);
                 });
             }
 
             // 🔹 Hiển thị modal chi tiết đơn hàng
             function showOrderDetails(orderId, service, amount, price, tonAmount, status, paymentLink) {
-                const modalHTML = `
-            <div id="order-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-                <div id="order-modal" style="background: white; padding: 20px; border-radius: 10px; width: 350px; text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
-                    <h2>Order Details</h2>
-                    <p><strong>Service:</strong> ${service}</p>
-                    <p><strong>Amount:</strong> ${amount} Stars</p>
-                    <p><strong>Price:</strong> $${price}</p>
-                    <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
-                    <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' : (status === 'paid' ? 'green' : 'red')}">${status.toUpperCase()}</span></p>
+                console.log("📌 Opening order details:", orderId); // Debug log
 
-                    <div style="margin-top: 15px;">
-                        ${status === 'pending' ? `
-                            <button onclick="payNow('${paymentLink}')" style="background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">💳 Pay Now</button>
-                            <button onclick="cancelOrder('${orderId}')" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">❌ Cancel Order</button>
-                        ` : ""}
-                        <button onclick="closeModal()" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Close</button>
-                    </div>
+                const modalHTML = `
+        <div id="order-modal-overlay" style="
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center;
+            z-index: 1000;">
+            <div id="order-modal" style="
+                background: white; padding: 20px; border-radius: 10px; width: 350px;
+                text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
+                <h2>Order Details</h2>
+                <p><strong>Service:</strong> ${service}</p>
+                <p><strong>Amount:</strong> ${amount} Stars</p>
+                <p><strong>Price:</strong> $${price}</p>
+                <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
+                <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' : (status === 'paid' ? 'green' : 'red')}">${status.toUpperCase()}</span></p>
+
+                <div style="margin-top: 15px;">
+                    ${status === 'pending' ? `
+                        <button onclick="payNow('${paymentLink}')" style="background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">💳 Pay Now</button>
+                        <button onclick="cancelOrder('${orderId}')" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">❌ Cancel Order</button>
+                    ` : ""}
+                    <button onclick="closeModal()" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Close</button>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
                 // Xóa modal cũ nếu có
                 const existingModal = document.getElementById("order-modal-overlay");
@@ -252,12 +264,11 @@
                     existingModal.remove();
                 }
 
-                // Thêm modal vào trang
+                // Thêm modal mới vào body
                 const modal = document.createElement("div");
                 modal.innerHTML = modalHTML;
                 document.body.appendChild(modal);
             }
-
             // 🔹 Thanh toán ngay
             function payNow(paymentLink) {
                 window.open(paymentLink, "_blank");
