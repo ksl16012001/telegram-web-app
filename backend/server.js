@@ -189,14 +189,24 @@ app.post("/api/cancel-order", async (req, res) => {
 app.post("/api/check-transaction", async (req, res) => {
     const { orderId } = req.body;
 
+    if (!orderId) {
+        return res.status(400).json({ success: false, message: "❌ Missing orderId" });
+    }
+
     try {
+        console.log(`📌 Checking transaction for Order ID: ${orderId}`);
+
         const result = await checkTransaction(orderId);
+
+        console.log(`✅ Transaction check result:`, result);
+
         res.status(200).json(result);
     } catch (error) {
         console.error("❌ Error checking transaction:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, message: "Internal server error", error: error.message });
     }
 });
+
 
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
