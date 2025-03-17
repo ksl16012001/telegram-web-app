@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         modalOverlay.innerHTML = `
 <div id="order-modal" style="
-    background: white; padding: 20px; border-radius: 10px; width: 350px;
+    background: black; padding: 20px; border-radius: 10px; width: 350px;
     text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
     <h2>Order Details</h2>
     <p><strong>Service:</strong> ${service}</p>
