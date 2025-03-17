@@ -77,10 +77,11 @@ bot.onText(/\/admin/, async (msg) => {
         let message = "📌 *Latest Orders:*\n\n";
 
         orders.forEach(order => {
-            message += `🆔 Order ID: \`${order._id}\`\n`;
-            message += `👤 User: *${order.username}*\n`;
+            message += `🆔 Order ID: \`${order.orderId}\`\n`;
+            message += `👤 User: *${order.username}*\n`;tonPriceInUsd
             message += `⭐ Stars: *${order.packageAmount}*\n`;
             message += `💰 Price: *$${order.packagePrice}*\n`;
+            message += `⭐ TonPriceInUsd: *${order.tonPriceInUsd}*\n`;
             message += `🕒 Status: *${order.status.toUpperCase()}*\n`;
             if (order.paymentLink) message += `🔗 [Payment Link](${order.paymentLink})\n\n`;
         });
