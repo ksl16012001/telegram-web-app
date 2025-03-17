@@ -112,23 +112,36 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 🔹 Hủy đơn hàng
     async function cancelOrder(orderId) {
         try {
-            const response = await fetch("/api/cancel-order", {
+            const response = await fetch("https://telegram-web-app-k4qx.onrender.com/api/cancel-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderId })
             });
             const result = await response.json();
-
+    
             if (result.success) {
-                alert("❌ Order Canceled!");
-                closeModal();
-                fetchUserOrders(userId); // 🔹 Cập nhật lại danh sách đơn hàng
+                Swal.fire({
+                    icon: "info",
+                    title: "❌ Order Canceled!",
+                    text: "Your order has been canceled successfully.",
+                    confirmButtonColor: "#d33"
+                });
             } else {
-                alert("⚠️ Cannot Cancel Order!");
+                Swal.fire({
+                    icon: "warning",
+                    title: "⚠️ Cannot Cancel Order!",
+                    text: result.message,
+                    confirmButtonColor: "#d33"
+                });
             }
         } catch (error) {
             console.error("❌ Error canceling order:", error);
-            alert("❌ Error canceling order");
+            Swal.fire({
+                icon: "error",
+                title: "❌ Error",
+                text: "Error canceling order",
+                confirmButtonColor: "#d33"
+            });
         }
     }
 
