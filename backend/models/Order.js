@@ -9,7 +9,7 @@ const OrderSchema = new mongoose.Schema({
     tonAmount: { type: Number, required: true },
     paymentLink: { type: String, required: true },
     transactionId: { type: String, default: null }, // 🔹 Cập nhật khi xác nhận giao dịch
-    status: { type: String, enum: ["pending", "paid", "complete"], default: "pending" }, // 🔹 Trạng thái đơn hàng
+    status: { type: String, enum: ["pending", "paid", "complete","canceled"], default: "pending" }, // 🔹 Trạng thái đơn hàng
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
