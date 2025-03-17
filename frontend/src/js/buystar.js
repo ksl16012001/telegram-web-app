@@ -120,7 +120,7 @@ async function buyStars(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
+    const tonAmount = (price / tonPriceInUsd + 0.01);
 
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
