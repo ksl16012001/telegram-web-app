@@ -1,6 +1,14 @@
 document.addEventListener("DOMContentLoaded", async function () {
     Telegram.WebApp.ready();
-
+    const bottomMenu = document.createElement("div");
+    bottomMenu.className = "bottom-menu";
+    bottomMenu.innerHTML = `
+        <button onclick="location.href='index.html'">Home</button>
+        <button onclick="location.href='buystar.html'">Buy Stars</button>
+        <button onclick="location.href='buypre.html'">Buy Premium</button>
+        <button onclick="location.href='profile.html'">Profile</button>
+    `;
+    document.body.appendChild(bottomMenu);
     let tonPriceInUsd = await fetchTonPrice();
     if (!tonPriceInUsd) {
         document.getElementById("tonPrice").innerText = "❌ Failed to load TON price";
