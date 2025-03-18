@@ -30,11 +30,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     function displayOrders(orders) {
         orderList.innerHTML = "";
         orders.forEach(order => {
+            const amountDisplay = order.service == "Buy Star" ? `${order.amount} Stars` : `${order.amount} Months`;
             let orderItem = document.createElement("div");
             orderItem.classList.add("order-item");
             orderItem.innerHTML = `
     <div class="info-box">
-        <strong>${order.service}</strong> - ${order.packageAmount} Stars
+        <strong>${order.service}</strong> - ${order.packageAmount} ${amountDisplay}
         <br> Status: <span style="color: ${order.status === 'pending' ? 'orange' : (order.status === 'paid' ? 'green' : 'red')}">
             ${order.status.toUpperCase()}
         </span>
