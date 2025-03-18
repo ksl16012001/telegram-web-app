@@ -52,7 +52,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 🔹 Hiển thị modal chi tiết đơn hàng
     function showOrderDetails(orderId, service, amount, price, tonAmount, status, paymentLink) {
         console.log("📌 Opening order details:", orderId); // Debug log
-
+    
+        // 🔹 Xác định loại dịch vụ để hiển thị số lượng phù hợp
+        const amountDisplay = service === "Buy Star" ? `${amount} Stars` : `${amount} Months`;
+    
         // 🔹 Tạo modal
         const modalOverlay = document.createElement("div");
         modalOverlay.id = "order-modal-overlay";
@@ -66,37 +69,37 @@ document.addEventListener("DOMContentLoaded", async function () {
         modalOverlay.style.alignItems = "center";
         modalOverlay.style.justifyContent = "center";
         modalOverlay.style.zIndex = "1000";
-
+    
         modalOverlay.innerHTML = `
-<div id="order-modal" style="
-    background: black; padding: 20px; border-radius: 10px; width: 350px;
-    text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
-    <h2>Order Details</h2>
-    <p><strong>Service:</strong> ${service}</p>
-    <p><strong>Amount:</strong> ${amount} Stars</p>
-    <p><strong>Price:</strong> $${price}</p>
-    <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
-    <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' : (status === 'paid' ? 'green' : 'red')}">${status.toUpperCase()}</span></p>
-
-    <div id="modal-buttons" style="margin-top: 15px;">
-        ${status === 'pending' ? `
-            <button id="payNowButton" style="background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">💳 Pay Now</button>
-            <button id="cancelOrderButton" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">❌ Cancel Order</button>
-        ` : ""}
-        <button id="closeModalButton" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+    <div id="order-modal" style="
+        background: black; padding: 20px; border-radius: 10px; width: 350px;
+        text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
+        <h2>Order Details</h2>
+        <p><strong>Service:</strong> ${service}</p>
+        <p><strong>Amount:</strong> ${amountDisplay}</p>
+        <p><strong>Price:</strong> $${price}</p>
+        <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
+        <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' : (status === 'paid' ? 'green' : 'red')}">${status.toUpperCase()}</span></p>
+    
+        <div id="modal-buttons" style="margin-top: 15px;">
+            ${status === 'pending' ? `
+                <button id="payNowButton" style="background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">💳 Pay Now</button>
+                <button id="cancelOrderButton" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">❌ Cancel Order</button>
+            ` : ""}
+            <button id="closeModalButton" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+        </div>
     </div>
-</div>
-`;
-
+    `;
+    
         // Xóa modal cũ nếu có
         const existingModal = document.getElementById("order-modal-overlay");
         if (existingModal) {
             existingModal.remove();
         }
-
+    
         // 🔹 Thêm modal vào DOM
         document.body.appendChild(modalOverlay);
-
+    
         // 🔥 Gán sự kiện sau khi modal đã được thêm vào DOM
         if (status === "pending") {
             document.getElementById("payNowButton").addEventListener("click", () => payNow(paymentLink));
@@ -104,6 +107,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
         document.getElementById("closeModalButton").addEventListener("click", closeModal);
     }
+    
 
     function payNow(paymentLink) {
         window.open(paymentLink, "_blank");
