@@ -64,41 +64,78 @@ async function fetchTonPrice() {
 }
 
 // 🔹 Xử lý đặt mua Premium
-async function buyPremium() {
-    const username = document.getElementById("username-input").value.trim();
+async function buyPremium(serviceType) {
     const selectedOption = document.querySelector(".subscription-options .selected");
-    if (!username) {
-        alert("❌ Please enter a Telegram username");
+    const username = document.getElementById("username-input").value.trim();
+
+    // 🔹 Lấy userId từ Telegram WebApp
+    let user = Telegram.WebApp.initDataUnsafe?.user || null;
+    let userId = user?.id || "null";
+
+    if (!username || !selectedOption) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ Missing Information",
+            text: "Please select a subscription and enter a valid username.",
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "OK"
+        });
         return;
     }
 
-    const months = selectedOption.getAttribute("data-months");
-    const priceInUsd = parseFloat(selectedOption.getAttribute("data-price"));
+    const amount = selectedOption.getAttribute("data-months"); // 🔹 `amount` giờ là số tháng
+    const price = parseFloat(selectedOption.getAttribute("data-price"));
     const tonPriceInUsd = await fetchTonPrice();
+
     if (!tonPriceInUsd) {
-        alert("❌ Failed to fetch TON price. Try again later.");
+        Swal.fire({
+            icon: "error",
+            title: "❌ TON Price Error",
+            text: "Failed to fetch TON price. Please try again later.",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Retry"
+        });
         return;
     }
 
-    const tonAmount = (priceInUsd / tonPriceInUsd + 0.01).toFixed(2);
-    const orderId = await generateOrderId(username, months);
+    const tonAmount = (price / tonPriceInUsd) + 0.01;
 
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1e9}&text=${orderId}`;
+    // 🔹 Tạo orderId duy nhất
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 10);
+    const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
 
-    fetch(`/api/process-premium?` + 
-        new URLSearchParams({
-            orderId: orderId,
-            username: username,
-            service: "Premium",
-            months: months,
-            price: priceInUsd,
-            tonAmount: tonAmount,
-            paymentLink: paymentLink
-        }), { method: "GET" });
+    // 🔹 Mã hóa orderId bằng SHA-256
+    const encoder = new TextEncoder();
+    const data = encoder.encode(rawOrderId);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    showOrderModal(orderId, username, months, priceInUsd, tonAmount, paymentLink);
+    // 🔹 Tạo link thanh toán
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+
+    // 🔹 Gửi order lên backend
+    const queryParams = new URLSearchParams({
+        userId: userId,
+        amount: amount, // 🔹 Số tháng thay vì số sao
+        username: username,
+        price: price,
+        tonAmount: tonAmount,
+        paymentLink: paymentLink,
+        orderId: orderId,
+        service: serviceType // 🔹 Gửi loại dịch vụ (Buy Star hoặc Buy Premium)
+    }).toString();
+
+    fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
+
+    // 🔹 Hiển thị thông tin đơn hàng
+    showOrderModal(orderId, username, amount + " Months", price, tonAmount, paymentLink);
+
+    // 🔹 Mở link thanh toán
     window.open(paymentLink, "_blank");
 }
+
 
 // 🔹 Mã hóa `orderId` bằng SHA-256 để tránh trùng lặp
 async function generateOrderId(username, months) {
