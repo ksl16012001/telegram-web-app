@@ -1,5 +1,23 @@
 document.addEventListener("DOMContentLoaded", async function () {
     Telegram.WebApp.ready();
+    function updateRecipient() {
+        const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
+        if (selectedOption === "self") {
+            let user = Telegram.WebApp.initDataUnsafe?.user || null;
+            usernameInput.value = user?.username || "No username found";
+            usernameInput.disabled = true;
+        } else {
+            usernameInput.value = "";
+            usernameInput.disabled = false;
+        }
+    }
+
+    purchaseTypeRadios.forEach(radio => {
+        radio.addEventListener("change", updateRecipient);
+    });
+
+    updateRecipient(); // Gọi lần đầu khi trang tải xong
+    
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
