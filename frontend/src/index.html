@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
@@ -23,7 +25,7 @@
         <p>Buy airtime and airtime package</p>
 
         <!-- Games Section -->
-        <div class="section">
+        <div class="section game">
             <img src="/assets/game.webp" alt="Games">
             <div class="section-content">
                 <div class="section-title">
@@ -35,7 +37,8 @@
         </div>
 
         <!-- Telegram Premium Section -->
-        <div class="section">
+        <a href="buypre.html">
+        <div class="section premium">
             <img src="assets/pre.avif" alt="Telegram Premium">
             <div class="section-content">
                 <div class="section-title">
@@ -45,21 +48,25 @@
                 <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
             </div>
         </div>
+        </a>
 
         <!-- Telegram Stars Section -->
-        <div class="section">
-            <img src="/assets/star.jpg" alt="Telegram Stars">
-            <div class="section-content">
-                <div class="section-title">
-                    <span>Telegram Stars</span>
-                    <a href="buystar.html"><button class="gift-button" onclick="redirectToBuyStar()">GIFT</button></a>
+        <a href="buystar.html">
+            <div class="section">
+                <img src="/assets/star.jpg" alt="Telegram Stars">
+                <div class="section-content">
+                    <div class="section-title">
+                        <span>Telegram Stars</span>
+                        <a href="buystar.html"><button class="gift-button">GIFT</button></a>
+                    </div>
+                    <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
                 </div>
-                <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
             </div>
-        </div>
+        </a>
 
         <!-- Navigation Menu -->
     </div>
     <script src="./js/index.js"></script>
 </body>
+
 </html>

@@ -121,3 +121,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 📌 Kiểm tra số điện thoại và cập nhật nếu cần
     await checkUserContact(user);
 });
+document.addEventListener("DOMContentLoaded", function () {
+    // 🔹 Lấy tất cả phần tử có class "star"
+    const stars = document.querySelectorAll(".star");
+
+    // 🔹 Lặp qua từng phần tử và gán sự kiện click
+    
+        star.addEventListener("click", function () {
+            window.location.href = `buystar.html`;
+            // 🔹 Thêm logic khác nếu cần (ví dụ: chọn gói sao)
+        });
+});

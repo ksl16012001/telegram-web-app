@@ -164,7 +164,7 @@ function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink
         <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
         <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
         <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
-        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Months</p>
+        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount}</p>
         <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
         <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
         
