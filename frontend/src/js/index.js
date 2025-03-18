@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     <img src="${user.photo_url || 'src/imgs/default_avatar.png'}" alt="User Avatar">
                     <div class="user-details">
                         <p>${user.first_name} ${user.last_name || ''} (@${user.username || 'Unknown'})</p>
-                        <p id="phone-status">📞 ${phoneNumber}</p>
+                        <p id="phone-status">📞 +${phoneNumber}</p>
                     </div>
                 </div>
             `;
