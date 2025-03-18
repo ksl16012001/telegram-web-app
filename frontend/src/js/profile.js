@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         console.log("📌 Opening order details:", orderId); // Debug log
     
         // 🔹 Xác định loại dịch vụ để hiển thị số lượng phù hợp
-        const amountDisplay = service === "Buy Star" ? `${amount} Stars` : `${amount} Months`;
+        const amountDisplay = service == "Buy Star" ? `${amount} Stars` : `${amount} Months`;
     
         // 🔹 Tạo modal
         const modalOverlay = document.createElement("div");
