@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     function displayOrders(orders) {
         orderList.innerHTML = "";
         orders.forEach(order => {
-            const amountDisplay = order.service == "Buy Star" ? `${order.amount} Stars` : `${order.amount} Months`;
+            let amountDisplay = order.service == "Buy Star" ? `Stars` : `Months`;
             let orderItem = document.createElement("div");
             orderItem.classList.add("order-item");
             orderItem.innerHTML = `
