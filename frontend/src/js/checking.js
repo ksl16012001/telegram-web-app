@@ -13,7 +13,7 @@
     // 🔹 Hàm tải danh sách đơn hàng
     async function fetchUserOrders(userId) {
         try {
-            const response = await fetch(`https://telegram-web-app-k4qx.onrender.com/api/user-orders/${userId}`);
+            const response = await fetch(`/api/user-orders/${userId}`);
             const data = await response.json();
 
             if (!data.success || !data.orders.length) {
@@ -54,7 +54,7 @@
     // 🔹 Gọi API kiểm tra giao dịch của từng order
     async function checkTransaction(orderId) {
         try {
-            const response = await fetch("https://telegram-web-app-k4qx.onrender.com/api/check-transaction", {
+            const response = await fetch("/api/check-transaction", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderId })

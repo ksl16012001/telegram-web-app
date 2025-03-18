@@ -62,7 +62,7 @@ async function buyPremium() {
 
     const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1e9}&text=${orderId}`;
 
-    fetch(`https://telegram-web-app-k4qx.onrender.com/api/process-premium?` + 
+    fetch(`/api/process-premium?` + 
         new URLSearchParams({
             orderId: orderId,
             username: username,
@@ -110,7 +110,7 @@ function showOrderModal(orderId, username, months, price, tonAmount, paymentLink
 
 // 🔹 API kiểm tra giao dịch
 async function checkTransaction(orderId) {
-    fetch("https://telegram-web-app-k4qx.onrender.com/api/check-transaction", {
+    fetch("/api/check-transaction", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId })
     }).then(response => response.json()).then(data => alert(data.message));
@@ -118,7 +118,7 @@ async function checkTransaction(orderId) {
 
 // 🔹 API hủy đơn hàng
 async function cancelOrder(orderId) {
-    fetch("https://telegram-web-app-k4qx.onrender.com/api/cancel-order", {
+    fetch("/api/cancel-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId })
     }).then(response => response.json()).then(data => alert(data.message));

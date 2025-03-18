@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 🔹 Hàm tải danh sách đơn hàng
     async function fetchUserOrders(userId) {
         try {
-            const response = await fetch(`https://telegram-web-app-k4qx.onrender.com/api/user-orders/${userId}`);
+            const response = await fetch(`/api/user-orders/${userId}`);
             const data = await response.json();
 
             if (!data.success || !data.orders.length) {
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 🔹 Hủy đơn hàng
     async function cancelOrder(orderId) {
         try {
-            const response = await fetch("https://telegram-web-app-k4qx.onrender.com/api/cancel-order", {
+            const response = await fetch("/api/cancel-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderId })
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
     async function fetchUserData(userId) {
         try {
-            const response = await fetch(`https://telegram-web-app-k4qx.onrender.com/api/getuser?id=${encodeURIComponent(userId)}`);
+            const response = await fetch(`/api/getuser?id=${encodeURIComponent(userId)}`);
             const data = await response.json();
 
             return data.user || null;

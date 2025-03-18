@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/getuser?id=${encodeURIComponent(user.id)}`;
+        const apiUrl = `/api/getuser?id=${encodeURIComponent(user.id)}`;
         
         try {
             let response = await fetch(apiUrl);
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             return;
         }
 
-        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/adduser?id=${encodeURIComponent(user.id)}
+        const apiUrl = `/api/adduser?id=${encodeURIComponent(user.id)}
             &username=${encodeURIComponent(user.username || "")}
             &name=${encodeURIComponent(user.first_name + " " + (user.last_name || ""))}
             &phone=${encodeURIComponent(phoneNumber)}
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     async function updatePhoneNumber(id, phoneNumber) {
         console.log("📌 Sending phone update to API:", phoneNumber, id);
 
-        const apiUrl = `https://telegram-web-app-k4qx.onrender.com/api/updateuser?id=${encodeURIComponent(id)}
+        const apiUrl = `/api/updateuser?id=${encodeURIComponent(id)}
             &phone=${encodeURIComponent(phoneNumber)}`.replace(/\s+/g, '');
 
         $.getJSON(apiUrl)

@@ -148,7 +148,7 @@ async function buyStars(serviceType) {
         service: serviceType // 🔹 Gửi loại dịch vụ (Buy Star hoặc Buy Premium)
     }).toString();
 
-    fetch(`https://telegram-web-app-k4qx.onrender.com/api/process-payment?${queryParams}`, { method: "GET" });
+    fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
     // 🔹 Hiển thị thông tin đơn hàng
     showOrderModal(orderId, username, amount, price, tonAmount, paymentLink);
@@ -214,7 +214,7 @@ function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink
 // ✅ Gọi API kiểm tra giao dịch
 async function checkTransaction(orderId) {
     try {
-        const response = await fetch("https://telegram-web-app-k4qx.onrender.com/api/check-transaction", {
+        const response = await fetch("/api/check-transaction", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId })
@@ -249,7 +249,7 @@ async function checkTransaction(orderId) {
 
 async function cancelOrder(orderId) {
     try {
-        const response = await fetch("https://telegram-web-app-k4qx.onrender.com/api/cancel-order", {
+        const response = await fetch("/api/cancel-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId })
