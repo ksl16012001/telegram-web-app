@@ -6,40 +6,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("tonPrice").innerText = "❌ Failed to load TON price";
         return;
     }
-    const usernameInput = document.getElementById("username-input");
-    const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
 
-    function updateRecipient() {
-        const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
-        if (selectedOption === "self") {
-            let user = Telegram.WebApp.initDataUnsafe?.user || null;
-            usernameInput.value = user?.username || "No username found";
-            usernameInput.disabled = true;
-        } else {
-            usernameInput.value = "";
-            usernameInput.disabled = false;
-        }
-    }
-
-    purchaseTypeRadios.forEach(radio => {
-        radio.addEventListener("change", updateRecipient);
-    });
-
-    updateRecipient(); // Gọi lần đầu khi trang tải xong
     document.querySelectorAll(".subscription-options div").forEach(option => {
         option.addEventListener("click", function () {
             document.querySelectorAll(".subscription-options div").forEach(div => div.classList.remove("selected"));
             this.classList.add("selected");
 
-            // ✅ Chỉ tính giá TON khi có lựa chọn
+            // Cập nhật giá TON
             const priceInUsd = parseFloat(this.getAttribute("data-price"));
-            const tonAmount = (priceInUsd / tonPriceInUsd);
+            const tonAmount = (priceInUsd / tonPriceInUsd).toFixed(2);
             document.getElementById("tonPrice").innerText = `💰 ${tonAmount} TON`;
         });
     });
-
-    // ❌ Không chọn gói nào mặc định
-    document.getElementById("tonPrice").innerText = "💰 Select a package to see TON price";
 });
 
 // 🔹 Lấy giá TON/USD từ API
@@ -58,13 +36,8 @@ async function fetchTonPrice() {
 async function buyPremium() {
     const username = document.getElementById("username-input").value.trim();
     const selectedOption = document.querySelector(".subscription-options .selected");
-
     if (!username) {
         alert("❌ Please enter a Telegram username");
-        return;
-    }
-    if (!selectedOption) {
-        alert("❌ Please select a subscription package");
         return;
     }
 
@@ -79,7 +52,7 @@ async function buyPremium() {
     const tonAmount = (priceInUsd / tonPriceInUsd + 0.01).toFixed(2);
     const orderId = await generateOrderId(username, months);
 
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1e9}&text=${orderId}`;
 
     fetch(`https://telegram-web-app-k4qx.onrender.com/api/process-premium?` + 
         new URLSearchParams({

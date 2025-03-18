@@ -9,6 +9,7 @@ const paymentService = require("./services/paymentService"); // ✅ Xử lý tha
 const User = require("./models/User"); // Đảm bảo đường dẫn đúng
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.use(express.static(path.join(__dirname, "frontend", "src")));
 async function fetchTonPrice() {
     try {
         const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
@@ -46,9 +47,15 @@ app.post("/webhook", (req, res) => {
 
 // ✅ Kiểm tra server
 app.get("/", (req, res) => {
-    res.send("✅ Server is running with Webhook enabled!");
+    res.sendFile(path.join(__dirname, "frontend", "src", "index.html"));
 });
-
+app.get("/:page", (req, res) => {
+    const page = req.params.page;
+    const filePath = path.join(__dirname, "frontend", "src", `${page}.html`);
+    res.sendFile(filePath, err => {
+        if (err) res.status(404).send("❌ Page not found");
+    });
+});
 // ✅ API lấy giá TON/USD từ Backend
 
 
