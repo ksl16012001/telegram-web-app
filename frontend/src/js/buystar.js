@@ -68,7 +68,7 @@ function selectStarPackage(index, amount, price) {
     // Hiển thị gói đã chọn
     selectedPackageDiv.style.display = 'block';
     selectedAmount.textContent = `Number of stars: ${formatAmount(amount)}`;
-    selectedPrice.textContent = `Price: $${price.toFixed(2)}`;
+    selectedPrice.textContent = `Price: ~ $${price.toFixed(2)}`;
 
     // Cập nhật nội dung nút
     orderButton.innerText = `Order ${amount} Stars`;

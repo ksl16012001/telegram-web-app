@@ -6,7 +6,26 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("tonPrice").innerText = "❌ Failed to load TON price";
         return;
     }
+    const usernameInput = document.getElementById("username-input");
+    const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
 
+    function updateRecipient() {
+        const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
+        if (selectedOption === "self") {
+            let user = Telegram.WebApp.initDataUnsafe?.user || null;
+            usernameInput.value = user?.username || "No username found";
+            usernameInput.disabled = true;
+        } else {
+            usernameInput.value = "";
+            usernameInput.disabled = false;
+        }
+    }
+
+    purchaseTypeRadios.forEach(radio => {
+        radio.addEventListener("change", updateRecipient);
+    });
+
+    updateRecipient(); // Gọi lần đầu khi trang tải xong
     document.querySelectorAll(".subscription-options div").forEach(option => {
         option.addEventListener("click", function () {
             document.querySelectorAll(".subscription-options div").forEach(div => div.classList.remove("selected"));
@@ -39,8 +58,13 @@ async function fetchTonPrice() {
 async function buyPremium() {
     const username = document.getElementById("username-input").value.trim();
     const selectedOption = document.querySelector(".subscription-options .selected");
+
     if (!username) {
         alert("❌ Please enter a Telegram username");
+        return;
+    }
+    if (!selectedOption) {
+        alert("❌ Please select a subscription package");
         return;
     }
 
@@ -52,10 +76,10 @@ async function buyPremium() {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd)+0.01;
+    const tonAmount = (priceInUsd / tonPriceInUsd + 0.01).toFixed(2);
     const orderId = await generateOrderId(username, months);
 
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${tonAmount * 1e9}&text=${orderId}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
     fetch(`https://telegram-web-app-k4qx.onrender.com/api/process-premium?` + 
         new URLSearchParams({

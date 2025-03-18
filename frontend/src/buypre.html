@@ -13,22 +13,34 @@
         <h2>Telegram Premium</h2>
         <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
 
+        <!-- 🔹 Chọn chế độ mua -->
+        <div class="purchase-type">
+            <label>
+                <input type="radio" name="purchase-type" value="self" checked> Buy for myself
+            </label>
+            <label>
+                <input type="radio" name="purchase-type" value="gift"> Gift to someone
+            </label>
+        </div>
+
+        <!-- 🔹 Nhập username -->
         <div class="recipient-box">
             <input type="text" id="username-input" placeholder="Enter Telegram username" 
                 style="background-color: #333; color: white; border: none; padding: 5px;">
         </div>
 
+        <!-- 🔹 Chọn gói Premium -->
         <div class="subscription-options" id="subscriptionOptions">
             <div data-months="3" data-price="14">For 3 Months - <strong>$14</strong></div>
             <div data-months="6" data-price="19">For 6 Months - <strong>$19</strong></div>
             <div data-months="12" data-price="33">For 12 Months - <strong>$33</strong></div>
         </div>
 
-        <p id="tonPrice">Calculating TON Price...</p>
+        <p id="tonPrice">💰 Select a package to see TON price</p>
 
         <button id="orderButton" class="order-button" onclick="buyPremium()">Order Telegram Premium</button>
     </div>
-    <script src="./js/index.js"></script>
-    <script src="./js/buypre.js"></script>
+
+    <script src="buypre.js"></script>
 </body>
 </html>
