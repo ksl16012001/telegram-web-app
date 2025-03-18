@@ -148,25 +148,58 @@ async function generateOrderId(username, months) {
 }
 
 // 🔹 Hiển thị modal đơn hàng
-function showOrderModal(orderId, username, months, price, tonAmount, paymentLink) {
+function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink) {
     const modalHTML = `
-    <div id="order-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-        <div id="order-modal" style="background: black; padding: 25px; border-radius: 10px; width: 400px; text-align: center;">
-            <h2 style="color: white;">Order Details</h2>
-            <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Username:</strong> ${username}</p>
-            <p><strong>Months:</strong> ${months}</p>
-            <p><strong>Price:</strong> $${price}</p>
-            <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
-            <button onclick="checkTransaction('${orderId}')">✅ Check Transaction</button>
-            <button onclick="cancelOrder('${orderId}')">❌ Cancel Order</button>
-            <button onclick="document.getElementById('order-modal-overlay').remove()">Close</button>
+<div id="order-modal-overlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+">
+    <div id="order-modal" style="
+        background: black; padding: 25px; border-radius: 10px; width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+        font-family: Arial, sans-serif;
+        position: relative;
+    ">
+        <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
+        <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
+        <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
+        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Months</p>
+        <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
+        <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
+        
+        <div style="margin-top: 20px;">
+            <button onclick="checkTransaction('${orderId}')" style="
+                background-color: #28a745; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+            ">✅ Check Transaction</button>
+            
+            <button onclick="cancelOrder('${orderId}')" style="
+                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+            ">❌ Cancel Order</button>
         </div>
-    </div>`;
 
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
+        <button onclick="document.getElementById('order-modal-overlay').remove()" style="
+            background-color: #007bff; color: white; border: none; padding: 10px 15px;
+            font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
+        ">Close</button>
+    </div>
+</div>
+`;
+
+    // Xóa modal cũ nếu có
+    const existingModal = document.getElementById("order-modal-overlay");
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Thêm modal mới vào body
+    const modal = document.createElement("div");
+    modal.innerHTML = modalHTML;
+    document.body.appendChild(modal);
 }
+
 
 // 🔹 API kiểm tra giao dịch
 async function checkTransaction(orderId) {
