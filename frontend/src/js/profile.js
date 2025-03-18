@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <div class="username">${user.name}</div>
                 <div class="info-box"><span>User ID:</span> <span>${user.id}</span></div>
                 <div class="info-box"><span>Username:</span> <span>@${user.username || "Not Set"}</span></div>
-                <div class="info-box"><span>Phone:</span> <span>${user.phone || "Not Shared"}</span></div>
+                <div class="info-box"><span>Phone:</span> <span>+ ${user.phone || "Not Shared"}</span></div>
                 <div class="info-box"><span>Coins:</span> <span>${user.coins || 0} 🟡</span></div>
             `;
         } else {
