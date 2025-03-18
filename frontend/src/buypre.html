@@ -15,21 +15,22 @@
         <p>Get a Verified Blue Check by upgrading to Telegram Premium.</p>
 
         <!-- 🔹 Chọn chế độ mua -->
-        <div class="purchase-type">
-            <label>
-                <input type="radio" name="purchase-type" value="self" checked> Buy for myself
-            </label>
-            <label>
-                <input type="radio" name="purchase-type" value="gift"> Gift to someone
-            </label>
-        </div>
-
-        <!-- 🔹 Nhập username -->
-        <div class="recipient-box">
-            <input type="text" id="username-input" placeholder="Enter Telegram username" 
-                style="background-color: #333; color: white; border: none; padding: 5px;">
-        </div>
-
+               <!-- Chọn người nhận -->
+               <div style="margin: 10px 0; text-align: center;">
+                <label style="margin-right: 15px;">
+                    <input type="radio" name="purchase-type" value="self" checked onclick="updateRecipient()"> For Myself
+                </label>
+                <label>
+                    <input type="radio" name="purchase-type" value="gift" onclick="updateRecipient()"> Gift
+                </label>
+            </div>
+    
+            <!-- Recipient Selection -->
+            <div
+                style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: white; display: flex; align-items: center; justify-content: space-between;">
+                <input type="text" id="username-input" placeholder="Enter username"
+                    style="background-color: #222; color: white; border: none; padding: 8px; width: 100%; text-align: center; border-radius: 5px;">
+            </div>
         <!-- 🔹 Chọn gói Premium -->
         <div class="subscription-options" id="subscriptionOptions">
             <div data-months="3" data-price="14">For 3 Months - <strong>$14</strong></div>
@@ -41,7 +42,7 @@
 
         <button id="orderButton" class="order-button" onclick="buyPremium()">Order Telegram Premium</button>
     </div>
-    
+
     <script src="./js/buypre.js"></script>
 </body>
 </html>
