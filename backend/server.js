@@ -162,7 +162,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
         }
 
         // 📌 Gọi API lấy danh sách giao dịch
-        const url = `${TON_API_URL}?address=${process.env.TON_RECEIVER}&limit=100`;
+        const url = `https://toncenter.com/api/v2/getTransactions?address=UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0&limit=100`;
         const response = await fetch(url);
         const data = await response.json();
 
