@@ -139,20 +139,26 @@ const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
 async function checkTransaction(orderId, expectedTonAmount) {
     try {
         // 📌 Lấy đơn hàng từ DB
-        const order = await Order.findOne({ orderId }); 
-        if (!order) return { success: false, message: "Order not found" };
+        const order = await Order.findOne({ orderId });
+        if (!order) return { success: false, message: "❌ Order not found" };
 
-        // 📌 Kiểm tra thời gian đơn hàng (hủy nếu quá 30 phút)
+        // 🔹 Kiểm tra nếu `service` không hợp lệ
+        const validServices = ["Buy Star", "Buy Premium"];
+        if (!validServices.includes(order.service)) {
+            console.error(`❌ Invalid service: ${order.service}`);
+            return { success: false, message: `Invalid service: ${order.service}` };
+        }
+
+        // 🔹 Kiểm tra nếu đơn hàng quá 30 phút
         const now = new Date();
         const orderTime = new Date(order.createdAt);
         const diffMinutes = Math.floor((now - orderTime) / (1000 * 60)); // Tính phút
-        
         if (diffMinutes > 30 && order.status === "pending") {
             order.status = "canceled";
             order.updatedAt = now;
             await order.save();
             console.log(`❌ Order ${order.orderId} auto-canceled after 30 minutes`);
-            return { success: false, message: "Order expired and was canceled" };
+            return { success: false, message: "❌ Order expired and was canceled" };
         }
 
         // 📌 Gọi API lấy danh sách giao dịch
@@ -160,14 +166,16 @@ async function checkTransaction(orderId, expectedTonAmount) {
         const response = await fetch(url);
         const data = await response.json();
 
-        if (!data.result || data.result.length === 0) {
-            return { success: false, message: "No transactions found" };
+        // 🔹 Kiểm tra nếu API trả về lỗi
+        if (!data || !data.result || !Array.isArray(data.result)) {
+            console.error("❌ Invalid response from TON API:", data);
+            return { success: false, message: "❌ Error fetching transaction data" };
         }
 
         // 📌 Tìm giao dịch khớp orderId trong message & amount
         const transaction = data.result.find(tx =>
-            tx.in_msg?.message?.includes(orderId) &&  
-            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount) 
+            tx.in_msg?.message?.includes(orderId) &&  // Kiểm tra orderId trong message
+            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount) // Kiểm tra số tiền
         );
 
         if (transaction) {
@@ -178,16 +186,16 @@ async function checkTransaction(orderId, expectedTonAmount) {
             await order.save();
 
             console.log(`✅ Order ${order.orderId} marked as PAID`);
-
             return { success: true, transactionId: transaction.transaction_id.hash };
         } else {
-            return { success: false, message: "Transaction not found or incorrect amount" };
+            return { success: false, message: "⚠️ Transaction not found or incorrect amount" };
         }
     } catch (error) {
         console.error("❌ Error checking transaction:", error);
-        return { success: false, message: "Error fetching transaction data" };
+        return { success: false, message: "❌ Error fetching transaction data" };
     }
 }
+
 app.post("/api/cancel-order", async (req, res) => {
     try {
         const { orderId } = req.body;
@@ -271,7 +279,6 @@ async function autoCheckPendingOrders() {
     console.log("🔄 Checking all pending orders...");
 
     try {
-        // 📌 Lấy tất cả đơn hàng `pending`
         const pendingOrders = await Order.find({ status: "pending" });
 
         if (pendingOrders.length === 0) {
@@ -282,12 +289,16 @@ async function autoCheckPendingOrders() {
         console.log(`📌 Found ${pendingOrders.length} pending orders. Checking transactions...`);
 
         for (const order of pendingOrders) {
-            const result = await checkTransaction(order.orderId, order.tonAmount);
+            try {
+                const result = await checkTransaction(order.orderId, order.tonAmount);
 
-            if (result.success) {
-                console.log(`✅ Order ${order.orderId} is now PAID.`);
-            } else {
-                console.log(`⚠️ Order ${order.orderId}: ${result.message}`);
+                if (result.success) {
+                    console.log(`✅ Order ${order.orderId} is now PAID.`);
+                } else {
+                    console.log(`⚠️ Order ${order.orderId}: ${result.message}`);
+                }
+            } catch (error) {
+                console.error(`❌ Error processing order ${order.orderId}:`, error);
             }
         }
     } catch (error) {
