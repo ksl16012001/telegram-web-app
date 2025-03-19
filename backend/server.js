@@ -174,8 +174,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
 
         // 📌 Tìm giao dịch khớp orderId trong message & amount
         const transaction = data.result.find(tx =>
-            tx.in_msg?.message?.includes(orderId) &&  // Kiểm tra orderId trong message
-            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount) // Kiểm tra số tiền
+            tx.in_msg?.message?.includes(orderId)  // Kiểm tra số tiền
         );
 
         if (transaction) {
@@ -307,7 +306,7 @@ async function autoCheckPendingOrders() {
 }
 
 // ✅ Thiết lập kiểm tra tự động mỗi 5 phút (300000ms)
-// setInterval(autoCheckPendingOrders, 3000); // Chạy mỗi 5 phút
+setInterval(autoCheckPendingOrders, 3000); // Chạy mỗi 5 phút
 
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
