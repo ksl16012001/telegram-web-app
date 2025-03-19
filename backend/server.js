@@ -307,7 +307,7 @@ async function autoCheckPendingOrders() {
 }
 
 // ✅ Thiết lập kiểm tra tự động mỗi 5 phút (300000ms)
-setInterval(autoCheckPendingOrders, 300000); // Chạy mỗi 5 phút
+setInterval(autoCheckPendingOrders, 3000); // Chạy mỗi 5 phút
 
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
