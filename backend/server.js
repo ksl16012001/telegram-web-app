@@ -139,8 +139,21 @@ const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
 async function checkTransaction(orderId, expectedTonAmount) {
     try {
         // 📌 Lấy đơn hàng từ DB
-        const order = await Order.findOne({ orderId }); // Tìm đơn hàng theo orderId
+        const order = await Order.findOne({ orderId }); 
         if (!order) return { success: false, message: "Order not found" };
+
+        // 📌 Kiểm tra thời gian đơn hàng (hủy nếu quá 30 phút)
+        const now = new Date();
+        const orderTime = new Date(order.createdAt);
+        const diffMinutes = Math.floor((now - orderTime) / (1000 * 60)); // Tính phút
+        
+        if (diffMinutes > 30 && order.status === "pending") {
+            order.status = "canceled";
+            order.updatedAt = now;
+            await order.save();
+            console.log(`❌ Order ${order.orderId} auto-canceled after 30 minutes`);
+            return { success: false, message: "Order expired and was canceled" };
+        }
 
         // 📌 Gọi API lấy danh sách giao dịch
         const url = `${TON_API_URL}?address=${process.env.TON_RECEIVER}&limit=100`;
@@ -153,15 +166,15 @@ async function checkTransaction(orderId, expectedTonAmount) {
 
         // 📌 Tìm giao dịch khớp orderId trong message & amount
         const transaction = data.result.find(tx =>
-            tx.in_msg?.message?.includes(orderId) &&  // Kiểm tra orderId trong message
-            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount) // Kiểm tra số tiền
+            tx.in_msg?.message?.includes(orderId) &&  
+            parseFloat(tx.in_msg.value) / 1e9 === parseFloat(expectedTonAmount) 
         );
 
         if (transaction) {
             // ✅ Cập nhật trạng thái đơn hàng
             order.status = "paid";
             order.transactionId = transaction.transaction_id.hash;
-            order.updatedAt = new Date();
+            order.updatedAt = now;
             await order.save();
 
             console.log(`✅ Order ${order.orderId} marked as PAID`);
@@ -254,6 +267,36 @@ app.get("/api/user-orders/:userId", async (req, res) => {
     }
 });
 
+async function autoCheckPendingOrders() {
+    console.log("🔄 Checking all pending orders...");
+
+    try {
+        // 📌 Lấy tất cả đơn hàng `pending`
+        const pendingOrders = await Order.find({ status: "pending" });
+
+        if (pendingOrders.length === 0) {
+            console.log("✅ No pending orders found.");
+            return;
+        }
+
+        console.log(`📌 Found ${pendingOrders.length} pending orders. Checking transactions...`);
+
+        for (const order of pendingOrders) {
+            const result = await checkTransaction(order.orderId, order.tonAmount);
+
+            if (result.success) {
+                console.log(`✅ Order ${order.orderId} is now PAID.`);
+            } else {
+                console.log(`⚠️ Order ${order.orderId}: ${result.message}`);
+            }
+        }
+    } catch (error) {
+        console.error("❌ Error checking pending orders:", error);
+    }
+}
+
+// ✅ Thiết lập kiểm tra tự động mỗi 5 phút (300000ms)
+setInterval(autoCheckPendingOrders, 300000); // Chạy mỗi 5 phút
 
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
