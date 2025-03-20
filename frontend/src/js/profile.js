@@ -8,7 +8,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     let userId = user?.id || "null";
     let orderList = document.getElementById("order-list");
     let reloadButton = document.getElementById("reloadOrders");
-
+    // 🔹 Xử lý sự kiện click nút Reload
+    reloadButton.addEventListener("click", async function () {
+        console.log("🔄 Reloading orders...");
+        reloadButton.innerText = "⏳ Reloading...";
+        await fetchUserOrders();
+        reloadButton.innerText = "🔄 Reload Orders";
+    });
     // 🔹 Hàm tải danh sách đơn hàng
     async function fetchUserOrders(userId) {
         try {
