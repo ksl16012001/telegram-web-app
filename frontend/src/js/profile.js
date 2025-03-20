@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     reloadButton.addEventListener("click", async function () {
         console.log("🔄 Reloading orders...");
         reloadButton.innerText = "⏳ Reloading...";
-        await fetchUserOrders();
+        await fetchUserOrders(userId);
         reloadButton.innerText = "🔄 Reload Orders";
     });
     // 🔹 Hàm tải danh sách đơn hàng
