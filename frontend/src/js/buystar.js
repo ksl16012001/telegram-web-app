@@ -93,9 +93,8 @@ async function buyStars(serviceType) {
     const price = orderButton.getAttribute("data-price");
     const username = document.getElementById("username-input").value.trim();
 
-    // 🔹 Lấy userId từ Telegram WebApp
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
-    let userId = user?.id || "null"; // Nếu không có user, đặt là "null"
+    let userId = user?.id || "null";
 
     if (!amount || !price || !username) {
         Swal.fire({
@@ -120,7 +119,7 @@ async function buyStars(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd)+0.01;
+    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
 
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
@@ -134,7 +133,9 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    const paymentLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    // 🔹 Tạo link thanh toán
+    const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
     // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({
@@ -145,20 +146,18 @@ async function buyStars(serviceType) {
         tonAmount: tonAmount,
         paymentLink: paymentLink,
         orderId: orderId,
-        service: serviceType // 🔹 Gửi loại dịch vụ (Buy Star hoặc Buy Premium)
+        service: serviceType
     }).toString();
 
     fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
-    // 🔹 Hiển thị thông tin đơn hàng
-    showOrderModal(orderId, username, amount, price, tonAmount, paymentLink);
-
-    // 🔹 Mở link thanh toán
-    window.open(paymentLink, "_blank");
+    // 🔹 Hiển thị modal để chọn cách thanh toán
+    showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
 }
 
+
 // ✅ Hiển thị hộp thoại đơn hàng
-function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink) {
+function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
     const modalHTML = `
 <div id="order-modal-overlay" style="
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -177,23 +176,23 @@ function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink
         <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
         <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
         <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
-        
+
         <div style="margin-top: 20px;">
-            <button onclick="checkTransaction('${orderId}')" style="
+            <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
                 background-color: #28a745; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">✅ Check Transaction</button>
+            ">💰 Pay with TON (Tonkeeper)</button>
             
-            <button onclick="cancelOrder('${orderId}')" style="
-                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+            <button onclick="window.open('${paymentLink}', '_blank')" style="
+                background-color: #007bff; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">❌ Cancel Order</button>
+            ">🔗 Pay with Payment Link</button>
         </div>
 
         <button onclick="document.getElementById('order-modal-overlay').remove()" style="
-            background-color: #007bff; color: white; border: none; padding: 10px 15px;
+            background-color: #dc3545; color: white; border: none; padding: 10px 15px;
             font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
-        ">Close</button>
+        ">❌ Cancel</button>
     </div>
 </div>
 `;
@@ -209,6 +208,7 @@ function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink
     modal.innerHTML = modalHTML;
     document.body.appendChild(modal);
 }
+
 
 
 // ✅ Gọi API kiểm tra giao dịch
