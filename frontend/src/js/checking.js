@@ -83,7 +83,7 @@
         if (checkingInterval) return; // Nếu đã chạy thì không khởi động lại
 
         console.log("🚀 Starting auto transaction check...");
-        checkingInterval = setInterval(autoCheckPendingOrders, 10000); // 🔹 Kiểm tra mỗi 10 giây
+        checkingInterval = setInterval(autoCheckPendingOrders, 30000); // 🔹 Kiểm tra mỗi 10 giây
     }
 
     // ✅ Gọi API để tải danh sách đơn hàng khi trang load

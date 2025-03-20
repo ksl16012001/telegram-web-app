@@ -1,0 +1,87 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #222;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin: 0 5px;
+    font-size: 16px;
+}
+
+.tab-btn.active {
+    background: #ffcc00;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #555;
+    padding: 10px;
+}
+
+th {
+    background: #333;
+}
+
+button {
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+}
+
+button.cancel {
+    background: red;
+    color: white;
+}
+
+button.pay {
+    background: green;
+    color: white;
+}
+.config-item {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.config-item label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.config-item input {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}

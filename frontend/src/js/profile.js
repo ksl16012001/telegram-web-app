@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let connectButton = document.getElementById("connectWalletButton");
     let userId = user?.id || "null";
     let orderList = document.getElementById("order-list");
+    let reloadButton = document.getElementById("reloadOrders");
 
     // 🔹 Hàm tải danh sách đơn hàng
     async function fetchUserOrders(userId) {
