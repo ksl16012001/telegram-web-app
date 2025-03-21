@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
         tab.addEventListener("click", () => {
             tabs.forEach(btn => btn.classList.remove("active"));
             tab.classList.add("active");
-
             contents.forEach(content => content.classList.remove("active"));
             document.getElementById(tab.dataset.tab).classList.add("active");
         });
@@ -39,8 +38,8 @@ async function fetchOrders() {
             <td>${order.packageAmount}</td>
             <td>${order.status}</td>
             <td>
-                ${order.status === "pending" ? `
-                    <a href="https://tonscan.org/tx/${order.transactionId}"><button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Check Transaction</button></a>
+                ${order.status === "paid" ? `
+                    <a href="https://tonscan.org/tx/${order.transactionId}"><button class="pay">✅ Check Transaction</button></a>
                     <button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Mark Paid</button>
                     <button class="cancel" onclick="cancelOrder('${order.orderId}')">❌ Cancel</button>
                 ` : ""}
@@ -108,13 +107,11 @@ async function updateConfig() {
     const tonReceiver = document.getElementById("tonReceiver").value.trim();
     const channelId = document.getElementById("channelId").value.trim();
     const adminChatId = document.getElementById("adminChatId").value.trim();
-
     const response = await fetch("/api/admin/update-config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tonReceiver, channelId, adminChatId })
     });
-
     const result = await response.json();
     alert(result.message);
 }
