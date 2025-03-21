@@ -58,8 +58,8 @@ app.post("/api/admin-login", (req, res) => {
         res.status(401).json({ success: false, message: "❌ Incorrect password" });
     }
 });
-app.get("/admin", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/src/admin/dashboard.html"));
+app.get("/admin/dashboard", (req, res) => {
+    res.sendFile(path.join(frontendPath, "admin", "dashboard.html"));
 });
 // ✅ Kiểm tra server
 app.use(express.static(path.join(__dirname, "../frontend/src"))); 
