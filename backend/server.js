@@ -45,7 +45,19 @@ app.post("/webhook", (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
 });
+app.post("/api/admin-login", (req, res) => {
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ success: false, message: "❌ Missing password" });
 
+    if (password === process.env.ADMIN_PASSWORD) {
+        res.status(200).json({ success: true, message: "✅ Login successful" });
+    } else {
+        res.status(401).json({ success: false, message: "❌ Incorrect password" });
+    }
+});
+app.get("/admin", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/src/admin/dashboard.html"));
+});
 // ✅ Kiểm tra server
 app.use(express.static(path.join(__dirname, "../frontend/src"))); 
 
