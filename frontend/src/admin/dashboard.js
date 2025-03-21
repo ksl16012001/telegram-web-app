@@ -34,11 +34,14 @@ async function fetchOrders() {
             <td>${order.orderId}</td>
             <td>${order.username}</td>
             <td>${order.service}</td>
+            <td>${order.transactionId}</td>
+            <td>${order.tonAmount}</td>
             <td>${order.packageAmount}</td>
             <td>${order.status}</td>
             <td>
                 ${order.status === "pending" ? `
-                    <button class="pay" onclick="markAsPaid('${order.orderId}')">✅ Mark Paid</button>
+                    <a href="https://tonscan.org/tx/${order.transactionId}"><button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Check Transaction</button></a>
+                    <button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Mark Paid</button>
                     <button class="cancel" onclick="cancelOrder('${order.orderId}')">❌ Cancel</button>
                 ` : ""}
             </td>
