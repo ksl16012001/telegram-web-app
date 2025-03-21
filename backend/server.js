@@ -202,8 +202,9 @@ async function notifyAdmin(order) {
 
     const message = `
 📢 *New Paid Order*
+From (ID: ${order.userId})
 🆔 Order ID: \`${order.orderId}\`
-👤 User: ${order.username} (ID: ${order.userId})
+👤 To User: ${order.username}
 💰 Amount: ${order.packageAmount} ${order.service === "Buy Star" ? "Stars" : "Months"}
 💵 Price: $${order.packagePrice}
 💎 TON Amount: ${order.tonAmount} TON

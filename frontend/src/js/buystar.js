@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
-
+    const tonConnect = new TONConnect.TonConnect();
     // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
         const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
@@ -92,7 +92,6 @@ async function buyStars(serviceType) {
     const amount = orderButton.getAttribute("data-amount");
     const price = orderButton.getAttribute("data-price");
     const username = document.getElementById("username-input").value.trim();
-
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || "null";
 
@@ -119,7 +118,7 @@ async function buyStars(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
+    const tonAmount = (price / tonPriceInUsd) + 0.01;
 
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
@@ -133,9 +132,7 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Tạo link thanh toán
-    const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const RECEIVER_ADDRESS = "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0";
 
     // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({
@@ -144,58 +141,89 @@ async function buyStars(serviceType) {
         username: username,
         price: price,
         tonAmount: tonAmount,
-        paymentLink: paymentLink,
         orderId: orderId,
         service: serviceType
     }).toString();
 
     fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
-    // 🔹 Hiển thị modal để chọn cách thanh toán
-    showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
+    // 🔹 Hiển thị thông tin đơn hàng
+    showOrderModal(orderId, username, amount, price, tonAmount);
+
+    // 🔹 Sử dụng TonConnect để thanh toán
+    try {
+        const tx = {
+            validUntil: Math.floor(Date.now() / 1000) + 300, // Thời gian hết hạn giao dịch (5 phút)
+            messages: [
+                {
+                    address: RECEIVER_ADDRESS,
+                    amount: (tonAmount * 1e9).toFixed(0),
+                    payload: orderId // Đính kèm orderId vào giao dịch
+                }
+            ]
+        };
+
+        // 🔹 Kết nối với ví TON và gửi giao dịch
+        const result = await tonConnect.sendTransaction(tx);
+
+        if (result.boc) {
+            Swal.fire({
+                icon: "success",
+                title: "✅ Transaction Sent!",
+                text: "Please check your wallet for confirmation.",
+                confirmButtonColor: "#28a745"
+            });
+        } else {
+            Swal.fire({
+                icon: "warning",
+                title: "⚠️ Transaction Failed!",
+                text: "Transaction was not completed.",
+                confirmButtonColor: "#d33"
+            });
+        }
+    } catch (error) {
+        console.error("❌ TonConnect Payment Error:", error);
+        Swal.fire({
+            icon: "error",
+            title: "❌ Payment Error",
+            text: "An error occurred while processing the payment.",
+            confirmButtonColor: "#d33"
+        });
+    }
 }
 
-
-// ✅ Hiển thị hộp thoại đơn hàng
-function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
+// 🔹 Hiển thị hộp thoại đơn hàng
+function showOrderModal(orderId, username, amount, price, tonAmount) {
     const modalHTML = `
-<div id="order-modal-overlay" style="
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
-    z-index: 1000;
-">
-    <div id="order-modal" style="
-        background: black; padding: 25px; border-radius: 10px; width: 400px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
-        font-family: Arial, sans-serif;
-        position: relative;
-    ">
-        <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
-        <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
-        <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
-        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
-        <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
-        <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
+        <div id="order-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
+            z-index: 1000;">
+            <div id="order-modal" style="background: black; padding: 25px; border-radius: 10px; width: 400px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+                font-family: Arial, sans-serif; position: relative;">
+                <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
+                <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
+                <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
+                <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
+                <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
+                <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount.toFixed(2)} TON</p>
 
-        <div style="margin-top: 20px;">
-            <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
-                background-color: #28a745; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">💰 Pay with TON (Tonkeeper)</button>
-            
-            <button onclick="window.open('${paymentLink}', '_blank')" style="
-                background-color: #007bff; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">🔗 Pay with Payment Link</button>
+                <div style="margin-top: 20px;">
+                    <button onclick="buyStars('${serviceType}')" style="background-color: #28a745; color: white;
+                        border: none; padding: 10px 15px; font-size: 14px; border-radius: 5px;
+                        cursor: pointer; margin: 5px;">
+                        ✅ Pay with TonConnect
+                    </button>
+                </div>
+                
+                <button onclick="document.getElementById('order-modal-overlay').remove()" style="
+                    background-color: #007bff; color: white; border: none; padding: 10px 15px;
+                    font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Close
+                </button>
+            </div>
         </div>
-
-        <button onclick="document.getElementById('order-modal-overlay').remove()" style="
-            background-color: #dc3545; color: white; border: none; padding: 10px 15px;
-            font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
-        ">❌ Cancel</button>
-    </div>
-</div>
-`;
+    `;
 
     // Xóa modal cũ nếu có
     const existingModal = document.getElementById("order-modal-overlay");
