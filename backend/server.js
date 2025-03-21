@@ -9,6 +9,7 @@ const { bot } = require("./services/bot"); // ✅ Telegram Bot
 const paymentService = require("./services/paymentService"); // ✅ Xử lý thanh toán
 const User = require("./models/User"); // Đảm bảo đường dẫn đúng
 const app = express();
+const axios = require("axios");
 const PORT = process.env.PORT || 3000;
 async function fetchTonPrice() {
     try {
@@ -53,7 +54,6 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend/src/index.html"));
 });
 
-// ✅ Render các trang khác (VD: `/buypre` ➝ `buypre.html`)
 app.get("/:page", (req, res) => {
     const page = req.params.page;
     const filePath = path.join(__dirname, "../frontend/src", `${page}.html`);
@@ -61,10 +61,7 @@ app.get("/:page", (req, res) => {
         if (err) res.status(404).send("❌ Page not found");
     });
 });
-// ✅ API lấy giá TON/USD từ Backend
 
-
-// ✅ Xử lý giao dịch mua sao
 app.get("/api/process-payment", async (req, res) => {
     try {
         const { userId, amount, username, price, tonAmount, paymentLink, orderId, service } = req.query;
@@ -91,7 +88,7 @@ app.get("/api/process-payment", async (req, res) => {
             orderId,
             userId,
             username,
-            service, // 🔹 Thêm loại dịch vụ
+            service, 
             packageAmount: Number(amount),
             packagePrice: Number(price),
             tonPriceInUsd,
@@ -183,7 +180,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
             order.transactionId = transaction.transaction_id.hash;
             order.updatedAt = now;
             await order.save();
-
+            notifyAdmin(order);
             console.log(`✅ Order ${order.orderId} marked as PAID`);
             return { success: true, transactionId: transaction.transaction_id.hash };
         } else {
@@ -194,7 +191,38 @@ async function checkTransaction(orderId, expectedTonAmount) {
         return { success: false, message: "❌ Error fetching transaction data" };
     }
 }
+async function notifyAdmin(order) {
+    const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+    const BOT_TOKEN = process.env.BOT_TOKEN;
 
+    if (!ADMIN_CHAT_ID || !BOT_TOKEN) {
+        console.error("❌ Missing Admin Chat ID or Bot Token!");
+        return;
+    }
+
+    const message = `
+📢 *New Paid Order*
+🆔 Order ID: \`${order.orderId}\`
+👤 User: ${order.username} (ID: ${order.userId})
+💰 Amount: ${order.packageAmount} ${order.service === "Buy Star" ? "Stars" : "Months"}
+💵 Price: $${order.packagePrice}
+💎 TON Amount: ${order.tonAmount} TON
+✅ Status: PAID
+🔗 [View Transaction](https://tonscan.org/tx/${order.transactionId})
+`;
+
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    try {
+        await axios.post(url, {
+            chat_id: ADMIN_CHAT_ID,
+            text: message,
+            parse_mode: "Markdown"
+        });
+        console.log("✅ Admin notified about paid order:", order.orderId);
+    } catch (error) {
+        console.error("❌ Error sending notification to Admin:", error.response?.data || error.message);
+    }
+}
 app.post("/api/cancel-order", async (req, res) => {
     try {
         const { orderId } = req.body;
@@ -305,8 +333,7 @@ async function autoCheckPendingOrders() {
     }
 }
 
-// ✅ Thiết lập kiểm tra tự động mỗi 5 phút (300000ms)
-setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 5 phút
+setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 30 s
 
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
