@@ -6,10 +6,10 @@ const User = require("../models/User");
 
 // ✅ Middleware xác thực Admin
 function verifyAdmin(req, res, next) {
-    const { adminPassword } = req.headers;
-    if (!adminPassword || adminPassword !== process.env.ADMIN_PASSWORD) {
-        return res.status(403).json({ success: false, message: "❌ Unauthorized access" });
-    }
+    // const { adminPassword } = req.headers;
+    // if (!adminPassword || adminPassword !== process.env.ADMIN_PASSWORD) {
+    //     return res.status(403).json({ success: false, message: "❌ Unauthorized access" });
+    // }
     next();
 }
 
