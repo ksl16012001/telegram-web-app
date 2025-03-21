@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
 const User = require("../models/User");
-const Config = require("../models/Config");
+// const Config = require("../models/Config");
 
 // ✅ Middleware xác thực Admin
 function verifyAdmin(req, res, next) {
