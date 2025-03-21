@@ -11,6 +11,9 @@ const User = require("./models/User"); // Đảm bảo đường dẫn đúng
 const app = express();
 const axios = require("axios");
 const PORT = process.env.PORT || 3000;
+const adminRoutes = require("./routes/adminRoutes");
+
+app.use("/api/admin", adminRoutes);
 async function fetchTonPrice() {
     try {
         const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
