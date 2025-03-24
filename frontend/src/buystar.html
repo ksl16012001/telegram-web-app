@@ -50,8 +50,16 @@
         <button id="orderButton" class="order-button" onclick="buyStars('Buy Star')">Order</button>
         <!-- Footer -->
     </div>
+    <script>
+        import { TonConnect } from "@tonconnect/sdk";
+
+        const tonConnect = new TonConnect({
+            manifestUrl: "https://yourwebsite.com/tonconnect-manifest.json"
+        });
+    </script>
     <script src="./js/index.js"></script>
     <script src="./js/buystar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
+
 </html>
