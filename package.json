@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tonconnect/sdk": "^3.0.7",
     "bcryptjs": "^3.0.2",
     "node-fetch": "^3.3.2"
   }

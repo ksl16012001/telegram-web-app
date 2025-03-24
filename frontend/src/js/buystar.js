@@ -1,4 +1,61 @@
+import { TonConnect } from "@tonconnect/sdk";
 document.addEventListener("DOMContentLoaded", function () {
+    // ✅ Khởi tạo TON Connect SDK
+    const tonConnect = new TonConnect();
+
+    /**
+     * Xử lý thanh toán với TON Connect
+     * @param {string} orderId - Mã đơn hàng
+     * @param {number} tonAmount - Số TON cần thanh toán
+     * @returns {Promise<string|null>} - Trả về transactionHash hoặc null nếu thất bại
+     */
+    async function processTonPayment(orderId, tonAmount) {
+        try {
+            // 🔹 Kiểm tra nếu người dùng đã kết nối ví TON
+            let wallet = tonConnect.wallet;
+            if (!wallet) {
+                try {
+                    wallet = await tonConnect.connectWallet();
+                } catch (error) {
+                    console.error("❌ TON Connect error:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "❌ Wallet Connection Failed",
+                        text: "Please connect your TON wallet before proceeding.",
+                        confirmButtonColor: "#d33"
+                    });
+                    return null;
+                }
+            }
+
+            // 🔹 Tạo transaction request
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 600, // 10 phút
+                messages: [
+                    {
+                        address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0", // Ví nhận TON
+                        amount: Math.round(tonAmount * 1e9).toString(),
+                        payload: orderId
+                    }
+                ]
+            };
+
+            // 🔹 Gửi giao dịch qua TON Connect
+            const result = await tonConnect.sendTransaction(transaction);
+            console.log("✅ Transaction sent:", result);
+            return result; // Trả về transactionHash
+        } catch (error) {
+            console.error("❌ Error sending transaction:", error);
+            Swal.fire({
+                icon: "error",
+                title: "❌ Payment Failed",
+                text: "Transaction could not be completed. Please try again.",
+                confirmButtonColor: "#d33"
+            });
+            return null;
+        }
+    }
+
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
