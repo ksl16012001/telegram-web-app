@@ -117,3 +117,26 @@ async function updateConfig() {
 }
 
 document.addEventListener("DOMContentLoaded", fetchConfig);
+async function fetchAdminData() {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+        window.location.href = "/admin/login.html";
+        return;
+    }
+
+    const response = await fetch("/api/admin/orders", {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (response.status === 403) {
+        alert("❌ Unauthorized access");
+        localStorage.removeItem("adminToken");
+        window.location.href = "/admin/login.html";
+        return;
+    }
+
+    const data = await response.json();
+    console.log("Admin Orders:", data);
+}
+
+fetchAdminData();
