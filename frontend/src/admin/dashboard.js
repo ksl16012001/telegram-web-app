@@ -39,7 +39,7 @@ async function fetchOrders() {
             <td>${order.status}</td>
             <td>
                 ${order.status === "paid" ? `
-                    <a href="https://tonscan.org/tx/${order.transactionId}" target="blank"><button class="pay">✅ Check Transaction</button></a>
+                    <button onclick="window.open('https://tonscan.org/tx/${order.transactionId}', '_blank')" class="pay">✅ Check Transaction</button>
                     <button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Mark Paid</button>
                     <button class="cancel" onclick="cancelOrder('${order.orderId}')">❌ Cancel</button>
                 ` : ""}
