@@ -133,9 +133,9 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Gọi `processTonPayment` để gửi TON qua SDK
-    const transactionHash = await processTonPayment(orderId, tonAmount);
-    if (!transactionHash) return;
+    // 🔹 Tạo link thanh toán
+    const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
     // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({
@@ -144,17 +144,16 @@ async function buyStars(serviceType) {
         username: username,
         price: price,
         tonAmount: tonAmount,
+        paymentLink: paymentLink,
         orderId: orderId,
-        service: serviceType,
-        transactionHash: transactionHash
+        service: serviceType
     }).toString();
 
-    await fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
+    fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
-    // 🔹 Hiển thị thông tin đơn hàng
-    showOrderModal(orderId, username, amount, price, tonAmount, transactionHash);
+    // 🔹 Hiển thị modal để chọn cách thanh toán
+    showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
 }
-
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
@@ -280,62 +279,5 @@ async function cancelOrder(orderId) {
             text: "Error canceling order",
             confirmButtonColor: "#d33"
         });
-    }
-}
-import { TonConnect } from "@tonconnect/sdk";
-
-// ✅ Khởi tạo TON Connect SDK
-const tonConnect = new TonConnect();
-
-/**
- * Xử lý thanh toán với TON Connect
- * @param {string} orderId - Mã đơn hàng
- * @param {number} tonAmount - Số TON cần thanh toán
- * @returns {Promise<string|null>} - Trả về transactionHash hoặc null nếu thất bại
- */
-async function processTonPayment(orderId, tonAmount) {
-    try {
-        // 🔹 Kiểm tra nếu người dùng đã kết nối ví TON
-        let wallet = tonConnect.wallet;
-        if (!wallet) {
-            try {
-                wallet = await tonConnect.connectWallet();
-            } catch (error) {
-                console.error("❌ TON Connect error:", error);
-                Swal.fire({
-                    icon: "error",
-                    title: "❌ Wallet Connection Failed",
-                    text: "Please connect your TON wallet before proceeding.",
-                    confirmButtonColor: "#d33"
-                });
-                return null;
-            }
-        }
-
-        // 🔹 Tạo transaction request
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 600, // 10 phút
-            messages: [
-                {
-                    address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0", // Ví nhận TON
-                    amount: Math.round(tonAmount * 1e9).toString(),
-                    payload: orderId
-                }
-            ]
-        };
-
-        // 🔹 Gửi giao dịch qua TON Connect
-        const result = await tonConnect.sendTransaction(transaction);
-        console.log("✅ Transaction sent:", result);
-        return result; // Trả về transactionHash
-    } catch (error) {
-        console.error("❌ Error sending transaction:", error);
-        Swal.fire({
-            icon: "error",
-            title: "❌ Payment Failed",
-            text: "Transaction could not be completed. Please try again.",
-            confirmButtonColor: "#d33"
-        });
-        return null;
     }
 }
