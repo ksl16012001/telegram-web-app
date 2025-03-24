@@ -133,9 +133,9 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Lấy tonConnect từ window
-    const tonConnect = window.tonConnect;
-    if (!tonConnect) {
+    // 🔹 Lấy tonConnectUI từ window
+    const tonConnectUI = window.tonConnectUI;
+    if (!tonConnectUI) {
         Swal.fire({
             icon: "error",
             title: "❌ Ton Connect Error",
@@ -147,7 +147,7 @@ async function buyStars(serviceType) {
     }
 
     // 🔹 Kiểm tra xem ví đã kết nối chưa
-    if (!tonConnect.wallet) {
+    if (!tonConnectUI.wallet) {
         Swal.fire({
             icon: "info",
             title: "🔗 Connect Wallet",
@@ -172,7 +172,7 @@ async function buyStars(serviceType) {
 
     try {
         // 🔹 Gửi giao dịch
-        await tonConnect.sendTransaction(transaction);
+        await tonConnectUI.sendTransaction(transaction);
 
         // 🔹 Gửi order lên backend
         const queryParams = new URLSearchParams({

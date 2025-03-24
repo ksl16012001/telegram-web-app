@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./css/index.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="./css/buystar.css">
     <title>Telegram Stars</title>
 </head>
@@ -54,12 +54,12 @@
         import { TonConnect } from "https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js";
     
         // Khởi tạo Ton Connect
-        const tonConnect = new TON_CONNECT_UI.TonConnectUI({
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json"
         });
     
         // Gán vào window để sử dụng trong `buystar.js`
-        window.tonConnect = tonConnect;
+        window.tonConnectUI = tonConnectUI;
     </script>
     <script src="./js/index.js"></script>
     <script src="./js/buystar.js"></script>
