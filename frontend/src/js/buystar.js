@@ -131,7 +131,7 @@ async function buyStars(serviceType) {
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
     // 🔹 Tạo kết nối Ton Connect
-    const tonConnect = new TonConnect({ manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json" });
+    const tonConnect = new TonConnect()
 
     // 🔹 Kiểm tra xem người dùng đã kết nối ví chưa
     if (!tonConnect.wallet) {
