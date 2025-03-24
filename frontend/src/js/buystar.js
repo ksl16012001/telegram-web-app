@@ -1,4 +1,6 @@
+
 document.addEventListener("DOMContentLoaded", function () {
+    
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
