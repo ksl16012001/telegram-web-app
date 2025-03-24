@@ -1,11 +1,4 @@
-import { TonConnectUI } from '@tonconnect/ui'
-
-const tonConnectUI = new TonConnectUI({
-    manifestUrl: 'https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json',
-    buttonRootId: 'orderButton'
-});
 document.addEventListener("DOMContentLoaded", function () {
-    
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
@@ -127,20 +120,33 @@ async function buyStars(serviceType) {
     }
 
     const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
+
+    // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
     const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
 
+    // 🔹 Mã hóa orderId bằng SHA-256
     const encoder = new TextEncoder();
     const data = encoder.encode(rawOrderId);
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Tạo kết nối Ton Connect
-    const tonConnect = new TonConnect()
+    // 🔹 Lấy tonConnect từ window
+    const tonConnect = window.tonConnect;
+    if (!tonConnect) {
+        Swal.fire({
+            icon: "error",
+            title: "❌ Ton Connect Error",
+            text: "Ton Connect SDK is not loaded properly.",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
 
-    // 🔹 Kiểm tra xem người dùng đã kết nối ví chưa
+    // 🔹 Kiểm tra xem ví đã kết nối chưa
     if (!tonConnect.wallet) {
         Swal.fire({
             icon: "info",
@@ -152,8 +158,9 @@ async function buyStars(serviceType) {
         return;
     }
 
-    // 🔹 Tạo giao dịch Ton Connect
+    // 🔹 Tạo giao dịch trên Ton Connect
     const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600, // Hết hạn sau 10 phút
         messages: [
             {
                 address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
@@ -166,7 +173,7 @@ async function buyStars(serviceType) {
     try {
         // 🔹 Gửi giao dịch
         await tonConnect.sendTransaction(transaction);
-        
+
         // 🔹 Gửi order lên backend
         const queryParams = new URLSearchParams({
             userId: userId,
@@ -177,7 +184,7 @@ async function buyStars(serviceType) {
             orderId: orderId,
             service: serviceType
         }).toString();
-        
+
         fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
         // 🔹 Hiển thị thông báo thành công
@@ -199,6 +206,7 @@ async function buyStars(serviceType) {
         });
     }
 }
+
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
