@@ -1,4 +1,9 @@
+import { TonConnectUI } from '@tonconnect/ui'
 
+const tonConnectUI = new TonConnectUI({
+    manifestUrl: 'https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json',
+    buttonRootId: 'orderButton'
+});
 document.addEventListener("DOMContentLoaded", function () {
     
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
