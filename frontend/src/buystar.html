@@ -50,17 +50,6 @@
         <button id="orderButton" class="order-button" onclick="buyStars('Buy Star')">Order</button>
         <!-- Footer -->
     </div>
-    <script type="module">
-        import { TonConnect } from "https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js";
-    
-        // Khởi tạo Ton Connect
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json"
-        });
-    
-        // Gán vào window để sử dụng trong `buystar.js`
-        window.tonConnectUI = tonConnectUI;
-    </script>
     <script src="./js/index.js"></script>
     <script src="./js/buystar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

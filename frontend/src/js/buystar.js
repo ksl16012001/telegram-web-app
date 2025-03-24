@@ -133,80 +133,27 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Lấy tonConnectUI từ window
-    const tonConnectUI = window.tonConnectUI;
-    if (!tonConnectUI) {
-        Swal.fire({
-            icon: "error",
-            title: "❌ Ton Connect Error",
-            text: "Ton Connect SDK is not loaded properly.",
-            confirmButtonColor: "#d33",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
+    // 🔹 Tạo link thanh toán
+    const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
-    // 🔹 Kiểm tra xem ví đã kết nối chưa
-    if (!tonConnectUI.wallet) {
-        Swal.fire({
-            icon: "info",
-            title: "🔗 Connect Wallet",
-            text: "Please connect your Ton wallet first.",
-            confirmButtonColor: "#3085d6",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
+    // 🔹 Gửi order lên backend
+    const queryParams = new URLSearchParams({
+        userId: userId,
+        amount: amount,
+        username: username,
+        price: price,
+        tonAmount: tonAmount,
+        paymentLink: paymentLink,
+        orderId: orderId,
+        service: serviceType
+    }).toString();
 
-    // 🔹 Tạo giao dịch trên Ton Connect
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600, // Hết hạn sau 10 phút
-        messages: [
-            {
-                address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
-                amount: Math.round(tonAmount * 1e9).toString(),
-                payload: orderId
-            }
-        ]
-    };
+    fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
-    try {
-        // 🔹 Gửi giao dịch
-        await tonConnectUI.sendTransaction(transaction);
-
-        // 🔹 Gửi order lên backend
-        const queryParams = new URLSearchParams({
-            userId: userId,
-            amount: amount,
-            username: username,
-            price: price,
-            tonAmount: tonAmount,
-            orderId: orderId,
-            service: serviceType
-        }).toString();
-
-        fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
-
-        // 🔹 Hiển thị thông báo thành công
-        Swal.fire({
-            icon: "success",
-            title: "✅ Payment Sent",
-            text: `Your payment of ${tonAmount} TON has been sent.`,
-            confirmButtonColor: "#3085d6",
-            confirmButtonText: "OK"
-        });
-
-    } catch (error) {
-        Swal.fire({
-            icon: "error",
-            title: "❌ Payment Failed",
-            text: "Something went wrong. Please try again.",
-            confirmButtonColor: "#d33",
-            confirmButtonText: "Retry"
-        });
-    }
+    // 🔹 Hiển thị modal để chọn cách thanh toán
+    showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
 }
-
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
