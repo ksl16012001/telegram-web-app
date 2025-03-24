@@ -1,55 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
    <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Test Telegram WebApps API</title>
+   <link rel="stylesheet" href="./css/index.css">
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-   <style>
-      body {
-         color: var(--tg-theme-text-color);
-         background: var(--tg-theme-bg-color);
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         font-size: 18px;
-      }
-      .user-info {
-         text-align: center;
-      }
-   </style>
+   <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+   <!-- <link rel="stylesheet" href="./css/buystar.css"> -->
+   <title>Telegram Stars</title>
 </head>
 
 <body>
-   <div id="usercard" class="user-info">
-      <p id="user-name"></p>
-      <p id="user-id"></p>
-      <img id="user-photo" src="" alt="User Photo" style="display:none; width:100px; height:100px; border-radius:50%;">
-   </div>
-
+   <button id="connect-wallet">Connect Ton Wallet</button>
+   <p id="wallet-status">Not Connected</p>
+   <button onclick="sendTon()">Send 0.1 TON</button>
    <script>
-      let tg = window.Telegram.WebApp;
-      tg.expand();
+      document.addEventListener("DOMContentLoaded", async function () {
+         // Khởi tạo Ton Connect
+         const tonConnect = new TonConnect.TonConnect({
+            manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json"
+         });
 
-      // Lưu giá trị vào biến
-      let firstName = tg.initDataUnsafe.user.first_name || "Unknown";
-      let lastName = tg.initDataUnsafe.user.last_name || "";
-      let username = tg.initDataUnsafe.user.username || "No Username";
-      let languageCode = tg.initDataUnsafe.user.language_code || "N/A";
-      let userId = tg.initDataUnsafe.user.id || "N/A";
-      let photoUrl = tg.initDataUnsafe.user.photo_url || "";
+         // Nút kết nối ví
+         const connectButton = document.getElementById("connect-wallet");
+         const statusText = document.getElementById("wallet-status");
 
-      // Gán giá trị vào HTML
-      document.getElementById("user-name").innerText = `First Name: ${firstName}`;
-      document.getElementById("user-id").innerText = `User ID: ${userId}`;
+         // Khi bấm nút kết nối
+         connectButton.onclick = async function () {
+            try {
+               await tonConnect.connectWallet();
+               statusText.innerText = "✅ Wallet Connected!";
+            } catch (error) {
+               console.error("Wallet connection failed:", error);
+               statusText.innerText = "❌ Connection Failed!";
+            }
+         };
+         async function sendTon() {
+            if (!tonConnect.wallet) {
+               alert("Please connect your wallet first!");
+               return;
+            }
 
-      // Hiển thị ảnh nếu có
-      if (photoUrl) {
-         let userPhoto = document.getElementById("user-photo");
-         userPhoto.src = photoUrl;
-         userPhoto.style.display = "block";
-      }
+            const transaction = {
+               messages: [
+                  {
+                     address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
+                     amount: (0.1 * 1e9).toString(),  // 0.1 TON
+                     payload: "Payment for stars"
+                  }
+               ]
+            };
+
+            try {
+               await tonConnect.sendTransaction(transaction);
+               alert("✅ Payment Sent Successfully!");
+            } catch (error) {
+               console.error("Payment failed:", error);
+               alert("❌ Payment Failed!");
+            }
+         }
+
+      });
    </script>
+   <script src="./js/index.js"></script>
+   <script src="./js/buystar.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
+
 </html>
