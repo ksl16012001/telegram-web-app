@@ -2,9 +2,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // ✅ Khởi tạo TonConnect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
-        buttonRootId: "connect-btn"
+        buttonRootId: "ton-pay-btn"
     });
-
+    const currentWallet = tonConnectUI.wallet;
+    const currentWalletInfo = tonConnectUI.walletInfo;
+    const currentAccount = tonConnectUI.account;
+    const currentIsConnectedStatus = tonConnectUI.connected;
+    console.log(currentWallet);
+    console.log(currentWalletInfo);
+    console.log(currentAccount);
+    console.log(currentIsConnectedStatus);
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
