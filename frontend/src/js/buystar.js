@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json',
-        buttonRootId: 'ton'
+        buttonRootId: 'connect-btn'
     });
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
