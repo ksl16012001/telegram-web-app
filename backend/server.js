@@ -165,7 +165,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
         const now = new Date();
         const orderTime = new Date(order.createdAt);
         const diffMinutes = Math.floor((now - orderTime) / (1000 * 60)); // Tính phút
-        if (diffMinutes > 30 && order.status === "pending") {
+        if (diffMinutes > 5 && order.status === "pending") {
             order.status = "canceled";
             order.updatedAt = now;
             await order.save();
@@ -348,8 +348,6 @@ async function autoCheckPendingOrders() {
         console.error("❌ Error checking pending orders:", error);
     }
 }
-
 setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 30 s
-
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

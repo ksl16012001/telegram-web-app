@@ -1,13 +1,8 @@
-let tonConnectUI;
 document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
-    tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
-        buttonRootId: "tonbtn"
-    });
-    console.log("✅ TonConnectUI initialized.");
+
     // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
         const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
