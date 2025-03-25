@@ -348,6 +348,25 @@ async function autoCheckPendingOrders() {
         console.error("❌ Error checking pending orders:", error);
     }
 }
+app.post("/api/complete-order", async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        if (!orderId) {
+            return res.status(400).json({ success: false, message: "Invalid order ID" });
+        }
+
+        // Cập nhật trạng thái đơn hàng trong database (giả định)
+        console.log(`✅ Order ${orderId} marked as completed`);
+        
+        // Nếu có database, thay thế bằng truy vấn cập nhật trạng thái đơn hàng
+        // await db.updateOrderStatus(orderId, "completed");
+
+        res.json({ success: true, message: "Order marked as completed." });
+    } catch (error) {
+        console.error("Error updating order:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
 setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 30 s
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

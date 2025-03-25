@@ -16,6 +16,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("orderFilter").addEventListener("change", fetchOrders);
 });
+async function markAsCompleted(orderId) {
+    try {
+        const response = await fetch("/api/complete-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            Swal.fire({
+                icon: "success",
+                title: "✅ Order Completed!",
+                text: `Order ${orderId} has been marked as completed.`,
+                confirmButtonColor: "#28a745"
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "❌ Failed to Complete Order",
+                text: result.message,
+                confirmButtonColor: "#d33"
+            });
+        }
+    } catch (error) {
+        console.error("❌ Error updating order status:", error);
+        Swal.fire({
+            icon: "error",
+            title: "❌ Error",
+            text: "Error updating order status. Please try again.",
+            confirmButtonColor: "#d33"
+        });
+    }
+}
 
 async function fetchOrders() {
     const statusFilter = document.getElementById("orderFilter").value;
@@ -40,7 +74,7 @@ async function fetchOrders() {
             <td>
                 ${order.status === "paid" ? `
                     <button onclick="window.open('https://tonscan.org/tx/${order.transactionId}', '_blank')" class="pay">✅ Check Transaction</button>
-                    <button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Mark Paid</button>
+                    <button class="pay" onclick="markAsCompleted('${order.orderId}')">✅ Mark Completed</button>
                     <button class="cancel" onclick="cancelOrder('${order.orderId}')">❌ Cancel</button>
                 ` : ""}
             </td>
