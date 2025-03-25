@@ -14,6 +14,49 @@ const PORT = process.env.PORT || 3000;
 const adminRoutes = require("./routes/adminRoutes");
 
 app.use("/api/admin", adminRoutes);
+const JWT_SECRET = process.env.SECRET_KEY; // Use the SECRET_KEY from .env
+
+// Middleware to verify JWT token
+function verifyToken(req, res, next) {
+    const token = req.header("Authorization")?.split(" ")[1]; // Extract token from Authorization header
+
+    if (!token) {
+        return res.status(403).json({ success: false, message: "❌ No token provided" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET); // Verify token with the secret
+        req.user = decoded; // Attach the decoded user info to the request
+        next(); // Proceed to the next middleware or route handler
+    } catch (error) {
+        return res.status(403).json({ success: false, message: "❌ Invalid or expired token" });
+    }
+}
+
+// Route to handle login (admin authentication)
+app.post("/api/auth/login", (req, res) => {
+    const { password } = req.body;
+
+    // Compare the entered password with the password from .env file
+    if (password === process.env.ADMIN_PASSWORD) {
+        // Password matches, generate a JWT token
+        const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "1h" });
+
+        // Send the token to the client
+        return res.json({
+            success: true,
+            message: "✅ Login successful",
+            token
+        });
+    } else {
+        // If the password doesn't match
+        return res.status(401).json({
+            success: false,
+            message: "❌ Incorrect password"
+        });
+    }
+});
+
 async function fetchTonPrice() {
     try {
         const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
@@ -169,7 +212,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
             order.status = "canceled";
             order.updatedAt = now;
             await order.save();
-            console.log(`❌ Order ${order.orderId} auto-canceled after 30 minutes`);
+            console.log(`❌ Order ${order.orderId} auto-canceled after 5 minutes`);
             return { success: false, message: "❌ Order expired and was canceled" };
         }
 
