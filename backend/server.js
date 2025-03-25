@@ -304,7 +304,7 @@ app.post("/api/complete-order", async (req, res) => {
         }
 
         // 🔹 Cập nhật trạng thái đơn hàng thành "canceled"
-        order.status = "completed";
+        order.status = "complete";
         order.updatedAt = new Date();
         await order.save();
 
