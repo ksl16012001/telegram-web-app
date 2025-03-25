@@ -156,69 +156,104 @@ async function buyStars(serviceType) {
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
-function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
-        buttonRootId: "ton-pay-btn"
-    });
-    const currentWallet = tonConnectUI.wallet;
-    const currentWalletInfo = tonConnectUI.walletInfo;
-    const currentAccount = tonConnectUI.account;
-    const currentIsConnectedStatus = tonConnectUI.connected;
-    console.log(currentWallet);
-    console.log(currentWalletInfo);
-    console.log(currentAccount);
-    console.log(currentIsConnectedStatus);
+// ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
+// ✅ Khởi tạo TonConnect UI TRƯỚC khi sử dụng
+// ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
+    buttonRootId: "ton-pay-btn" // ✅ Gán ID nút TonConnect để tự động kết nối
+});
+
+async function showOrderModal(orderId, username, amount, price, tonAmount) {
     const modalHTML = `
-<div id="order-modal-overlay" style="
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
-    z-index: 1000;
-">
-    <div id="order-modal" style="
-        background: black; padding: 25px; border-radius: 10px; width: 400px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
-        font-family: Arial, sans-serif;
-        position: relative;
+    <div id="order-modal-overlay" style="
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
+        z-index: 1000;
     ">
-        <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
-        <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
-        <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
-        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
-        <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
-        <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
+        <div id="order-modal" style="
+            background: black; padding: 25px; border-radius: 10px; width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+            font-family: Arial, sans-serif;
+            position: relative;
+        ">
+            <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
+            <p><strong>Order ID:</strong> ${orderId}</p>
+            <p><strong>Username:</strong> ${username}</p>
+            <p><strong>Amount:</strong> ${amount} Stars</p>
+            <p><strong>Price:</strong> $${price}</p>
+            <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
 
-        <div style="margin-top: 20px;">
-            <button id="ton-pay-btn" style="
-                background-color: #28a745; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">💰 Pay with TON (Tonkeeper)</button>
-            
-            <button onclick="window.open('${paymentLink}', '_blank')" style="
-                background-color: #007bff; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">🔗 Pay with Payment Link</button>
+            <div style="margin-top: 20px;">
+                <button id="ton-pay-btn" data-order-id="${orderId}" style="
+                    background-color: #007bff; color: white; border: none; padding: 10px 15px;
+                    font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+                ">🔗 Connect Wallet</button>
+            </div>
+
+            <button onclick="document.getElementById('order-modal-overlay').remove()" style="
+                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
+            ">❌ Cancel</button>
         </div>
+    </div>`;
 
-        <button onclick="document.getElementById('order-modal-overlay').remove()" style="
-            background-color: #dc3545; color: white; border: none; padding: 10px 15px;
-            font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
-        ">❌ Cancel</button>
-    </div>
-</div>
-`;
+    // ✅ Xóa modal cũ trước khi thêm mới
+    document.getElementById("order-modal-overlay")?.remove();
 
-    // Xóa modal cũ nếu có
-    const existingModal = document.getElementById("order-modal-overlay");
-    if (existingModal) {
-        existingModal.remove();
+    // ✅ Thêm modal mới vào DOM
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    updateTonButton(orderId, tonAmount);
+}
+
+// ✅ Cập nhật nút thanh toán TON sau khi kết nối ví
+function updateTonButton(orderId, tonAmount) {
+    const tonButton = document.getElementById("ton-pay-btn");
+    if (!tonButton) return;
+
+    if (tonConnectUI.wallet) {
+        tonButton.innerText = "Pay with TON";
+        tonButton.onclick = () => payWithTon(orderId, tonAmount);
+    } else {
+        tonButton.innerText = "Connect Wallet";
+        tonButton.onclick = async () => await tonConnectUI.openModal();
+    }
+}
+
+// ✅ Gửi giao dịch trên TON
+async function payWithTon(orderId, tonAmount) {
+    if (!tonConnectUI.wallet) {
+        alert("🔗 Please connect your Ton wallet first.");
+        return;
     }
 
-    // Thêm modal mới vào body
-    const modal = document.createElement("div");
-    modal.innerHTML = modalHTML;
-    document.body.appendChild(modal);
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [
+            {
+                address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
+                amount: Math.round(tonAmount * 1e9).toString(),
+                payload: orderId
+            }
+        ]
+    };
+
+    try {
+        await tonConnectUI.sendTransaction(transaction);
+        alert(`✅ Payment Sent Successfully! (${tonAmount} TON)`);
+    } catch (error) {
+        alert("❌ Payment Failed!");
+        console.error(error);
+    }
 }
+
+// ✅ Theo dõi trạng thái kết nối ví để cập nhật giao diện
+tonConnectUI.onStatusChange(() => {
+    const orderId = document.getElementById("ton-pay-btn")?.dataset?.orderId;
+    if (orderId) updateTonButton(orderId);
+});
+
 
 
 
