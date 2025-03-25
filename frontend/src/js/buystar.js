@@ -1,13 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // ✅ Khởi tạo TonConnect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json',
-        buttonRootId: 'connect-btn'
+        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
+        buttonRootId: "connect-btn"
     });
+
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
 
-    // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
         const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
         if (selectedOption === "self") {
@@ -19,14 +20,65 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // 📌 Gán sự kiện click cho radio buttons để cập nhật ngay khi thay đổi
     purchaseTypeRadios.forEach(radio => {
         radio.addEventListener("change", updateRecipient);
     });
 
-    // 📌 Cập nhật ngay khi trang tải xong
     updateRecipient();
+
+    // ✅ Cập nhật trạng thái nút thanh toán trong modal
+    function updateTonButton(orderId) {
+        const tonButton = document.getElementById("ton-pay-btn");
+        if (!tonButton) return;
+
+        if (tonConnectUI.wallet) {
+            tonButton.innerText = "Pay with Ton";
+            tonButton.onclick = () => sendTransaction(tonConnectUI, orderId);
+        } else {
+            tonButton.innerText = "Connect Wallet";
+            tonButton.onclick = () => tonConnectUI.openModal();
+        }
+    }
+
+    tonConnectUI.onStatusChange(() => {
+        const orderId = document.getElementById("ton-pay-btn")?.dataset?.orderId;
+        if (orderId) updateTonButton(orderId);
+    });
 });
+async function sendTransaction(tonConnectUI, orderId) {
+    if (!tonConnectUI.wallet) {
+        alert("🔗 Please connect your Ton wallet first.");
+        return;
+    }
+
+    const price = document.getElementById("orderButton").getAttribute("data-price");
+    const tonPriceInUsd = await fetchTonPrice();
+    if (!tonPriceInUsd) {
+        alert("❌ Failed to fetch TON price. Try again.");
+        return;
+    }
+
+    const tonAmount = (price / tonPriceInUsd).toFixed(2); // Chuyển USD -> TON
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600, // Hết hạn sau 10 phút
+        messages: [
+            {
+                address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
+                amount: Math.round(tonAmount * 1e9).toString(),
+                payload: orderId // ✅ Sử dụng orderId làm giá trị tham chiếu
+            }
+        ]
+    };
+
+    try {
+        await tonConnectUI.sendTransaction(transaction);
+        alert(`✅ Payment Sent Successfully! (${tonAmount} TON)`);
+    } catch (error) {
+        alert("❌ Payment Failed!");
+        console.error(error);
+    }
+}
+
 // Danh sách gói sao và giá
 const starsPackages = [
     { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },
@@ -92,127 +144,125 @@ async function fetchTonPrice() {
     }
 }
 
-async function buyStars(serviceType) {
-    const amount = orderButton.getAttribute("data-amount");
-    const price = orderButton.getAttribute("data-price");
-    const username = document.getElementById("username-input").value.trim();
+// async function buyStars(serviceType) {
+//     const amount = orderButton.getAttribute("data-amount");
+//     const price = orderButton.getAttribute("data-price");
+//     const username = document.getElementById("username-input").value.trim();
 
-    let user = Telegram.WebApp.initDataUnsafe?.user || null;
-    let userId = user?.id || "null";
+//     let user = Telegram.WebApp.initDataUnsafe?.user || null;
+//     let userId = user?.id || "null";
 
-    if (!amount || !price || !username) {
-        Swal.fire({
-            icon: "warning",
-            title: "⚠️ Missing Information",
-            text: "Please select a star package and enter a valid username.",
-            confirmButtonColor: "#3085d6",
-            confirmButtonText: "OK"
-        });
-        return;
-    }
+//     if (!amount || !price || !username) {
+//         Swal.fire({
+//             icon: "warning",
+//             title: "⚠️ Missing Information",
+//             text: "Please select a star package and enter a valid username.",
+//             confirmButtonColor: "#3085d6",
+//             confirmButtonText: "OK"
+//         });
+//         return;
+//     }
 
-    const tonPriceInUsd = await fetchTonPrice();
-    if (!tonPriceInUsd) {
-        Swal.fire({
-            icon: "error",
-            title: "❌ TON Price Error",
-            text: "Failed to fetch TON price. Please try again later.",
-            confirmButtonColor: "#d33",
-            confirmButtonText: "Retry"
-        });
-        return;
-    }
+//     const tonPriceInUsd = await fetchTonPrice();
+//     if (!tonPriceInUsd) {
+//         Swal.fire({
+//             icon: "error",
+//             title: "❌ TON Price Error",
+//             text: "Failed to fetch TON price. Please try again later.",
+//             confirmButtonColor: "#d33",
+//             confirmButtonText: "Retry"
+//         });
+//         return;
+//     }
 
-    const tonAmount = (price / tonPriceInUsd + 0.01);
+//     const tonAmount = (price / tonPriceInUsd + 0.01);
 
-    // 🔹 Tạo orderId duy nhất
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 10);
-    const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
+//     // 🔹 Tạo orderId duy nhất
+//     const timestamp = Date.now();
+//     const randomString = Math.random().toString(36).substring(2, 10);
+//     const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
 
-    // 🔹 Mã hóa orderId bằng SHA-256
-    const encoder = new TextEncoder();
-    const data = encoder.encode(rawOrderId);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
+//     // 🔹 Mã hóa orderId bằng SHA-256
+//     const encoder = new TextEncoder();
+//     const data = encoder.encode(rawOrderId);
+//     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+//     const hashArray = Array.from(new Uint8Array(hashBuffer));
+//     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Tạo link thanh toán
-    const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+//     // 🔹 Tạo link thanh toán
+//     const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+//     const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
-    // 🔹 Gửi order lên backend
-    const queryParams = new URLSearchParams({
-        userId: userId,
-        amount: amount,
-        username: username,
-        price: price,
-        tonAmount: tonAmount,
-        paymentLink: paymentLink,
-        orderId: orderId,
-        service: serviceType
-    }).toString();
+//     // 🔹 Gửi order lên backend
+//     const queryParams = new URLSearchParams({
+//         userId: userId,
+//         amount: amount,
+//         username: username,
+//         price: price,
+//         tonAmount: tonAmount,
+//         paymentLink: paymentLink,
+//         orderId: orderId,
+//         service: serviceType
+//     }).toString();
 
-    fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
+//     fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
-    // 🔹 Hiển thị modal để chọn cách thanh toán
-    showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
-}
+//     // 🔹 Hiển thị modal để chọn cách thanh toán
+//     showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
+// }
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
-function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
+function showOrderModal(orderId, username, amount, price, tonAmount) {
     const modalHTML = `
-<div id="order-modal-overlay" style="
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
-    z-index: 1000;
-">
-    <div id="order-modal" style="
-        background: black; padding: 25px; border-radius: 10px; width: 400px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
-        font-family: Arial, sans-serif;
-        position: relative;
+    <div id="order-modal-overlay" style="
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
+        z-index: 1000;
     ">
-        <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
-        <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
-        <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
-        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
-        <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
-        <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
+        <div id="order-modal" style="
+            background: black; padding: 25px; border-radius: 10px; width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+            font-family: Arial, sans-serif;
+            position: relative;
+        ">
+            <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
+            <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
+            <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
+            <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
+            <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
+            <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
 
-        <div style="margin-top: 20px;">
-            <button id="ton" onclick="window.open('${tonkeeperLink}', '_blank')" style="
-                background-color: #28a745; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">💰 Pay with TON (Tonkeeper)</button>
-            
-            <button onclick="window.open('${paymentLink}', '_blank')" style="
-                background-color: #007bff; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">🔗 Pay with Payment Link</button>
+            <div style="margin-top: 20px;">
+                <button id="ton-pay-btn" data-order-id="${orderId}" style="
+                    background-color: #007bff; color: white; border: none; padding: 10px 15px;
+                    font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+                ">🔗 Connect Wallet</button>
+            </div>
+
+            <button onclick="document.getElementById('order-modal-overlay').remove()" style="
+                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
+            ">❌ Cancel</button>
         </div>
+    </div>`;
 
-        <button onclick="document.getElementById('order-modal-overlay').remove()" style="
-            background-color: #dc3545; color: white; border: none; padding: 10px 15px;
-            font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
-        ">❌ Cancel</button>
-    </div>
-</div>
-`;
-
-    // Xóa modal cũ nếu có
-    const existingModal = document.getElementById("order-modal-overlay");
-    if (existingModal) {
-        existingModal.remove();
-    }
-
-    // Thêm modal mới vào body
-    const modal = document.createElement("div");
-    modal.innerHTML = modalHTML;
-    document.body.appendChild(modal);
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+    updateTonButton(orderId);
 }
 
+// ✅ Khi nhấn "Order", mở modal đặt hàng
+document.getElementById("orderButton").addEventListener("click", function () {
+    const orderId = `${Date.now()}-${Math.random().toString(36).substr(2, 10)}`;
+    const username = document.getElementById("username-input").value.trim() || "Unknown";
+    const amount = document.getElementById("orderButton").getAttribute("data-amount") || 100;
+    const price = document.getElementById("orderButton").getAttribute("data-price") || 5;
+
+    fetchTonPrice().then(tonPrice => {
+        const tonAmount = (price / tonPrice).toFixed(2);
+        showOrderModal(orderId, username, amount, price, tonAmount);
+    });
+});
 
 
 // ✅ Gọi API kiểm tra giao dịch
