@@ -2,10 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
-        buttonRootId: "tonbtn" // ✅ Gán ID nút TonConnect để tự động kết nối
-    });
     // const currentIsConnectedStatus = tonConnectUI.connected;
     // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
@@ -26,6 +22,106 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 📌 Cập nhật ngay khi trang tải xong
     updateRecipient();
+    // ✅ Khởi tạo TonConnect UI
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json"
+});
+
+// ✅ Tạo modal ẩn ban đầu
+document.body.insertAdjacentHTML("beforeend", `
+    <div id="order-modal-overlay" style="
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4); display: none; align-items: center; justify-content: center;
+        z-index: 1000;">
+        <div id="order-modal" style="
+            background: black; padding: 25px; border-radius: 10px; width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+            font-family: Arial, sans-serif;
+            position: relative;">
+            <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
+            <p id="order-id"><strong>Order ID:</strong> </p>
+            <p id="order-username"><strong>Username:</strong> </p>
+            <p id="order-amount"><strong>Amount:</strong> </p>
+            <p id="order-price"><strong>Price:</strong> </p>
+            <p id="order-tonAmount"><strong>TON Amount:</strong> </p>
+
+            <div style="margin-top: 20px;">
+                <button id="ton-pay-btn" style="
+                    background-color: #007bff; color: white; border: none; padding: 10px 15px;
+                    font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+                ">🔗 Connect Wallet</button>
+            </div>
+
+            <button onclick="closeOrderModal()" style="
+                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
+            ">❌ Cancel</button>
+        </div>
+    </div>
+`);
+
+// ✅ Cập nhật dữ liệu modal và hiển thị
+function showOrderModal(orderId, username, amount, price, tonAmount) {
+    document.getElementById("order-id").innerHTML = `<strong>Order ID:</strong> ${orderId}`;
+    document.getElementById("order-username").innerHTML = `<strong>Username:</strong> ${username}`;
+    document.getElementById("order-amount").innerHTML = `<strong>Amount:</strong> ${amount} Stars`;
+    document.getElementById("order-price").innerHTML = `<strong>Price:</strong> $${price}`;
+    document.getElementById("order-tonAmount").innerHTML = `<strong>TON Amount:</strong> ${tonAmount} TON`;
+
+    document.getElementById("order-modal-overlay").style.display = "flex";
+
+    updateTonButton(orderId, tonAmount);
+}
+
+// ✅ Ẩn modal khi đóng
+function closeOrderModal() {
+    document.getElementById("order-modal-overlay").style.display = "none";
+}
+
+// ✅ Cập nhật nút thanh toán TON sau khi kết nối ví
+function updateTonButton(orderId, tonAmount) {
+    const tonButton = document.getElementById("ton-pay-btn");
+    if (!tonButton) return;
+
+    if (tonConnectUI.wallet) {
+        tonButton.innerText = "Pay with TON";
+        tonButton.onclick = () => payWithTon(orderId, tonAmount);
+    } else {
+        tonButton.innerText = "Connect Wallet";
+        tonButton.onclick = async () => {
+            await tonConnectUI.openModal();
+            updateTonButton(orderId, tonAmount);
+        };
+    }
+}
+
+// ✅ Gửi giao dịch trên TON
+async function payWithTon(orderId, tonAmount) {
+    if (!tonConnectUI.wallet) {
+        alert("🔗 Please connect your Ton wallet first.");
+        return;
+    }
+
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [
+            {
+                address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
+                amount: Math.round(tonAmount * 1e9).toString(),
+                payload: orderId
+            }
+        ]
+    };
+
+    try {
+        await tonConnectUI.sendTransaction(transaction);
+        alert(`✅ Payment Sent Successfully! (${tonAmount} TON)`);
+        closeOrderModal();
+    } catch (error) {
+        alert("❌ Payment Failed!");
+        console.error(error);
+    }
+}
 });
 // Danh sách gói sao và giá
 const starsPackages = [
