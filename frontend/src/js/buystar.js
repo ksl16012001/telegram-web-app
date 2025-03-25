@@ -95,7 +95,6 @@ async function buyStars(serviceType) {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || "null";
-
     if (!amount || !price || !username) {
         Swal.fire({
             icon: "warning",
@@ -158,6 +157,18 @@ async function buyStars(serviceType) {
 
 // ✅ Hiển thị hộp thoại đơn hàng
 function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
+        buttonRootId: "ton-pay-btn"
+    });
+    const currentWallet = tonConnectUI.wallet;
+    const currentWalletInfo = tonConnectUI.walletInfo;
+    const currentAccount = tonConnectUI.account;
+    const currentIsConnectedStatus = tonConnectUI.connected;
+    console.log(currentWallet);
+    console.log(currentWalletInfo);
+    console.log(currentAccount);
+    console.log(currentIsConnectedStatus);
     const modalHTML = `
 <div id="order-modal-overlay" style="
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -178,7 +189,7 @@ function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLi
         <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
 
         <div style="margin-top: 20px;">
-            <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
+            <button id="ton-pay-btn" style="
                 background-color: #28a745; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
             ">💰 Pay with TON (Tonkeeper)</button>
