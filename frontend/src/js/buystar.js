@@ -155,18 +155,52 @@ async function buyStars(serviceType) {
 }
 
 
-// ✅ Hiển thị hộp thoại đơn hàng
-// ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
-// ✅ Khởi tạo TonConnect UI TRƯỚC khi sử dụng
-// ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
-
 async function showOrderModal(orderId, username, amount, price, tonAmount) {
-    const modalHTML = `
-    <div id="order-modal-overlay" style="
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
-        z-index: 1000;
-    ">
+    // ✅ Hiển thị trạng thái chờ SDK
+    document.body.insertAdjacentHTML("beforeend", `
+        <div id="order-modal-overlay" style="
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
+            z-index: 1000;">
+            <div id="order-modal" style="
+                background: black; padding: 25px; border-radius: 10px; width: 400px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+                font-family: Arial, sans-serif;
+                position: relative;">
+                <h2 style="color: #fff;">Loading TonConnect...</h2>
+            </div>
+        </div>
+    `);
+
+    // ✅ Chờ SDK TonConnect load thành công
+    try {
+        await new Promise((resolve, reject) => {
+            let attempts = 0;
+            const checkSDK = setInterval(() => {
+                if (typeof TON_CONNECT_UI !== "undefined") {
+                    clearInterval(checkSDK);
+                    resolve();
+                }
+                if (attempts++ > 10) { // Chờ tối đa 10 lần (~5 giây)
+                    clearInterval(checkSDK);
+                    reject("TonConnect UI failed to load.");
+                }
+            }, 500);
+        });
+    } catch (error) {
+        alert(error);
+        document.getElementById("order-modal-overlay")?.remove();
+        return;
+    }
+
+    // ✅ Khởi tạo TonConnect UI **sau khi** SDK đã load
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
+        buttonRootId: "ton-pay-btn"
+    });
+
+    // ✅ Cập nhật nội dung modal sau khi SDK sẵn sàng
+    document.getElementById("order-modal-overlay").innerHTML = `
         <div id="order-modal" style="
             background: black; padding: 25px; border-radius: 10px; width: 400px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
@@ -192,32 +226,19 @@ async function showOrderModal(orderId, username, amount, price, tonAmount) {
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
             ">❌ Cancel</button>
         </div>
-    </div>`;
+    `;
 
-    // ✅ Xóa modal cũ trước khi thêm mới
-    document.getElementById("order-modal-overlay")?.remove();
-
-    // ✅ Thêm modal mới vào DOM
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
-        buttonRootId: "ton-pay-btn" // ✅ Gán ID nút TonConnect để tự động kết nối
-    });
-    const currentIsConnectedStatus = tonConnectUI.connected;
-    console.log(currentIsConnectedStatus);
-    if(currentIsConnectedStatus ===true){
-
-    }
-    updateTonButton(orderId, tonAmount);
+    updateTonButton(orderId, tonAmount, tonConnectUI);
 }
 
 // ✅ Cập nhật nút thanh toán TON sau khi kết nối ví
-function updateTonButton(orderId, tonAmount) {
+function updateTonButton(orderId, tonAmount, tonConnectUI) {
     const tonButton = document.getElementById("ton-pay-btn");
     if (!tonButton) return;
-    if (tonConnectUI.connected==true) {
+
+    if (tonConnectUI.wallet) {
         tonButton.innerText = "Pay with TON";
-        tonButton.onclick = () => payWithTon(orderId, tonAmount);
+        tonButton.onclick = () => payWithTon(orderId, tonAmount, tonConnectUI);
     } else {
         tonButton.innerText = "Connect Wallet";
         tonButton.onclick = async () => await tonConnectUI.openModal();
@@ -225,7 +246,7 @@ function updateTonButton(orderId, tonAmount) {
 }
 
 // ✅ Gửi giao dịch trên TON
-async function payWithTon(orderId, tonAmount) {
+async function payWithTon(orderId, tonAmount, tonConnectUI) {
     if (!tonConnectUI.wallet) {
         alert("🔗 Please connect your Ton wallet first.");
         return;
