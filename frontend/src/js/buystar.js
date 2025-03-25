@@ -1,8 +1,13 @@
+let tonConnectUI;
 document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
-    // const currentIsConnectedStatus = tonConnectUI.connected;
+    tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
+        buttonRootId: "tonbtn"
+    });
+    console.log("✅ TonConnectUI initialized.");
     // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
         const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
@@ -22,106 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 📌 Cập nhật ngay khi trang tải xong
     updateRecipient();
-    // ✅ Khởi tạo TonConnect UI
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json"
-});
-
-// ✅ Tạo modal ẩn ban đầu
-document.body.insertAdjacentHTML("beforeend", `
-    <div id="order-modal-overlay" style="
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.4); display: none; align-items: center; justify-content: center;
-        z-index: 1000;">
-        <div id="order-modal" style="
-            background: black; padding: 25px; border-radius: 10px; width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
-            font-family: Arial, sans-serif;
-            position: relative;">
-            <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
-            <p id="order-id"><strong>Order ID:</strong> </p>
-            <p id="order-username"><strong>Username:</strong> </p>
-            <p id="order-amount"><strong>Amount:</strong> </p>
-            <p id="order-price"><strong>Price:</strong> </p>
-            <p id="order-tonAmount"><strong>TON Amount:</strong> </p>
-
-            <div style="margin-top: 20px;">
-                <button id="ton-pay-btn" style="
-                    background-color: #007bff; color: white; border: none; padding: 10px 15px;
-                    font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-                ">🔗 Connect Wallet</button>
-            </div>
-
-            <button onclick="closeOrderModal()" style="
-                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
-            ">❌ Cancel</button>
-        </div>
-    </div>
-`);
-
-// ✅ Cập nhật dữ liệu modal và hiển thị
-function showOrderModal(orderId, username, amount, price, tonAmount) {
-    document.getElementById("order-id").innerHTML = `<strong>Order ID:</strong> ${orderId}`;
-    document.getElementById("order-username").innerHTML = `<strong>Username:</strong> ${username}`;
-    document.getElementById("order-amount").innerHTML = `<strong>Amount:</strong> ${amount} Stars`;
-    document.getElementById("order-price").innerHTML = `<strong>Price:</strong> $${price}`;
-    document.getElementById("order-tonAmount").innerHTML = `<strong>TON Amount:</strong> ${tonAmount} TON`;
-
-    document.getElementById("order-modal-overlay").style.display = "flex";
-
-    updateTonButton(orderId, tonAmount);
-}
-
-// ✅ Ẩn modal khi đóng
-function closeOrderModal() {
-    document.getElementById("order-modal-overlay").style.display = "none";
-}
-
-// ✅ Cập nhật nút thanh toán TON sau khi kết nối ví
-function updateTonButton(orderId, tonAmount) {
-    const tonButton = document.getElementById("ton-pay-btn");
-    if (!tonButton) return;
-
-    if (tonConnectUI.wallet) {
-        tonButton.innerText = "Pay with TON";
-        tonButton.onclick = () => payWithTon(orderId, tonAmount);
-    } else {
-        tonButton.innerText = "Connect Wallet";
-        tonButton.onclick = async () => {
-            await tonConnectUI.openModal();
-            updateTonButton(orderId, tonAmount);
-        };
-    }
-}
-
-// ✅ Gửi giao dịch trên TON
-async function payWithTon(orderId, tonAmount) {
-    if (!tonConnectUI.wallet) {
-        alert("🔗 Please connect your Ton wallet first.");
-        return;
-    }
-
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-            {
-                address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
-                amount: Math.round(tonAmount * 1e9).toString(),
-                payload: orderId
-            }
-        ]
-    };
-
-    try {
-        await tonConnectUI.sendTransaction(transaction);
-        alert(`✅ Payment Sent Successfully! (${tonAmount} TON)`);
-        closeOrderModal();
-    } catch (error) {
-        alert("❌ Payment Failed!");
-        console.error(error);
-    }
-}
 });
 // Danh sách gói sao và giá
 const starsPackages = [
@@ -195,6 +100,7 @@ async function buyStars(serviceType) {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || "null";
+
     if (!amount || !price || !username) {
         Swal.fire({
             icon: "warning",
@@ -256,104 +162,57 @@ async function buyStars(serviceType) {
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
-// ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
-// ✅ Khởi tạo TonConnect UI TRƯỚC khi sử dụng
-// ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
-
-async function showOrderModal(orderId, username, amount, price, tonAmount) {
+function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
     const modalHTML = `
-    <div id="order-modal-overlay" style="
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
-        z-index: 1000;
+<div id="order-modal-overlay" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+">
+    <div id="order-modal" style="
+        background: black; padding: 25px; border-radius: 10px; width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
+        font-family: Arial, sans-serif;
+        position: relative;
     ">
-        <div id="order-modal" style="
-            background: black; padding: 25px; border-radius: 10px; width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); text-align: center;
-            font-family: Arial, sans-serif;
-            position: relative;
-        ">
-            <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
-            <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Username:</strong> ${username}</p>
-            <p><strong>Amount:</strong> ${amount} Stars</p>
-            <p><strong>Price:</strong> $${price}</p>
-            <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
+        <h2 style="color: #fff; margin-bottom: 15px;">Order Details</h2>
+        <p style="font-size: 16px;"><strong>Order ID:</strong> ${orderId}</p>
+        <p style="font-size: 16px;"><strong>Username:</strong> ${username}</p>
+        <p style="font-size: 16px;"><strong>Amount:</strong> ${amount} Stars</p>
+        <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
+        <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
 
-            <div style="margin-top: 20px;">
-                <button id="ton-pay-btn" data-order-id="${orderId}" style="
-                    background-color: #007bff; color: white; border: none; padding: 10px 15px;
-                    font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-                ">🔗 Connect Wallet</button>
-            </div>
-
-            <button onclick="document.getElementById('order-modal-overlay').remove()" style="
-                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
-                font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
-            ">❌ Cancel</button>
+        <div style="margin-top: 20px;">
+            <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
+                background-color: #28a745; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+            ">💰 Pay with TON (Tonkeeper)</button>
+            
+            <button onclick="window.open('${paymentLink}', '_blank')" style="
+                background-color: #007bff; color: white; border: none; padding: 10px 15px;
+                font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
+            ">🔗 Pay with Payment Link</button>
         </div>
-    </div>`;
 
-    // ✅ Xóa modal cũ trước khi thêm mới
-    document.getElementById("order-modal-overlay")?.remove();
+        <button onclick="document.getElementById('order-modal-overlay').remove()" style="
+            background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+            font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
+        ">❌ Cancel</button>
+    </div>
+</div>
+`;
 
-    // ✅ Thêm modal mới vào DOM
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
-    console.log(currentIsConnectedStatus);
-    if(currentIsConnectedStatus ===true){
-
+    // Xóa modal cũ nếu có
+    const existingModal = document.getElementById("order-modal-overlay");
+    if (existingModal) {
+        existingModal.remove();
     }
-    updateTonButton(orderId, tonAmount);
+
+    // Thêm modal mới vào body
+    const modal = document.createElement("div");
+    modal.innerHTML = modalHTML;
+    document.body.appendChild(modal);
 }
-
-// ✅ Cập nhật nút thanh toán TON sau khi kết nối ví
-function updateTonButton(orderId, tonAmount) {
-    const tonButton = document.getElementById("ton-pay-btn");
-    const currentIsConnectedStatus = tonConnectUI.connected;
-    console.log(currentIsConnectedStatus);
-    if (!tonButton) return;
-    if (currentIsConnectedStatus==true) {
-        tonButton.innerText = "Pay with TON";
-        tonButton.onclick = () => payWithTon(orderId, tonAmount);
-    } else {
-        tonButton.innerText = "Connect Wallet";
-        tonButton.onclick = async () => await tonConnectUI.openModal();
-    }
-}
-
-// ✅ Gửi giao dịch trên TON
-async function payWithTon(orderId, tonAmount) {
-    if (!tonConnectUI.wallet) {
-        alert("🔗 Please connect your Ton wallet first.");
-        return;
-    }
-
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-            {
-                address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
-                amount: Math.round(tonAmount * 1e9).toString(),
-                payload: orderId
-            }
-        ]
-    };
-
-    try {
-        await tonConnectUI.sendTransaction(transaction);
-        alert(`✅ Payment Sent Successfully! (${tonAmount} TON)`);
-    } catch (error) {
-        alert("❌ Payment Failed!");
-        console.error(error);
-    }
-}
-
-// ✅ Theo dõi trạng thái kết nối ví để cập nhật giao diện
-tonConnectUI.onStatusChange(() => {
-    const orderId = document.getElementById("ton-pay-btn")?.dataset?.orderId;
-    if (orderId) updateTonButton(orderId);
-});
-
 
 
 
