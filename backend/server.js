@@ -278,7 +278,44 @@ app.post("/api/cancel-order", async (req, res) => {
     }
 });
 
+app.post("/api/complete-order", async (req, res) => {
+    try {
+        const { orderId } = req.body;
 
+        // 🔹 Kiểm tra nếu `orderId` không tồn tại
+        if (!orderId) {
+            return res.status(400).json({ success: false, message: "Missing orderId" });
+        }
+
+        console.log(`📌 Attempting to cancel order: ${orderId}`);
+
+        // 🔹 Tìm đơn hàng theo `orderId`
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            console.log(`❌ Order not found: ${orderId}`);
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // 🔹 Kiểm tra nếu đơn hàng đã được thanh toán
+        if (order.status === "pending" && order.status === "canceled") {
+            console.log(`⚠️ Cannot complete this order: ${orderId}`);
+            return res.status(400).json({ success: false, message: "Cannot cancel" });
+        }
+
+        // 🔹 Cập nhật trạng thái đơn hàng thành "canceled"
+        order.status = "completed";
+        order.updatedAt = new Date();
+        await order.save();
+
+        console.log(`✅ Order ${orderId} has been canceled`);
+
+        return res.status(200).json({ success: true, message: "Order canceled successfully" });
+    } catch (error) {
+        console.error("❌ Error canceling order:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
 // ✅ Kiểm tra trạng thái giao dịch
 app.post("/api/check-transaction", async (req, res) => {
     const { orderId } = req.body;
