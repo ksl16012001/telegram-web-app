@@ -203,6 +203,11 @@ async function showOrderModal(orderId, username, amount, price, tonAmount) {
         manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
         buttonRootId: "ton-pay-btn" // ✅ Gán ID nút TonConnect để tự động kết nối
     });
+    const currentIsConnectedStatus = tonConnectUI.connected;
+    console.log(currentIsConnectedStatus);
+    if(currentIsConnectedStatus ===true){
+
+    }
     updateTonButton(orderId, tonAmount);
 }
 
@@ -210,8 +215,7 @@ async function showOrderModal(orderId, username, amount, price, tonAmount) {
 function updateTonButton(orderId, tonAmount) {
     const tonButton = document.getElementById("ton-pay-btn");
     if (!tonButton) return;
-
-    if (tonConnectUI.wallet) {
+    if (tonConnectUI.connected==true) {
         tonButton.innerText = "Pay with TON";
         tonButton.onclick = () => payWithTon(orderId, tonAmount);
     } else {
