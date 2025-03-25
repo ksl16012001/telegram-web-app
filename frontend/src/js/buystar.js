@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json',
-        buttonRootId: 'connect-btn'
+        buttonRootId: 'ton'
     });
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
@@ -123,7 +123,7 @@ async function buyStars(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
+    const tonAmount = (price / tonPriceInUsd + 0.01);
 
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
@@ -182,7 +182,7 @@ function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLi
         <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
 
         <div style="margin-top: 20px;">
-            <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
+            <button id="ton" onclick="window.open('${tonkeeperLink}', '_blank')" style="
                 background-color: #28a745; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
             ">💰 Pay with TON (Tonkeeper)</button>
