@@ -24,7 +24,7 @@ async function fetchTonPrice() {
         return null;
     }
 }
-
+app.use("/admin", express.static(path.join(__dirname, "admin")));
 // ✅ Cấu hình CORS
 app.use(cors({
     origin: "*",
