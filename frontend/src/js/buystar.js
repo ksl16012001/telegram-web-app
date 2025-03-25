@@ -159,10 +159,6 @@ async function buyStars(serviceType) {
 // ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
 // ✅ Khởi tạo TonConnect UI TRƯỚC khi sử dụng
 // ✅ Khởi tạo TonConnect UI với buttonRootId để tự động xử lý kết nối
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
-    buttonRootId: "ton-pay-btn" // ✅ Gán ID nút TonConnect để tự động kết nối
-});
 
 async function showOrderModal(orderId, username, amount, price, tonAmount) {
     const modalHTML = `
@@ -203,7 +199,10 @@ async function showOrderModal(orderId, username, amount, price, tonAmount) {
 
     // ✅ Thêm modal mới vào DOM
     document.body.insertAdjacentHTML("beforeend", modalHTML);
-
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json",
+        buttonRootId: "ton-pay-btn" // ✅ Gán ID nút TonConnect để tự động kết nối
+    });
     updateTonButton(orderId, tonAmount);
 }
 
