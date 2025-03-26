@@ -87,47 +87,35 @@ app.get("/api/process-payment", async (req, res) => {
 
         console.log("📌 Received payment request:", { orderId, userId, username, service });
 
-        const tonPriceInUsd = await fetchTonPrice();
-        if (!tonPriceInUsd) {
-            return res.status(500).json({ error: "❌ Failed to fetch TON price" });
-        }
-
-        // 📌 Kiểm tra userId có tồn tại không
-        const userExists = await User.findOne({ id: userId });
-        if (!userExists) {
-            return res.status(404).json({ error: "❌ User not found" });
-        }
-
         // 📌 Lưu đơn hàng vào MongoDB
         const order = new Order({
             orderId,
             userId,
             username,
-            service, 
+            service,
             packageAmount: Number(amount),
             packagePrice: Number(price),
-            tonPriceInUsd,
             tonAmount: Number(tonAmount),
             paymentLink,
             status: "pending",
-            createdAt: new Date()
         });
 
         await order.save();
         console.log(`✅ New order created (PENDING): ${orderId}`);
 
+        // 🔹 Bắt đầu kiểm tra giao dịch trong 5 phút
+        trackPayment(orderId, tonAmount);
+
         res.status(200).json({
             message: "✅ Order created successfully",
             orderId,
-            paymentLink
+            paymentLink,
         });
     } catch (error) {
         console.error("❌ Error processing payment:", error);
         res.status(500).json({ error: "❌ Internal Server Error", details: error.message });
     }
 });
-
-
 
 const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
 async function checkTransaction(orderId, expectedTonAmount) {
@@ -140,7 +128,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
         const diffMinutes = Math.floor((now - orderTime) / (1000 * 60));
 
         // 🔹 Hủy đơn nếu quá 5 phút mà chưa thanh toán
-        if (diffMinutes > 5 && order.status === "pending") {
+        if (diffMinutes > 4 && order.status === "pending") {
             order.status = "canceled";
             order.updatedAt = now;
             await order.save();
@@ -171,6 +159,7 @@ async function checkTransaction(orderId, expectedTonAmount) {
             order.transactionId = transaction.transaction_id.hash;
             order.updatedAt = now;
             await order.save();
+            notifyAdmin(order)
             console.log(`✅ Order ${order.orderId} marked as PAID`);
 
             return { success: true, transactionId: transaction.transaction_id.hash };
@@ -396,6 +385,6 @@ app.post("/api/complete-order", async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
-setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 30 s
+// setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 30 s
 // ✅ Khởi chạy server
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
