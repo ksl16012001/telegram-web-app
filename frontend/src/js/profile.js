@@ -48,9 +48,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 ${order.status === 'pending' ? 'orange' : 
                 (order.status === 'paid' ? 'green' : 
                 (order.status === 'complete' ? 'blue' : 'red'))}">
-                ${order.status}
-            </span>
-            ${order.status.toUpperCase()}
+                ${order.status.toUpperCase()}
         </span>
     </div>
 `;
