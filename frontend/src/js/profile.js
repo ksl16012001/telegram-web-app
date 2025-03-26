@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             orderItem.innerHTML = `
     <div class="info-box">
         <strong>${order.service}</strong> - ${order.packageAmount} ${amountDisplay}
-        <br> Status: <span style="color: ${order.status === 'pending' ? 'orange' : (order.status === 'paid' ? 'green' : 'red')}">
+        <br> Status: <span style="color: ${order.status === 'pending' ? 'orange' : (order.status === 'paid'&&'complete' ? 'green' : 'red')}">
             ${order.status.toUpperCase()}
         </span>
     </div>
@@ -90,10 +90,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' : (status === 'paid' ? 'green' : 'red')}">${status.toUpperCase()}</span></p>
     
         <div id="modal-buttons" style="margin-top: 15px;">
-            ${status === 'pending' ? `
-                <button id="payNowButton" style="background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">💳 Pay Now</button>
-                <button id="cancelOrderButton" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">❌ Cancel Order</button>
-            ` : ""}
             <button id="closeModalButton" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Close</button>
         </div>
     </div>
