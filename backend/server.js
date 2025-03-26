@@ -128,43 +128,18 @@ app.get("/api/process-payment", async (req, res) => {
 });
 
 
-async function autoUpdatePaidOrders() {
-    console.log("🔄 Checking pending orders for payment...");
 
-    const pendingOrders = await Order.find({ status: "pending" });
-
-    for (const order of pendingOrders) {
-        const result = await paymentService.checkTransactionStatus(order.paymentLink);
-        if (result.success) {
-            order.status = "paid";
-            order.transactionId = result.transactionId;
-            order.updatedAt = new Date();
-            await order.save();
-            console.log(`✅ Order ${order._id} marked as PAID`);
-
-            // ✅ Gửi thông báo cho Admin
-            await paymentService.notifyAdmin(order);
-        }
-    }
-}
 const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
 async function checkTransaction(orderId, expectedTonAmount) {
     try {
-        // 📌 Lấy đơn hàng từ DB
         const order = await Order.findOne({ orderId });
         if (!order) return { success: false, message: "❌ Order not found" };
 
-        // 🔹 Kiểm tra nếu `service` không hợp lệ
-        const validServices = ["Buy Star", "Buy Premium"];
-        if (!validServices.includes(order.service)) {
-            console.error(`❌ Invalid service: ${order.service}`);
-            return { success: false, message: `Invalid service: ${order.service}` };
-        }
-
-        // 🔹 Kiểm tra nếu đơn hàng quá 30 phút
         const now = new Date();
         const orderTime = new Date(order.createdAt);
-        const diffMinutes = Math.floor((now - orderTime) / (1000 * 60)); // Tính phút
+        const diffMinutes = Math.floor((now - orderTime) / (1000 * 60));
+
+        // 🔹 Hủy đơn nếu quá 5 phút mà chưa thanh toán
         if (diffMinutes > 5 && order.status === "pending") {
             order.status = "canceled";
             order.updatedAt = now;
@@ -173,20 +148,21 @@ async function checkTransaction(orderId, expectedTonAmount) {
             return { success: false, message: "❌ Order expired and was canceled" };
         }
 
-        // 📌 Gọi API lấy danh sách giao dịch
-        const url = `https://toncenter.com/api/v2/getTransactions?address=UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0&limit=100`;
+        // 📌 Gọi API lấy danh sách giao dịch trên TON blockchain
+        const tonAddress = process.env.TON_RECEIVER;
+        const url = `https://toncenter.com/api/v2/getTransactions?address=${tonAddress}&limit=100`;
         const response = await fetch(url);
         const data = await response.json();
 
-        // 🔹 Kiểm tra nếu API trả về lỗi
         if (!data || !data.result || !Array.isArray(data.result)) {
             console.error("❌ Invalid response from TON API:", data);
             return { success: false, message: "❌ Error fetching transaction data" };
         }
 
-        // 📌 Tìm giao dịch khớp orderId trong message & amount
+        // 📌 Tìm giao dịch khớp với orderId trong message & số tiền
         const transaction = data.result.find(tx =>
-            tx.in_msg?.message?.includes(orderId)  // Kiểm tra số tiền
+            tx.in_msg?.message?.includes(orderId) &&
+            Number(tx.in_msg.value) >= Math.round(expectedTonAmount * 1e9)
         );
 
         if (transaction) {
@@ -195,8 +171,8 @@ async function checkTransaction(orderId, expectedTonAmount) {
             order.transactionId = transaction.transaction_id.hash;
             order.updatedAt = now;
             await order.save();
-            notifyAdmin(order);
             console.log(`✅ Order ${order.orderId} marked as PAID`);
+
             return { success: true, transactionId: transaction.transaction_id.hash };
         } else {
             return { success: false, message: "⚠️ Transaction not found or incorrect amount" };
@@ -205,6 +181,22 @@ async function checkTransaction(orderId, expectedTonAmount) {
         console.error("❌ Error checking transaction:", error);
         return { success: false, message: "❌ Error fetching transaction data" };
     }
+}
+async function trackPayment(orderId, tonAmount) {
+    console.log(`🔄 Tracking order ${orderId} for 5 minutes...`);
+
+    for (let i = 0; i < 10; i++) { // Lặp lại tối đa 10 lần (mỗi 30s)
+        const result = await checkTransaction(orderId, tonAmount);
+
+        if (result.success) {
+            console.log(`✅ Payment detected for order ${orderId}. Stopping tracking.`);
+            return;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 30000)); // 🔄 Chờ 30 giây trước khi kiểm tra lại
+    }
+
+    console.log(`❌ Order ${orderId} was not paid within 5 minutes. Marking as expired.`);
 }
 async function notifyAdmin(order) {
     const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
