@@ -67,7 +67,7 @@ bot.onText(/\/admin/, async (msg) => {
     }
 
     try {
-        const adminDashboardUrl = "https://telegram-web-app-k4qx.onrender.com/admin/dashboard"; // 🔹 Đổi thành URL trang admin
+        const adminDashboardUrl = "https://telegram-web-app-k4qx.onrender.com/admin/dashboard.html"; // 🔹 Đổi thành URL trang admin
 
         bot.sendMessage(
             chatId,
