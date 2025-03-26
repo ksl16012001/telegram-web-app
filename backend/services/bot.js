@@ -67,29 +67,16 @@ bot.onText(/\/admin/, async (msg) => {
     }
 
     try {
-        // 🔹 Lấy 10 đơn hàng mới nhất từ MongoDB
-        const orders = await Order.find().sort({ createdAt: -1 }).limit(10);
+        const adminDashboardUrl = "https://telegram-web-app-k4qx.onrender.com/admin/dashboard"; // 🔹 Đổi thành URL trang admin
 
-        if (orders.length === 0) {
-            return bot.sendMessage(chatId, "📭 No pending orders.");
-        }
-
-        let message = "📌 *Latest Orders:*\n\n";
-
-        orders.forEach(order => {
-            message += `🆔 Order ID: \`${order.orderId}\`\n`;
-            message += `👤 User: *${order.username}*\n`;
-            message += `⭐ Stars: *${order.packageAmount}*\n`;
-            message += `💰 Price: *$${order.packagePrice}*\n`;
-            message += `⭐ TonPriceInUsd: *${order.tonPriceInUsd}*\n`;
-            message += `🕒 Status: *${order.status.toUpperCase()}*\n`;
-            if (order.paymentLink) message += `🔗 [Payment Link](${order.paymentLink})\n\n`;
-        });
-
-        bot.sendMessage(chatId, message, { parse_mode: "Markdown", disable_web_page_preview: true });
+        bot.sendMessage(
+            chatId,
+            `🚀 *Admin Panel Access*\n\nClick the link below to access the admin dashboard:\n🔗 [Open Admin Panel](${adminDashboardUrl})`,
+            { parse_mode: "Markdown", disable_web_page_preview: true }
+        );
     } catch (error) {
-        console.error("❌ Error fetching orders:", error);
-        bot.sendMessage(chatId, "❌ Error fetching orders. Please try again later.");
+        console.error("❌ Error sending admin link:", error);
+        bot.sendMessage(chatId, "❌ Error accessing admin panel. Please try again later.");
     }
 });
 
