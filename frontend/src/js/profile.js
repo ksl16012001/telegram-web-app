@@ -43,7 +43,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             orderItem.innerHTML = `
     <div class="info-box">
         <strong>${order.service}</strong> - ${order.packageAmount} ${amountDisplay}
-        <br> Status: <span style="color: ${order.status === 'pending' ? 'orange' : (order.status === 'paid'&&'complete' ? 'green' : 'red')}">
+        <br> Status: 
+            <span style="color: 
+                ${order.status === 'pending' ? 'orange' : 
+                (order.status === 'paid' ? 'green' : 
+                (order.status === 'complete' ? 'blue' : 'red'))}">
+                ${order.status}
+            </span>
             ${order.status.toUpperCase()}
         </span>
     </div>
