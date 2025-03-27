@@ -3,6 +3,7 @@
     "@tonconnect/sdk": "^3.0.7",
     "@tonconnect/ui": "^2.0.12",
     "bcryptjs": "^3.0.2",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "telegraf": "^4.16.3"
   }
 }

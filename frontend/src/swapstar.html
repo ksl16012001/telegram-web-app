@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Stars to TON</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            text-align: center;
+        }
+
+        .swap-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #222;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header img {
+            width: 50px;
+        }
+
+        .receive-box {
+            background: #333;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .stars-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .star-option {
+            padding: 10px;
+            background: #444;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        /* Hiển thị trạng thái active khi chọn */
+        .star-option.active {
+            background: #0088cc;
+            font-weight: bold;
+        }
+
+        .star-option:hover {
+            background: #666;
+        }
+
+        .swap-button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background: #ff9800;
+            border: none;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .swap-button:hover {
+            background: #ff9800;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="swap-container">
+        <div class="header">
+            <img src="stars-icon.png" alt="Stars Icon">
+            <h2>Swap Your Stars To TON</h2>
+            <p>Will be sent directly to your wallet address</p>
+        </div>
+
+        <div class="receive-box">
+            <p>You receive</p>
+            <h1 id="tonAmount">0.239316 TON</h1>
+        </div>
+
+        <div class="stars-options">
+            <button class="star-option" onclick="selectStars(this, 100)">100 ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 250)">250 ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 500)">500 ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 750)">750 ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 1000)">1K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 1500)">1.5K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 2000)">2K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 2500)">2.5K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 3000)">3K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 3500)">3.5K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 4000)">4K ⭐</button>
+            <button class="star-option" onclick="selectStars(this, 4500)">4.5K ⭐</button>
+        </div>
+
+        <button class="swap-button" onclick="swapNow()">Swap Now</button>
+    </div>
+
+    <script src="./js/swap.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+
+</html>
