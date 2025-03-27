@@ -387,4 +387,71 @@ app.post("/api/complete-order", async (req, res) => {
 });
 // setInterval(autoCheckPendingOrders, 30000); // Chạy mỗi 30 s
 // ✅ Khởi chạy server
+
+app.use(express.json());
+async function getRecipient(username) {
+    const headers = {
+        'Content-Length': '57',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'X-Requested-With': 'XMLHttpRequest',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Sec-Ch-Ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Origin': 'https://fragment.com',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Dest': 'empty',
+        'Referer': 'https://fragment.com/stars/buy?quantity=100',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Accept-Language': 'vi,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6,zh-TW;q=0.5,zh;q=0.4',
+        'Priority': 'u=1, i',
+        'Cookie': 'stel_ssid=5ac98476080a251d19_5036652558238127629; stel_dt=-420; stel_token=050eb84032063dce62c146a8a9496a63050eb85a050eb68b5a8d4ad9404b60900ec86; stel_ton_token=f0eB8_DfJStfHXF1N5iyx0LMBDUwix25jfg-3Jo5a-AWGnQxuyFwKF56CJLz84I7eTEddyhikJIofDSoclWtPTweMkfVGveaab4KkbqzSstnCaOTbFFCqfG-nJZFaBnq57xpZPyWlXzQAUqmjFLaTZVVh9A0NNxi5-hpMjrH1oSJn0zbQ9bxMKw6A_UnZzVQlehLhruw'
+    };
+
+    const payload = new URLSearchParams();
+    payload.append('query', username); // Sử dụng username làm giá trị cho query
+    payload.append('quantity', '100');
+    payload.append('method', 'searchStarsRecipient');
+
+    try {
+        const response = await fetch('https://fragment.com/api?hash=e006bcba00888acbf2', {
+            method: 'POST',
+            headers: headers,
+            body: payload.toString()
+        });
+
+        if (response.ok) {
+            const data = await response.json(); // Giải mã phản hồi JSON
+            if (data.ok) {
+                const recipient = data.found ? data.found.recipient : null;
+                return recipient ? recipient : 'Không tìm thấy recipient cho username này.';
+            } else {
+                return 'Không tìm thấy recipient cho username này.';
+            }
+        } else {
+            return `Lỗi khi gửi yêu cầu. Mã lỗi: ${response.status}`;
+        }
+    } catch (error) {
+        return `Lỗi khi gửi yêu cầu: ${error.message}`;
+    }
+}
+
+// API endpoint để nhận username và trả về recipient
+app.get('/api/get-recipient', async (req, res) => {
+    const { username } = req.query;
+
+    if (!username) {
+        return res.status(400).json({ error: 'Username không được cung cấp.' });
+    }
+
+    try {
+        const recipient = await getRecipient(username);
+        res.json({ recipient });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
