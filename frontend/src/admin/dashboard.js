@@ -86,6 +86,7 @@ async function goToFragment(username, quantity) {
     // Gọi hàm getRecipient để lấy recipient
     const recipient = await getRecipient(username);
 
+    // Kiểm tra nếu không có recipient
     if (!recipient) {
         alert('Không thể tìm thấy recipient cho username này.');
         return;
@@ -201,12 +202,20 @@ async function getRecipient(username) {
         // Gửi yêu cầu đến API backend để lấy recipient
         const response = await fetch(`/api/get-recipient?username=${encodeURIComponent(username)}`);
 
+        // Kiểm tra mã trạng thái HTTP
         if (!response.ok) {
-            throw new Error('Lỗi khi lấy recipient');
+            throw new Error('Lỗi khi gửi yêu cầu');
         }
 
         const data = await response.json();
-        return data.recipient;  // Trả về recipient từ API
+
+        // Kiểm tra nếu dữ liệu trả về hợp lệ
+        if (data && data.recipient) {
+            return data.recipient;  // Trả về recipient từ API
+        } else {
+            throw new Error('Không tìm thấy recipient cho username này.');
+        }
+
     } catch (error) {
         console.error('Lỗi khi gọi API:', error);
         return null;  // Trả về null nếu có lỗi
