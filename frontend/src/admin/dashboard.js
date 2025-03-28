@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.getElementById("orderFilter").addEventListener("change", fetchOrders);
 });
+
 async function markAsCompleted(orderId) {
     try {
         const response = await fetch("/api/complete-order", {
@@ -197,6 +198,7 @@ async function updateConfig() {
     const result = await response.json();
     alert(result.message);
 }
+
 // Hàm gửi yêu cầu lấy thông tin recipient từ username
 async function getRecipient(username) {
     try {
@@ -223,3 +225,4 @@ async function getRecipient(username) {
     }
 }
 
+// Ví dụ sử dụng hàm với username
