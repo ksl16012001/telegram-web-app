@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || null;
-    Telegram.WebApp.requestFullscreen()
     // Kiểm tra quyền admin
     try {
         let response = await fetch("/api/admin-chat-id");
@@ -26,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         alert("Lỗi hệ thống! Vui lòng thử lại sau.");
         return;
     }
-
+    Telegram.WebApp.requestFullscreen()
     // Kích hoạt tab
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
