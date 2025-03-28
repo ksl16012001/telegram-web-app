@@ -52,10 +52,10 @@ function swapNow() {
         return;
     }
     Telegram.WebApp.openInvoice({
-        title: "Stars",
-        description: `Bạn đang send ${amount} Stars`,
-        payload: `payment_${amount}`,
-        provider_token: "", // Token từ Telegram BotFather
+        title: "Sản phẩm kỹ thuật số",
+        description: "Thanh toán bằng Telegram Stars (XTR)",
+        payload: "stars_payment",
+        provider_token: "", // Không cần token cho nội dung số
         currency: "XTR",
         prices: [{ label: "Stars", amount: amount * 100 }], // Telegram tính theo cent
         start_parameter: `buy_${amount}`
