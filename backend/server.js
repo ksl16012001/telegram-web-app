@@ -220,7 +220,7 @@ ${statusText}
         ? [] // Nếu đã hoàn thành thì không hiển thị nút nữa
         : [
             [{ text: "Check", url: `https://tonscan.org/tx/${order.transactionId}` }],
-            [{ text: "Completed", callback_data: `complete_${order.orderId}` }],
+            [{ text: "✅ Mark Completed", callback_data: JSON.stringify({ action: "complete", orderId: order.orderId }) }],
             [{ 
                 text: "Go to Fragment", 
                 url: `https://fragment.com/stars/buy?recipient=${encodeURIComponent(recipient)}&quantity=${encodeURIComponent(order.packageAmount)}`
@@ -280,45 +280,80 @@ app.post("/api/cancel-order", async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
-app.post("/api/handle-callback", async (req, res) => {
-    const { callback_query } = req.body;
-    if (!callback_query || !callback_query.data) return res.sendStatus(400);
+bot.on("callback_query", async (query) => {
+    try {
+        const data = JSON.parse(query.data);
 
-    const BOT_TOKEN = process.env.BOT_TOKEN;
-    const callbackId = callback_query.id;
-    const chatId = callback_query.message.chat.id;
-    const data = callback_query.data;
+        if (data.action === "complete") {
+            const orderId = data.orderId;
+            console.log(`🔹 Completing order: ${orderId}`);
 
-    if (data.startsWith("complete_")) {
-        const orderId = data.replace("complete_", "");
+            // Gọi API hoàn thành đơn hàng
+            const response = await axios.post(`${url}/api/admin/complete-order`, { orderId });
 
-        try {
-            let response = await fetch(`${process.env.WEB_APP_URL}/api/complete-order`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderId })
-            });
+            if (response.data.success) {
+                await bot.answerCallbackQuery(query.id, {
+                    text: "✅ Order marked as completed!",
+                    show_alert: true
+                });
 
-            let result = await response.json();
-
-            if (result.success) {
-                await notifyAdmin({ orderId, userId: chatId }, true); // Gửi thông báo hoàn thành
+                // Cập nhật nội dung tin nhắn
+                await bot.editMessageText(
+                    `✅ Order *${orderId}* has been marked as *COMPLETED*! 🎉`,
+                    {
+                        chat_id: query.message.chat.id,
+                        message_id: query.message.message_id,
+                        parse_mode: "Markdown"
+                    }
+                );
+            } else {
+                throw new Error(response.data.message);
             }
-
-            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
-                callback_query_id: callbackId,
-                text: result.success ? `✅ Order ${orderId} completed!` : `❌ Error: ${result.message}`,
-                show_alert: true
-            });
-
-            return res.sendStatus(200);
-        } catch (error) {
-            console.error("❌ Error completing order:", error);
-            return res.sendStatus(500);
         }
+    } catch (error) {
+        console.error("❌ Error:", error);
+        await bot.answerCallbackQuery(query.id, {
+            text: "❌ Error completing order!",
+            show_alert: true
+        });
     }
+});
 
-    res.sendStatus(400);
+
+
+app.post("/api/admin/complete-order", async (req, res) => {
+    try {
+        const { orderId } = req.query; // Lấy orderId từ query
+
+        if (!orderId) {
+            return res.status(400).json({ success: false, message: "Missing orderId" });
+        }
+
+        console.log(`📌 Attempting to complete order: ${orderId}`);
+
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            console.log(`❌ Order not found: ${orderId}`);
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        if (order.status === "pending" || order.status === "canceled") {
+            console.log(`⚠️ Cannot complete this order: ${orderId}`);
+            return res.status(400).json({ success: false, message: "Cannot complete this order" });
+        }
+
+        order.status = "complete";
+        order.updatedAt = new Date();
+        await order.save();
+
+        console.log(`✅ Order ${orderId} has been completed`);
+
+        return res.status(200).json({ success: true, message: "Order completed successfully" });
+    } catch (error) {
+        console.error("❌ Error completing order:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
 });
 
 app.post("/api/complete-order", async (req, res) => {
