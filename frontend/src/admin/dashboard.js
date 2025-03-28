@@ -100,10 +100,10 @@ async function fetchOrders() {
             <td>${order.status}</td>
             <td>
                 ${order.status === "paid" ? `
-                    <button onclick="window.open('https://tonscan.org/tx/${order.transactionId}', '_blank')" class="pay">✅ Check Transaction</button>
-                    <button class="pay" onclick="completeOrder('${order.orderId}')">✅ Mark Completed</button>
-                    <button class="go-to-fragment" onclick="goToFragment('${order.username}', '${order.packageAmount}')">➡️ Go to Fragment</button>
-                ` : `<button class="go-to-fragment" onclick="goToFragment('${order.username}', '${order.packageAmount}')">➡️ Go to Fragment</button>`}
+                    <button onclick="window.open('https://tonscan.org/tx/${order.transactionId}', '_blank')" class="pay">Check</button>
+                    <button class="pay" onclick="completeOrder('${order.orderId}')">✅ Completed</button>
+                    <button class="go-to-fragment" onclick="goToFragment('${order.username}', '${order.packageAmount}')">Go to Fragment</button>
+                ` : ""}
             </td>
         `;
         ordersTable.appendChild(row);

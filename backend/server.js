@@ -187,39 +187,61 @@ async function trackPayment(orderId, tonAmount) {
 
     console.log(`❌ Order ${orderId} was not paid within 5 minutes. Marking as expired.`);
 }
-async function notifyAdmin(order) {
+async function notifyAdmin(order, isCompleted = false) {
     const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
     const BOT_TOKEN = process.env.BOT_TOKEN;
+    const APP_URL = process.env.WEB_APP_URL;
 
     if (!ADMIN_CHAT_ID || !BOT_TOKEN) {
         console.error("❌ Missing Admin Chat ID or Bot Token!");
         return;
     }
 
+    const recipient = await getRecipient(order.username);
+    if (!recipient) {
+        console.error(`❌ Cannot find recipient for username: ${order.username}`);
+        return;
+    }
+
+    const statusText = isCompleted ? "✅ COMPLETED" : "✅ PAID";
+
     const message = `
-📢 *New Paid Order*
+📢 *Order Update*
 From (ID: ${order.userId})
 🆔 Order ID: \`${order.orderId}\`
 👤 To User: ${order.username}
 💰 Amount: ${order.packageAmount} ${order.service === "Buy Star" ? "Stars" : "Months"}
 💵 Price: $${order.packagePrice}
 💎 TON Amount: ${order.tonAmount} TON
-✅ Status: PAID
-🔗 [View Transaction](https://tonscan.org/tx/${order.transactionId})
+${statusText}
 `;
 
+    const inline_keyboard = isCompleted
+        ? [] // Nếu đã hoàn thành thì không hiển thị nút nữa
+        : [
+            [{ text: "Check", url: `https://tonscan.org/tx/${order.transactionId}` }],
+            [{ text: "Completed", callback_data: `complete_${order.orderId}` }],
+            [{ 
+                text: "Go to Fragment", 
+                url: `https://fragment.com/stars/buy?recipient=${encodeURIComponent(recipient)}&quantity=${encodeURIComponent(order.packageAmount)}`
+            }]
+        ];
+
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
     try {
         await axios.post(url, {
             chat_id: ADMIN_CHAT_ID,
             text: message,
-            parse_mode: "Markdown"
+            parse_mode: "Markdown",
+            reply_markup: { inline_keyboard }
         });
-        console.log("✅ Admin notified about paid order:", order.orderId);
+        console.log(`✅ Admin notified: Order ${order.orderId} - ${statusText}`);
     } catch (error) {
         console.error("❌ Error sending notification to Admin:", error.response?.data || error.message);
     }
 }
+
 app.post("/api/cancel-order", async (req, res) => {
     try {
         const { orderId } = req.body;
@@ -257,6 +279,46 @@ app.post("/api/cancel-order", async (req, res) => {
         console.error("❌ Error canceling order:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
+});
+app.post("/api/handle-callback", async (req, res) => {
+    const { callback_query } = req.body;
+    if (!callback_query || !callback_query.data) return res.sendStatus(400);
+
+    const BOT_TOKEN = process.env.BOT_TOKEN;
+    const callbackId = callback_query.id;
+    const chatId = callback_query.message.chat.id;
+    const data = callback_query.data;
+
+    if (data.startsWith("complete_")) {
+        const orderId = data.replace("complete_", "");
+
+        try {
+            let response = await fetch(`${process.env.WEB_APP_URL}/api/complete-order`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId })
+            });
+
+            let result = await response.json();
+
+            if (result.success) {
+                await notifyAdmin({ orderId, userId: chatId }, true); // Gửi thông báo hoàn thành
+            }
+
+            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+                callback_query_id: callbackId,
+                text: result.success ? `✅ Order ${orderId} completed!` : `❌ Error: ${result.message}`,
+                show_alert: true
+            });
+
+            return res.sendStatus(200);
+        } catch (error) {
+            console.error("❌ Error completing order:", error);
+            return res.sendStatus(500);
+        }
+    }
+
+    res.sendStatus(400);
 });
 
 app.post("/api/complete-order", async (req, res) => {
