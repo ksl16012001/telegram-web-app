@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || null;
-
+    Telegram.WebApp.expand();
     // Kiểm tra quyền admin
     try {
         let response = await fetch("/api/admin-chat-id");
