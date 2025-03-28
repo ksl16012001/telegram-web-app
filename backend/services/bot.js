@@ -1,7 +1,9 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const Order = require("../models/Order");
-
+const { Telegraf } = require('telegraf');
+// const BOT_TOKEN = process.env.BOT_TOKEN;
+// const bot = new Telegraf(BOT_TOKEN);
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_WEBHOOK_URL = process.env.TELEGRAM_WEBHOOK_URL;
 const WEB_APP_URL = process.env.WEB_APP_URL;
