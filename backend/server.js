@@ -287,7 +287,7 @@ bot.on("callback_query", async (query) => {
         if (data.action === "complete") {
             const orderId = data.orderId;
             console.log(`🔹 Completing order: ${orderId}`);
-
+            url=process.env.WEB_APP_URL;
             // Gọi API hoàn thành đơn hàng
             const response = await axios.post(`${url}/api/admin/complete-order`, { orderId });
 
