@@ -289,7 +289,7 @@ bot.on("callback_query", async (query) => {
             console.log(`🔹 Completing order: ${orderId}`);
             url=process.env.WEB_APP_URL;
             // Gọi API hoàn thành đơn hàng
-            const response = await axios.post(`${url}/api/admin/complete-order`, { orderId });
+            const response = await axios.post(`${url}/api/complete-order`, { orderId });
 
             if (response.data.success) {
                 await bot.answerCallbackQuery(query.id, {
