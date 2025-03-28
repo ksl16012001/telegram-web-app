@@ -558,3 +558,44 @@ app.get('/api/get-recipient', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const bot = new Telegraf(BOT_TOKEN); // Thay bằng bot token thật
+app.post("/create-invoice", async (req, res) => {
+    const { userId, amount } = req.body; // Lấy dữ liệu từ WebApp
+    try {
+        const invoice = await bot.telegram.sendInvoice(userId, {
+            title: "Swap Stars",
+            description: `Bạn đang swap ${amount} Stars sang TON`,
+            payload: `payment_${amount}`,
+            provider_token: "", // Thay bằng token thật
+            currency: "XTR",
+            prices: [{ label: "Stars Swap", amount: amount * 100 }], // Telegram yêu cầu nhân 100
+            start_parameter: "buy_xtr",
+        });
+
+        res.json({ success: true, slug: invoice.slug }); // Trả về slug cho WebApp
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ✅ Xử lý sự kiện thanh toán thành công
+bot.on("successful_payment", (ctx) => {
+    ctx.reply(`Thanh toán thành công! Bạn đã swap ${ctx.message.successful_payment.total_amount / 100} Stars.`);
+});
+
+// ✅ Xử lý xác nhận thanh toán
+bot.on("pre_checkout_query", (ctx) => {
+    if (ctx.preCheckoutQuery.payload.startsWith("payment_")) {
+        ctx.answerPreCheckoutQuery(true);
+    } else {
+        ctx.answerPreCheckoutQuery(false, "Lỗi thanh toán!");
+    }
+});
+
+// ✅ Kết nối Webhook để nhận dữ liệu từ WebApp
+app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+});
+
+bot.launch();
