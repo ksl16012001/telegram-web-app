@@ -40,27 +40,28 @@ function selectStars(button, amount) {
 }
 
 // Mở popup thanh toán bằng Telegram Payment
-function swapNow() {
-    let amount = document.getElementById("selectedAmount").value;
-    if (!amount) {
-        alert("Vui lòng chọn số lượng Stars!");
-        return;
-    }
+async function swapNow() {
+    const userId = Telegram.WebApp.initDataUnsafe.user.id;
+    const selectedAmount = document.getElementById("selectedAmount").value;
 
-    if (!window.Telegram || !Telegram.WebApp) {
-        alert("WebApp không được hỗ trợ!");
-        return;
+    try {
+        const response = await fetch("/create-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, amount: selectedAmount })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            Telegram.WebApp.openInvoice({ slug: data.slug }); // Mở thanh toán
+        } else {
+            Swal.fire("Lỗi", "Không thể tạo invoice!", "error");
+        }
+    } catch (error) {
+        console.error("Lỗi gửi yêu cầu:", error);
     }
-    Telegram.WebApp.openInvoice({
-        title: "Sản phẩm kỹ thuật số",
-        description: "Thanh toán bằng Telegram Stars (XTR)",
-        payload: "stars_payment",
-        provider_token: "", // Không cần token cho nội dung số
-        currency: "XTR",
-        prices: [{ label: "Stars", amount: amount * 100 }], // Telegram tính theo cent
-        start_parameter: `buy_${amount}`
-    });
 }
+
 
 // Xử lý kết quả thanh toán
 Telegram.WebApp.onEvent("invoiceClosed", function (result) {
