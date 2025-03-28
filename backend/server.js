@@ -437,7 +437,13 @@ async function getRecipient(username) {
         return `Lỗi khi gửi yêu cầu: ${error.message}`;
     }
 }
-
+app.get("/api/admin-chat-id", (req, res) => {
+    const adminChatId = process.env.ADMIN_CHAT_ID;
+    if (!adminChatId) {
+        return res.status(500).json({ error: "Admin Chat ID not set" });
+    }
+    res.json({ adminChatId });
+});
 // API endpoint để nhận username và trả về recipient
 app.get('/api/get-recipient', async (req, res) => {
     const { username } = req.query;

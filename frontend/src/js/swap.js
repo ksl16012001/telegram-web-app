@@ -1,6 +1,15 @@
 const STAR_TO_USD_RATE = 7 / 1000; // 1000 sao = 7 USD
 let tonRate = 1; // Giá TON theo USD
-
+const bottomMenu = document.createElement("div");
+    bottomMenu.className = "bottom-menu";
+    bottomMenu.innerHTML = `
+        <button onclick="location.href='index.html'">Home</button>
+        <button onclick="location.href='swapstar.html'">Swap Star</button>
+        <button onclick="location.href='buystar.html'">Buy Stars</button>
+        <button onclick="location.href='buypre.html'">Buy Premium</button>
+        <button onclick="location.href='profile.html'">Profile</button>
+    `;
+    document.body.appendChild(bottomMenu);
 // Lấy tỷ giá TON theo USD từ API
 async function fetchTonRate() {
     try {

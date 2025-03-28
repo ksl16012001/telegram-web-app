@@ -25,8 +25,8 @@ bot.on("message", async (msg) => {
 
     if (text === "/start") {
         // ✅ Gửi tin nhắn chào mừng
-        bot.sendMessage(chatId, 
-        `👋 *Welcome, ${firstName} ${lastName}!* 🚀  
+        bot.sendMessage(chatId,
+            `👋 *Welcome, ${firstName} ${lastName}!* 🚀  
 
 📌 *This is our official Telegram MiniApp!*  
 🔹 Manage your profile  
@@ -48,8 +48,8 @@ Click the button below to start exploring!`, {
 
         // ✅ Gửi thông báo đến Admin
         if (ADMIN_CHAT_ID) {
-            bot.sendMessage(ADMIN_CHAT_ID, 
-            `📢 *New User Started the Bot*  
+            bot.sendMessage(ADMIN_CHAT_ID,
+                `📢 *New User Started the Bot*  
 👤 *Name:* ${firstName}  
 🔗 *Username:* ${username}  
 🆔 *Chat ID:* \`${chatId}\``, { parse_mode: "Markdown" });
@@ -72,7 +72,14 @@ bot.onText(/\/admin/, async (msg) => {
         bot.sendMessage(
             chatId,
             `🚀 *Admin Panel Access*\n\nClick the link below to access the admin dashboard:\n🔗 [Open Admin Panel](${adminDashboardUrl})`,
-            { parse_mode: "Markdown", disable_web_page_preview: true }
+            {
+                parse_mode: "Markdown",
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "🟢 Open Dashboard", web_app: { url: adminDashboardUrl } }]
+                    ]
+                }
+            }
         );
     } catch (error) {
         console.error("❌ Error sending admin link:", error);

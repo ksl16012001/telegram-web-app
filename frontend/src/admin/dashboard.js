@@ -1,7 +1,33 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     const tabs = document.querySelectorAll(".tab-btn");
     const contents = document.querySelectorAll(".tab-content");
+    Telegram.WebApp.ready();
 
+    let user = Telegram.WebApp.initDataUnsafe?.user || null;
+    let userId = user?.id || null;
+
+    // Kiểm tra quyền admin
+    try {
+        let response = await fetch("/api/admin-chat-id");
+        let data = await response.json();
+        let adminChatId = data.adminChatId;
+
+        if (userId !== parseInt(adminChatId)) {
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:50px;">
+                    <h2>🚫 Truy cập bị từ chối</h2>
+                    <p>Bạn không có quyền truy cập vào trang này.</p>
+                </div>
+            `;
+            return; // Dừng thực thi code nếu không phải admin
+        }
+    } catch (error) {
+        console.error("Lỗi kiểm tra quyền admin:", error);
+        alert("Lỗi hệ thống! Vui lòng thử lại sau.");
+        return;
+    }
+
+    // Kích hoạt tab
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
             tabs.forEach(btn => btn.classList.remove("active"));
