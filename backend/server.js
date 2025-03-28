@@ -12,6 +12,7 @@ const app = express();
 const axios = require("axios");
 const PORT = process.env.PORT || 3000;
 const adminRoutes = require("./routes/adminRoutes");
+const { Telegraf } = require("telegraf");
 
 app.use("/api/admin", adminRoutes);
 async function fetchTonPrice() {
@@ -598,4 +599,4 @@ app.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
 
-bot.launch();
+// bot.launch();
