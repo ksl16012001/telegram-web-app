@@ -6,7 +6,37 @@ body {
     margin: 0;
     padding: 0;
 }
-button {
+.action-buttons {
+    position: relative;
+    text-align: center;
+    cursor: pointer;
+}
+
+.action-buttons .icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.action-buttons .details {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.action-buttons:hover .details {
+    display: block;
+}
+
+/* button {
     padding: 10px 10px;
     border: none;
     border-radius: 10px;
@@ -14,7 +44,7 @@ button {
     font-size: 10px;
     font-weight: bold;
     transition: all 0.3s ease;
-}
+} */
 /* Container */
 .container {
     width: 90%;

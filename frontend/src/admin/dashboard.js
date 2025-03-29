@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     <h2>🚫 Access Denied</h2>
                 </div>
             `;
-            return; 
+            return;
         }
     } catch (error) {
         console.error("Err", error);
@@ -84,12 +84,17 @@ async function fetchOrders() {
             <td>${order.tonAmount}</td>
             <td>${order.packageAmount}</td>
             <td>${order.status}</td>
-            <td>
-                ${order.status === "paid" ? `
-                    <button onclick="window.open('https://tonscan.org/tx/${order.transactionId}', '_blank')" class="pay">Check</button>
-                    <button class="pay" onclick="completeOrder('${order.orderId}')">✅ Completed</button>
+            <td class="action-buttons">
+                <div class="icons">
+                    <span>✅</span>
+                    <span>🔍</span>
+                    <span>➡</span>
+                </div>
+                <div class="details">
+                    <button onclick="window.open('https://tonscan.org/tx/${order.transactionId}', '_blank')" class="pay">Check Transaction</button>
+                    <button class="pay" onclick="completeOrder('${order.orderId}')">✅ Mark Complete</button>
                     <button class="go-to-fragment" onclick="goToFragment('${order.username}', '${order.packageAmount}')">Go to Fragment</button>
-                ` : ""}
+                </div>
             </td>
         `;
         ordersTable.appendChild(row);
@@ -179,12 +184,12 @@ async function getRecipient(username) {
         }
         const data = await response.json();
         if (data && data.recipient) {
-            return data.recipient;  
+            return data.recipient;
         } else {
             throw new Error('Không tìm thấy recipient cho username này.');
         }
     } catch (error) {
         console.error('Lỗi khi gọi API:', error);
-        return null;  
+        return null;
     }
 }
