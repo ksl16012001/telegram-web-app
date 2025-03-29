@@ -2,8 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
-
-    // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
         const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
         if (selectedOption === "self") {
@@ -14,16 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
             usernameInput.disabled = false;
         }
     }
-
-    // 📌 Gán sự kiện click cho radio buttons để cập nhật ngay khi thay đổi
     purchaseTypeRadios.forEach(radio => {
         radio.addEventListener("change", updateRecipient);
     });
-
-    // 📌 Cập nhật ngay khi trang tải xong
     updateRecipient();
 });
-// Danh sách gói sao và giá
 const starsPackages = [
     { amount: 100, price: 1.7 }, { amount: 150, price: 2.55 }, { amount: 250, price: 4.25 },
     { amount: 350, price: 5.95 }, { amount: 500, price: 8.5 }, { amount: 750, price: 12.75 },
@@ -47,7 +40,6 @@ function formatAmount(amount) {
     }
     return amount.toString();
 }
-// Hiển thị danh sách gói sao
 starsPackages.forEach((pkg, index) => {
     const item = document.createElement("div");
     item.className = "star-item";
@@ -70,27 +62,22 @@ function selectStarPackage(index, amount, price) {
     orderButton.setAttribute("data-amount", amount);
     orderButton.setAttribute("data-price", price);
 }
-
-// Xử lý thanh toán
 async function fetchTonPrice() {
     try {
         const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
         const data = await response.json();
-        return data.rates.TON.prices.USD; // Lấy tỷ giá USD/TON
+        return data.rates.TON.prices.USD;
     } catch (error) {
         console.error('Error fetching TON price:', error);
         return null;
     }
 }
-
 async function buyStars(serviceType) {
     const amount = orderButton.getAttribute("data-amount");
     const price = orderButton.getAttribute("data-price");
     const username = document.getElementById("username-input").value.trim();
-
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || "null";
-
     if (!amount || !price || !username) {
         Swal.fire({
             icon: "warning",
@@ -127,19 +114,13 @@ async function buyStars(serviceType) {
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
     const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
-
-    // 🔹 Mã hóa orderId bằng SHA-256
     const encoder = new TextEncoder();
     const data = encoder.encode(rawOrderId);
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
-
-    // 🔹 Tạo link thanh toán với địa chỉ TON Receiver động
     const tonkeeperLink = `tonkeeper://transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
     const paymentLink = `https://app.tonkeeper.com/transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
-
-    // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({
         userId: userId,
         amount: amount,
@@ -192,13 +173,10 @@ function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLi
     </div>
 </div>
 `;
-    // Xóa modal cũ nếu có
     const existingModal = document.getElementById("order-modal-overlay");
     if (existingModal) {
         existingModal.remove();
     }
-
-    // Thêm modal mới vào body
     const modal = document.createElement("div");
     modal.innerHTML = modalHTML;
     document.body.appendChild(modal);
