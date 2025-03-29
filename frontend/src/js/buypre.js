@@ -54,18 +54,18 @@ async function fetchTonPrice() {
 }
 async function fetchTonReceiver() {
     try {
-        const response = await fetch("/get-ton-receiver");
+        const response = await fetch("/api/get-ton-receiver");
         const data = await response.json();
 
         if (data.success) {
             console.log("✅ TON Receiver:", data.TON_RECEIVER);
             return data.TON_RECEIVER;
         } else {
-            console.error("❌ Lỗi lấy TON_RECEIVER:", data.error);
+            console.error("❌ Err TON_RECEIVER:", data.error);
             return null;
         }
     } catch (error) {
-        console.error("❌ Lỗi kết nối API:", error);
+        console.error("❌ API ERR:", error);
         return null;
     }
 }
