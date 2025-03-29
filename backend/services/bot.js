@@ -47,30 +47,23 @@ Click the button below to start exploring!`, {
                 ]
             }
         });
-
-        // ✅ Gửi thông báo đến Admin
-        if (ADMIN_CHAT_ID) {
-            bot.sendMessage(ADMIN_CHAT_ID,
-                `📢 *New User Started the Bot*  
-👤 *Name:* ${firstName}  
-🔗 *Username:* ${username}  
-🆔 *Chat ID:* \`${chatId}\``, { parse_mode: "Markdown" });
-        }
+//         if (ADMIN_CHAT_ID) {
+//             bot.sendMessage(ADMIN_CHAT_ID,
+//                 `📢 *New User Started the Bot*  
+// 👤 *Name:* ${firstName}  
+// 🔗 *Username:* ${username}  
+// 🆔 *Chat ID:* \`${chatId}\``, { parse_mode: "Markdown" });
+//         }
     }
 });
 
-// ✅ Xử lý lệnh `/admin` (Chỉ Admin mới dùng được)
 bot.onText(/\/admin/, async (msg) => {
     const chatId = msg.chat.id.toString();
-
-    // 🔹 Kiểm tra nếu user không phải admin
     if (chatId !== ADMIN_CHAT_ID) {
         return bot.sendMessage(chatId, "❌ You are not authorized to use this command.");
     }
-
     try {
-        const adminDashboardUrl = "https://telegram-web-app-k4qx.onrender.com/admin/dashboard.html"; // 🔹 Đổi thành URL trang admin
-
+        const adminDashboardUrl = `${process.env.WEB_APP_URL}/admin/dashboard.html`; // 🔹 Đổi thành URL trang admin
         bot.sendMessage(
             chatId,
             `🚀 *Admin Panel Access*\n\nClick the link below to access the admin dashboard:\n🔗 [Open Admin Panel](${adminDashboardUrl})`,
@@ -88,5 +81,4 @@ bot.onText(/\/admin/, async (msg) => {
         bot.sendMessage(chatId, "❌ Error accessing admin panel. Please try again later.");
     }
 });
-
 module.exports = { bot };

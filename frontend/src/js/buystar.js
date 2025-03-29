@@ -82,7 +82,24 @@ async function fetchTonPrice() {
         return null;
     }
 }
+// Hàm gọi API để lấy TON_RECEIVER
+async function fetchTonReceiver() {
+    try {
+        const response = await fetch("/get-ton-receiver");
+        const data = await response.json();
 
+        if (data.success) {
+            console.log("✅ TON Receiver:", data.TON_RECEIVER);
+            return data.TON_RECEIVER;
+        } else {
+            console.error("❌ Lỗi lấy TON_RECEIVER:", data.error);
+            return null;
+        }
+    } catch (error) {
+        console.error("❌ Lỗi kết nối API:", error);
+        return null;
+    }
+}
 async function buyStars(serviceType) {
     const amount = orderButton.getAttribute("data-amount");
     const price = orderButton.getAttribute("data-price");
