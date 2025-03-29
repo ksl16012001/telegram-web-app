@@ -180,13 +180,11 @@ function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLi
         <p style="font-size: 16px;"><strong>Amount:</strong> ${amount}</p>
         <p style="font-size: 16px;"><strong>Price:</strong> $${price}</p>
         <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
-        
         <div style="margin-top: 20px;">
             <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
                 background-color: #28a745; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
             ">💰 Pay with TON (Tonkeeper)</button>
-            
             <button onclick="window.open('${paymentLink}', '_blank')" style="
                 background-color: #007bff; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;

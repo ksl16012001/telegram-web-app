@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             let data = await response.json();
             if (data?.user?.phone) {
                 console.log("✅ User already has phone:", data.user.phone);
-                updateUserInfo(user, data.user.phone); // ✅ Cập nhật UI với số điện thoại có sẵn
+                updateUserInfo(user, data.user.phone);
             } else {
                 console.warn("⚠️ No phone found, requesting contact...");
                 let phoneNumber = await requestPhoneNumber(user);
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             .done(function (data) {
                 if (data.message.includes("✅")) {
                     console.log("✅ Phone updated successfully:", data);
-                    updateUserInfo(user, phoneNumber); // ✅ Cập nhật UI
+                    updateUserInfo(user, phoneNumber);
                 } else {
                     console.error("⚠️ Error from server:", data);
                 }
