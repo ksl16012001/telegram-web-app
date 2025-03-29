@@ -161,7 +161,7 @@ async function generateOrderId(username, months) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 }
-function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink) {
+function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
     const modalHTML = `
 <div id="order-modal-overlay" style="
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
