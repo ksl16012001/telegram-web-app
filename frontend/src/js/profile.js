@@ -87,55 +87,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             existingModal.remove();
         }
         document.body.appendChild(modalOverlay);
-        if (status === "pending") {
-            document.getElementById("payNowButton").addEventListener("click", () => payNow(paymentLink));
-            document.getElementById("cancelOrderButton").addEventListener("click", () => cancelOrder(orderId));
-        }
+        // if (status === "pending") {
+        //     document.getElementById("payNowButton").addEventListener("click", () => payNow(paymentLink));
+        //     document.getElementById("cancelOrderButton").addEventListener("click", () => cancelOrder(orderId));
+        // }
         document.getElementById("closeModalButton").addEventListener("click", closeModal);
     }
-    function payNow(paymentLink) {
-        window.open(paymentLink, "_blank");
-    }
-    async function cancelOrder(orderId) {
-        try {
-            const response = await fetch("/api/cancel-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderId })
-            });
-            const result = await response.json();
-            if (result.success) {
-                Swal.fire({
-                    icon: "info",
-                    title: "❌ Order Canceled!",
-                    text: "Your order has been canceled successfully.",
-                    confirmButtonColor: "#d33"
-                }).then(() => {
-                    closeModal();
-                    fetchUserOrders(userId);
-                });
-            } else {
-                Swal.fire({
-                    icon: "warning",
-                    title: "⚠️ Cannot Cancel Order!",
-                    text: result.message,
-                    confirmButtonColor: "#d33"
-                });
-            }
-        } catch (error) {
-            console.error("❌ Error canceling order:", error);
-            Swal.fire({
-                icon: "error",
-                title: "❌ Error",
-                text: "Error canceling order",
-                confirmButtonColor: "#d33"
-            });
-        }
-    }
     function closeModal() {
-        if (existingModal) {
-            existingModal.remove();
-        }
         document.getElementById("order-modal-overlay").remove();
     }
     if (userId !== "null") {
