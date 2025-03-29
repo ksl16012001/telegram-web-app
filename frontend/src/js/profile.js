@@ -133,6 +133,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
     function closeModal() {
+        if (existingModal) {
+            existingModal.remove();
+        }
         document.getElementById("order-modal-overlay").remove();
     }
     if (userId !== "null") {
