@@ -47,6 +47,7 @@ app.get("/:page", (req, res) => {
 });
 app.get("/get-ton-receiver", (req, res) => {
     const TON_RECEIVER = process.env.TON_RECEIVER;
+    console.log("TON_RECEIVER:", process.env.TON_RECEIVER);
     if (!TON_RECEIVER) {
         return res.status(500).json({ success: false, error: "TON_RECEIVER not set in .env" });
     }

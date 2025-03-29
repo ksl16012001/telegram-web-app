@@ -82,7 +82,6 @@ async function fetchTonPrice() {
         return null;
     }
 }
-// Hàm gọi API để lấy TON_RECEIVER
 async function fetchTonReceiver() {
     try {
         const response = await fetch("/get-ton-receiver");
@@ -92,14 +91,15 @@ async function fetchTonReceiver() {
             console.log("✅ TON Receiver:", data.TON_RECEIVER);
             return data.TON_RECEIVER;
         } else {
-            console.error("❌ Lỗi lấy TON_RECEIVER:", data.error);
+            console.error("❌ Err TON_RECEIVER:", data.error);
             return null;
         }
     } catch (error) {
-        console.error("❌ Lỗi kết nối API:", error);
+        console.error("❌ API ERR:", error);
         return null;
     }
 }
+
 async function buyStars(serviceType) {
     const amount = orderButton.getAttribute("data-amount");
     const price = orderButton.getAttribute("data-price");
@@ -119,6 +119,7 @@ async function buyStars(serviceType) {
         return;
     }
 
+    // 🔹 Lấy tỷ giá TON
     const tonPriceInUsd = await fetchTonPrice();
     if (!tonPriceInUsd) {
         Swal.fire({
@@ -131,8 +132,21 @@ async function buyStars(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd).toFixed(2);
-    const tonReceiver= await fetchTonReceiver()
+    // 🔹 Lấy địa chỉ TON Receiver
+    const tonReceiver = await fetchTonReceiver();
+    if (!tonReceiver) {
+        Swal.fire({
+            icon: "error",
+            title: "❌ Receiver Error",
+            text: "Failed to fetch TON receiver. Please try again later.",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Retry"
+        });
+        return;
+    }
+
+    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
+
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
@@ -145,7 +159,7 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Tạo link thanh toán
+    // 🔹 Tạo link thanh toán với địa chỉ TON Receiver động
     const tonkeeperLink = `tonkeeper://transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
     const paymentLink = `https://app.tonkeeper.com/transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
@@ -166,6 +180,7 @@ async function buyStars(serviceType) {
     // 🔹 Hiển thị modal để chọn cách thanh toán
     showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
 }
+
 
 
 // ✅ Hiển thị hộp thoại đơn hàng
