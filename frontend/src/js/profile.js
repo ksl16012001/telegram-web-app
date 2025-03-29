@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p><strong>Amount:</strong> ${amountDisplay}</p>
         <p><strong>Price:</strong> $${price}</p>
         <p><strong>TON Amount:</strong> ${tonAmount} TON</p>
-        <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' : (status === 'paid' ? 'green' : 'red')}">${status.toUpperCase()}</span></p>
+        <p><strong>Status:</strong> <span style="color: ${status === 'pending' ? 'orange' :status === 'complete' ? 'green': (status === 'paid' ? 'blue' : 'red')}">${status.toUpperCase()}</span></p>
         <div id="modal-buttons" style="margin-top: 15px;">
             <button id="closeModalButton" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Close</button>
         </div>
