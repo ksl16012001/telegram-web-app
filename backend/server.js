@@ -45,7 +45,7 @@ app.get("/:page", (req, res) => {
         if (err) res.status(404).send("❌ Page not found");
     });
 });
-app.get("/get-ton-receiver", (req, res) => {
+app.get("/api/get-ton-receiver", (req, res) => {
     const TON_RECEIVER = process.env.TON_RECEIVER;
     console.log("TON_RECEIVER:", process.env.TON_RECEIVER);
     if (!TON_RECEIVER) {

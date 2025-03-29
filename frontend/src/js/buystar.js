@@ -84,7 +84,7 @@ async function fetchTonPrice() {
 }
 async function fetchTonReceiver() {
     try {
-        const response = await fetch("/get-ton-receiver");
+        const response = await fetch("/api/get-ton-receiver");
         const data = await response.json();
 
         if (data.success) {
