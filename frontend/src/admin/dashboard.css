@@ -104,12 +104,12 @@ th {
 }
 
 /* Buttons */
-button {
+/* button {
     padding: 8px 15px;
     cursor: pointer;
     border: none;
     font-size: 14px;
-}
+} */
 
 button.cancel {
     background: red;
