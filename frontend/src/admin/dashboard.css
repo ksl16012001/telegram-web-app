@@ -6,7 +6,15 @@ body {
     margin: 0;
     padding: 0;
 }
-
+button {
+    padding: 10px 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
 /* Container */
 .container {
     width: 90%;
