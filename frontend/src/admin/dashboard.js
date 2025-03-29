@@ -11,15 +11,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (userId !== parseInt(adminChatId)) {
             document.body.innerHTML = `
                 <div style="text-align:center; padding:50px;">
-                    <h2>🚫 Truy cập bị từ chối</h2>
-                    <p>Bạn không có quyền truy cập vào trang này.</p>
+                    <h2>🚫 Access Denied</h2>
                 </div>
             `;
             return; 
         }
     } catch (error) {
-        console.error("Lỗi kiểm tra quyền admin:", error);
-        alert("Lỗi hệ thống! Vui lòng thử lại sau.");
+        console.error("Err", error);
+        // alert("Error", error);
         return;
     }
     Telegram.WebApp.requestFullscreen()
