@@ -15,16 +15,6 @@ const adminRoutes = require("./routes/adminRoutes");
 const { Telegraf } = require("telegraf");
 
 app.use("/api/admin", adminRoutes);
-async function fetchTonPrice() {
-    try {
-        const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
-        const data = await response.json();
-        return data.rates.TON.prices.USD; // ✅ Lấy tỷ giá USD/TON
-    } catch (error) {
-        console.error('❌ Error fetching TON price:', error);
-        return null;
-    }
-}
 app.use("/admin", express.static(path.join(__dirname, "admin")));
 // ✅ Cấu hình CORS
 app.use(cors({
@@ -49,16 +39,16 @@ app.post("/webhook", (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
 });
-app.post("/api/admin-login", (req, res) => {
-    const { password } = req.body;
-    if (!password) return res.status(400).json({ success: false, message: "❌ Missing password" });
+// app.post("/api/admin-login", (req, res) => {
+//     const { password } = req.body;
+//     if (!password) return res.status(400).json({ success: false, message: "❌ Missing password" });
 
-    if (password === process.env.ADMIN_PASSWORD) {
-        res.status(200).json({ success: true, message: "✅ Login successful" });
-    } else {
-        res.status(401).json({ success: false, message: "❌ Incorrect password" });
-    }
-});
+//     if (password === process.env.ADMIN_PASSWORD) {
+//         res.status(200).json({ success: true, message: "✅ Login successful" });
+//     } else {
+//         res.status(401).json({ success: false, message: "❌ Incorrect password" });
+//     }
+// });
 app.get("/admin/dashboard", (req, res) => {
     res.sendFile(path.join(frontendPath, "admin", "dashboard.html"));
 });
@@ -118,7 +108,7 @@ app.get("/api/process-payment", async (req, res) => {
     }
 });
 
-const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
+// const TON_API_URL = "https://toncenter.com/api/v2/getTransactions?"
 async function checkTransaction(orderId, expectedTonAmount) {
     try {
         const order = await Order.findOne({ orderId });
@@ -560,32 +550,31 @@ app.get('/api/get-recipient', async (req, res) => {
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const botStar = new Telegraf(BOT_TOKEN); // Thay bằng bot token thật
-app.post("/create-invoice", async (req, res) => {
-    const { userId, amount } = req.body; // Lấy dữ liệu từ WebApp
-    try {
-        const invoice = await botStar.telegram.sendInvoice(userId, {
-            title: "Swap Stars",
-            description: `Bạn đang swap ${amount} Stars sang TON`,
-            payload: `payment_${amount}`,
-            provider_token: "", // Thay bằng token thật
-            currency: "XTR",
-            prices: [{ label: "Stars Swap", amount: amount * 100 }], // Telegram yêu cầu nhân 100
-            start_parameter: "buy_xtr",
-        });
+const botStar = new Telegraf(BOT_TOKEN);
 
-        res.json({ success: true, slug: invoice.slug }); // Trả về slug cho WebApp
+app.post("/create-invoice", async (req, res) => {
+    const { userId, amount } = req.body; // Nhận dữ liệu từ WebApp
+
+    try {
+        const invoice = await botStar.telegram.sendInvoice(
+            userId,
+            "Swap Stars",
+            `Bạn đang swap ${amount} Stars sang TON`,
+            `payment_${amount}`,
+            "", // ❌ KHÔNG CẦN PROVIDER TOKEN
+            "XTR",
+            [{ label: "Stars Swap", amount: amount * 100 }],
+            { start_parameter: "buy_xtr" }
+        );
+
+        res.json({ success: true, invoice });
     } catch (err) {
+        console.error("❌ Lỗi tạo invoice:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// ✅ Xử lý sự kiện thanh toán thành công
-botStar.on("successful_payment", (ctx) => {
-    ctx.reply(`Thanh toán thành công! Bạn đã swap ${ctx.message.successful_payment.total_amount / 100} Stars.`);
-});
-
-// ✅ Xử lý xác nhận thanh toán
+// ✅ Xác nhận thanh toán
 botStar.on("pre_checkout_query", (ctx) => {
     if (ctx.preCheckoutQuery.payload.startsWith("payment_")) {
         ctx.answerPreCheckoutQuery(true);
@@ -594,9 +583,12 @@ botStar.on("pre_checkout_query", (ctx) => {
     }
 });
 
-// ✅ Kết nối Webhook để nhận dữ liệu từ WebApp
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+// ✅ Xử lý thanh toán thành công
+botStar.on("successful_payment", (ctx) => {
+    const amount = ctx.message.successful_payment.total_amount / 100;
+    ctx.reply(`✅ Thanh toán thành công! Bạn đã swap ${amount} Stars sang TON.`);
 });
 
+// ✅ Khởi động bot
 botStar.launch();
+app.listen(3000, () => console.log("✅ Server chạy trên cổng 3000"));
