@@ -33,5 +33,4 @@ router.delete("/delete-user", async (req, res) => {
     await User.deleteOne({ id: userId });
     res.json({ success: true, message: "✅ User deleted" });
 });
-
 module.exports = router;
