@@ -11,16 +11,12 @@
     <link rel="stylesheet" href="./css/buystar.css">
     <title>Telegram Stars</title>
 </head>
-
 <body>
     <div class="container">
-        <!-- Hộp quà GIF -->
         <div class="gift-box"></div>
         <div id="user-info" style="color: white; padding: 10px;"></div>
         <h2 style="text-align: center;color: #ffcc00;">Telegram Stars</h2>
         <p>Gift Telegram Stars to enhance the experience for yourself and your loved ones!</p>
-
-        <!-- Chọn người nhận -->
         <div style="margin: 10px 0; text-align: center;">
             <label style="margin-right: 15px;">
                 <input type="radio" name="purchase-type" value="self" checked onclick="updateRecipient()"> For Myself
@@ -29,26 +25,18 @@
                 <input type="radio" name="purchase-type" value="gift" onclick="updateRecipient()"> Gift
             </label>
         </div>
-
-        <!-- Recipient Selection -->
         <div
             style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: white; display: flex; align-items: center; justify-content: space-between;">
             <input type="text" id="username-input" placeholder="Enter username"
                 style="background-color: #222; color: white; border: none; padding: 8px; width: 100%; text-align: center; border-radius: 5px;">
         </div>
-        <!-- Gói sao -->
         <div class="star-grid" id="starList"></div>
-
-        <!-- Hiển thị gói đã chọn -->
         <div id="selectedPackage" class="selected-package"
             style="display: none; background: #444; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
             <p id="selectedAmount"></p>
             <p id="selectedPrice"></p>
         </div>
-
-        <!-- Nút đặt hàng -->
         <button id="orderButton" class="order-button" onclick="buyStars('Buy Star')">Order</button>
-        <!-- Footer -->
     </div>
     <script src="./js/index.js"></script>
     <script src="./js/buystar.js"></script>

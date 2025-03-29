@@ -12,33 +12,27 @@
 <body>
     <div class="container">
         <h1>Admin Dashboard</h1>
-
         <div class="tabs">
             <button class="tab-btn active" data-tab="orders">📦 Orders</button>
             <button class="tab-btn" data-tab="users">👤 Users</button>
             <button class="tab-btn" data-tab="config">⚙️ Config</button>
         </div>
-        
         <div id="config" class="tab-content">
             <h2>🔧 Configuration</h2>
             <div class="config-item">
                 <label>🔹 TON Receiver Wallet:</label>
                 <input type="text" id="tonReceiver" placeholder="Enter TON Wallet">
             </div>
-        
             <div class="config-item">
                 <label>📢 Channel ID:</label>
                 <input type="text" id="channelId" placeholder="Enter Channel ID">
             </div>
-        
             <div class="config-item">
                 <label>👨‍💼 Admin Chat ID:</label>
                 <input type="text" id="adminChatId" placeholder="Enter Admin Chat ID">
             </div>
-        
             <button onclick="updateConfig()">💾 Save Changes</button>
-        </div>        
-
+        </div>       
         <div id="orders" class="tab-content active">
             <h2>Orders Management</h2>
             <div class="filter">

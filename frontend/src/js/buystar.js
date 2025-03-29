@@ -60,17 +60,12 @@ starsPackages.forEach((pkg, index) => {
     starList.appendChild(item);
 });
 
-// Chọn gói sao
 function selectStarPackage(index, amount, price) {
     document.querySelectorAll('.star-item').forEach(item => item.classList.remove('selected'));
     document.querySelectorAll('.star-item')[index].classList.add('selected');
-
-    // Hiển thị gói đã chọn
     selectedPackageDiv.style.display = 'block';
     selectedAmount.textContent = `Number of stars: ${formatAmount(amount)}`;
     selectedPrice.textContent = `Price: ~ $${price.toFixed(2)}`;
-
-    // Cập nhật nội dung nút
     orderButton.innerText = `Order ${amount} Stars`;
     orderButton.setAttribute("data-amount", amount);
     orderButton.setAttribute("data-price", price);
@@ -106,7 +101,6 @@ async function buyStars(serviceType) {
         });
         return;
     }
-
     const tonPriceInUsd = await fetchTonPrice();
     if (!tonPriceInUsd) {
         Swal.fire({
@@ -118,10 +112,18 @@ async function buyStars(serviceType) {
         });
         return;
     }
-
-    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
-
-    // 🔹 Tạo orderId duy nhất
+    const tonReceiver = await fetchTonReceiver();
+    if (!tonReceiver) {
+        Swal.fire({
+            icon: "error",
+            title: "❌ Receiver Error",
+            text: "Failed to fetch TON receiver. Please try again later.",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Retry"
+        });
+        return;
+    }
+    const tonAmount = (price / tonPriceInUsd).toFixed(4);
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
     const rawOrderId = `${timestamp}-${username}-${amount}-${randomString}`;
@@ -133,9 +135,9 @@ async function buyStars(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Tạo link thanh toán
-    const tonkeeperLink = `tonkeeper://transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    // 🔹 Tạo link thanh toán với địa chỉ TON Receiver động
+    const tonkeeperLink = `tonkeeper://transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
     // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({
@@ -148,15 +150,9 @@ async function buyStars(serviceType) {
         orderId: orderId,
         service: serviceType
     }).toString();
-
     fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
-
-    // 🔹 Hiển thị modal để chọn cách thanh toán
     showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink);
 }
-
-
-// ✅ Hiển thị hộp thoại đơn hàng
 function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLink, paymentLink) {
     const modalHTML = `
 <div id="order-modal-overlay" style="
@@ -196,7 +192,6 @@ function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLi
     </div>
 </div>
 `;
-
     // Xóa modal cũ nếu có
     const existingModal = document.getElementById("order-modal-overlay");
     if (existingModal) {
@@ -208,10 +203,6 @@ function showOrderModal(orderId, username, amount, price, tonAmount, tonkeeperLi
     modal.innerHTML = modalHTML;
     document.body.appendChild(modal);
 }
-
-
-
-// ✅ Gọi API kiểm tra giao dịch
 async function checkTransaction(orderId) {
     try {
         const response = await fetch("/api/check-transaction", {
@@ -246,7 +237,6 @@ async function checkTransaction(orderId) {
         });
     }
 }
-
 async function cancelOrder(orderId) {
     try {
         const response = await fetch("/api/cancel-order", {

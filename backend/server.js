@@ -45,6 +45,13 @@ app.get("/:page", (req, res) => {
         if (err) res.status(404).send("❌ Page not found");
     });
 });
+app.get("/get-ton-receiver", (req, res) => {
+    const TON_RECEIVER = process.env.TON_RECEIVER;
+    if (!TON_RECEIVER) {
+        return res.status(500).json({ success: false, error: "TON_RECEIVER not set in .env" });
+    }
+    res.json({ success: true, TON_RECEIVER });
+});
 app.get("/api/process-payment", async (req, res) => {
     try {
         const { userId, amount, username, price, tonAmount, paymentLink, orderId, service } = req.query;

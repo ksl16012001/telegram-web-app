@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,65 +7,6 @@
    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
    <script src="https://telegram.org/js/telegram-web-app.js"></script>
    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
-   <!-- <link rel="stylesheet" href="./css/buystar.css"> -->
-   <title>Telegram Stars</title>
+   <title>Game Tab</title>
 </head>
-
-<body>
-   <button id="connect-wallet">Connect Ton Wallet</button>
-   <p id="wallet-status">Not Connected</p>
-   <button onclick="sendTon()">Send 0.1 TON</button>
-   <script>
-      document.addEventListener("DOMContentLoaded", async function () {
-         // Khởi tạo Ton Connect
-         const tonConnect = new TonConnect.TonConnect({
-            manifestUrl: "https://telegram-web-app-k4qx.onrender.com/tonconnect-manifest.json"
-         });
-
-         // Nút kết nối ví
-         const connectButton = document.getElementById("connect-wallet");
-         const statusText = document.getElementById("wallet-status");
-
-         // Khi bấm nút kết nối
-         connectButton.onclick = async function () {
-            try {
-               await tonConnect.connectWallet();
-               statusText.innerText = "✅ Wallet Connected!";
-            } catch (error) {
-               console.error("Wallet connection failed:", error);
-               statusText.innerText = "❌ Connection Failed!";
-            }
-         };
-         async function sendTon() {
-            if (!tonConnect.wallet) {
-               alert("Please connect your wallet first!");
-               return;
-            }
-
-            const transaction = {
-               messages: [
-                  {
-                     address: "UQCXXeVeKrgfsPdwczOkxn9a1oItWNu-RB_vXS8hP_9jCEJ0",
-                     amount: (0.1 * 1e9).toString(),  // 0.1 TON
-                     payload: "Payment for stars"
-                  }
-               ]
-            };
-
-            try {
-               await tonConnect.sendTransaction(transaction);
-               alert("✅ Payment Sent Successfully!");
-            } catch (error) {
-               console.error("Payment failed:", error);
-               alert("❌ Payment Failed!");
-            }
-         }
-
-      });
-   </script>
-   <script src="./js/index.js"></script>
-   <script src="./js/buystar.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</body>
-
 </html>

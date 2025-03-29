@@ -3,8 +3,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     const usernameInput = document.getElementById("username-input");
     const purchaseTypeRadios = document.querySelectorAll('input[name="purchase-type"]');
-
-    // 📌 Cập nhật giá trị input theo chế độ mua
     function updateRecipient() {
         const selectedOption = document.querySelector('input[name="purchase-type"]:checked').value;
         if (selectedOption === "self") {
@@ -15,13 +13,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             usernameInput.disabled = false;
         }
     }
-
-    // 📌 Gán sự kiện click cho radio buttons để cập nhật ngay khi thay đổi
     purchaseTypeRadios.forEach(radio => {
         radio.addEventListener("change", updateRecipient);
     });
-
-    // 📌 Cập nhật ngay khi trang tải xong
     updateRecipient();
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
@@ -43,28 +37,40 @@ document.addEventListener("DOMContentLoaded", async function () {
         option.addEventListener("click", function () {
             document.querySelectorAll(".subscription-options div").forEach(div => div.classList.remove("selected"));
             this.classList.add("selected");
-
-            // Cập nhật giá TON
             const priceInUsd = parseFloat(this.getAttribute("data-price"));
             const tonAmount = (priceInUsd / tonPriceInUsd).toFixed(2);
             document.getElementById("tonPrice").innerText = `💰 ${tonAmount} TON`;
         });
     });
 });
-
-// 🔹 Lấy giá TON/USD từ API
 async function fetchTonPrice() {
     try {
         const response = await fetch('https://tonapi.io/v2/rates?tokens=ton&currencies=usd');
         const data = await response.json();
-        return data.rates.TON.prices.USD; // Lấy tỷ giá USD/TON
+        return data.rates.TON.prices.USD; 
     } catch (error) {
         console.error('Error fetching TON price:', error);
         return null;
     }
 }
+async function fetchTonReceiver() {
+    try {
+        const response = await fetch("/get-ton-receiver");
+        const data = await response.json();
 
-// 🔹 Xử lý đặt mua Premium
+        if (data.success) {
+            console.log("✅ TON Receiver:", data.TON_RECEIVER);
+            return data.TON_RECEIVER;
+        } else {
+            console.error("❌ Lỗi lấy TON_RECEIVER:", data.error);
+            return null;
+        }
+    } catch (error) {
+        console.error("❌ Lỗi kết nối API:", error);
+        return null;
+    }
+}
+
 async function buyPremium(serviceType) {
     const selectedOption = document.querySelector(".subscription-options .selected");
     const username = document.getElementById("username-input").value.trim();
@@ -84,10 +90,11 @@ async function buyPremium(serviceType) {
         return;
     }
 
-    const amount = selectedOption.getAttribute("data-months"); // 🔹 `amount` giờ là số tháng
+    const amount = selectedOption.getAttribute("data-months"); 
     const price = parseFloat(selectedOption.getAttribute("data-price"));
+    
+    // 🔹 Lấy tỷ giá TON
     const tonPriceInUsd = await fetchTonPrice();
-
     if (!tonPriceInUsd) {
         Swal.fire({
             icon: "error",
@@ -99,7 +106,20 @@ async function buyPremium(serviceType) {
         return;
     }
 
-    const tonAmount = (price / tonPriceInUsd) + 0.01;
+    // 🔹 Lấy địa chỉ TON Receiver
+    const tonReceiver = await fetchTonReceiver();
+    if (!tonReceiver) {
+        Swal.fire({
+            icon: "error",
+            title: "❌ Receiver Error",
+            text: "Failed to fetch TON receiver. Please try again later.",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Retry"
+        });
+        return;
+    }
+
+    const tonAmount = (price / tonPriceInUsd + 0.01).toFixed(2);
 
     // 🔹 Tạo orderId duy nhất
     const timestamp = Date.now();
@@ -113,8 +133,9 @@ async function buyPremium(serviceType) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const orderId = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 
-    // 🔹 Tạo link thanh toán
-    const paymentLink = `https://app.tonkeeper.com/transfer/UQDUIxkuAb8xjWpRQVyxGse3L3zN6dbmgUG1OK2M0EQdkxDg?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    // 🔹 Tạo 2 link thanh toán với địa chỉ TON Receiver động
+    const tonkeeperLink = `tonkeeper://transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
+    const paymentLink = `https://app.tonkeeper.com/transfer/${tonReceiver}?amount=${Math.round(tonAmount * 1e9)}&text=${encodeURIComponent(orderId)}`;
 
     // 🔹 Gửi order lên backend
     const queryParams = new URLSearchParams({
@@ -130,15 +151,9 @@ async function buyPremium(serviceType) {
 
     fetch(`/api/process-payment?${queryParams}`, { method: "GET" });
 
-    // 🔹 Hiển thị thông tin đơn hàng
-    showOrderModal(orderId, username, amount + " Months", price, tonAmount, paymentLink);
-
-    // 🔹 Mở link thanh toán
-    window.open(paymentLink, "_blank");
+    // 🔹 Hiển thị modal chọn cách thanh toán
+    showOrderModal(orderId, username, amount + " Months", price, tonAmount, tonkeeperLink, paymentLink);
 }
-
-
-// 🔹 Mã hóa `orderId` bằng SHA-256 để tránh trùng lặp
 async function generateOrderId(username, months) {
     const rawOrderId = `${Date.now()}-${username}-${months}-${Math.random().toString(36).substring(2, 10)}`;
     const encoder = new TextEncoder();
@@ -147,8 +162,6 @@ async function generateOrderId(username, months) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("").substring(0, 20);
 }
-
-// 🔹 Hiển thị modal đơn hàng
 function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink) {
     const modalHTML = `
 <div id="order-modal-overlay" style="
@@ -170,17 +183,16 @@ function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink
         <p style="font-size: 16px;"><strong>TON Amount:</strong> ${tonAmount} TON</p>
         
         <div style="margin-top: 20px;">
-            <button onclick="checkTransaction('${orderId}')" style="
+            <button onclick="window.open('${tonkeeperLink}', '_blank')" style="
                 background-color: #28a745; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">✅ Check Transaction</button>
+            ">💰 Pay with TON (Tonkeeper)</button>
             
-            <button onclick="cancelOrder('${orderId}')" style="
-                background-color: #dc3545; color: white; border: none; padding: 10px 15px;
+            <button onclick="window.open('${paymentLink}', '_blank')" style="
+                background-color: #007bff; color: white; border: none; padding: 10px 15px;
                 font-size: 14px; border-radius: 5px; cursor: pointer; margin: 5px;
-            ">❌ Cancel Order</button>
+            ">🔗 Pay with Payment Link</button>
         </div>
-
         <button onclick="document.getElementById('order-modal-overlay').remove()" style="
             background-color: #007bff; color: white; border: none; padding: 10px 15px;
             font-size: 14px; border-radius: 5px; cursor: pointer; margin-top: 20px;
@@ -188,32 +200,25 @@ function showOrderModal(orderId, username, amount, price, tonAmount, paymentLink
     </div>
 </div>
 `;
-
-    // Xóa modal cũ nếu có
     const existingModal = document.getElementById("order-modal-overlay");
     if (existingModal) {
         existingModal.remove();
     }
-
-    // Thêm modal mới vào body
     const modal = document.createElement("div");
     modal.innerHTML = modalHTML;
     document.body.appendChild(modal);
 }
 
+// async function checkTransaction(orderId) {
+//     fetch("/api/check-transaction", {
+//         method: "POST", headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ orderId })
+//     }).then(response => response.json()).then(data => alert(data.message));
+// }
 
-// 🔹 API kiểm tra giao dịch
-async function checkTransaction(orderId) {
-    fetch("/api/check-transaction", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId })
-    }).then(response => response.json()).then(data => alert(data.message));
-}
-
-// 🔹 API hủy đơn hàng
-async function cancelOrder(orderId) {
-    fetch("/api/cancel-order", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId })
-    }).then(response => response.json()).then(data => alert(data.message));
-}
+// async function cancelOrder(orderId) {
+//     fetch("/api/cancel-order", {
+//         method: "POST", headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ orderId })
+//     }).then(response => response.json()).then(data => alert(data.message));
+// }

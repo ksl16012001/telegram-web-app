@@ -2,15 +2,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     const tabs = document.querySelectorAll(".tab-btn");
     const contents = document.querySelectorAll(".tab-content");
     Telegram.WebApp.ready();
-
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let userId = user?.id || null;
-    // Kiểm tra quyền admin
     try {
         let response = await fetch("/api/admin-chat-id");
         let data = await response.json();
         let adminChatId = data.adminChatId;
-
         if (userId !== parseInt(adminChatId)) {
             document.body.innerHTML = `
                 <div style="text-align:center; padding:50px;">
@@ -18,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     <p>Bạn không có quyền truy cập vào trang này.</p>
                 </div>
             `;
-            return; // Dừng thực thi code nếu không phải admin
+            return; 
         }
     } catch (error) {
         console.error("Lỗi kiểm tra quyền admin:", error);
@@ -26,7 +23,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
     Telegram.WebApp.requestFullscreen()
-    // Kích hoạt tab
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
             tabs.forEach(btn => btn.classList.remove("active"));
@@ -35,13 +31,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             document.getElementById(tab.dataset.tab).classList.add("active");
         });
     });
-
     fetchOrders();
     fetchUsers();
-
     document.getElementById("orderFilter").addEventListener("change", fetchOrders);
 });
-
 async function markAsCompleted(orderId) {
     try {
         const response = await fetch("/api/complete-order", {
@@ -49,7 +42,6 @@ async function markAsCompleted(orderId) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId })
         });
-
         const result = await response.json();
         if (result.success) {
             Swal.fire({
@@ -76,18 +68,14 @@ async function markAsCompleted(orderId) {
         });
     }
 }
-
 async function fetchOrders() {
     const statusFilter = document.getElementById("orderFilter").value;
     const response = await fetch("/api/admin/orders");
     const { orders } = await response.json();
-
     const ordersTable = document.getElementById("ordersTable");
     ordersTable.innerHTML = "";
-
     orders.forEach(order => {
         if (statusFilter !== "all" && order.status !== statusFilter) return;
-
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${order.orderId}</td>
@@ -109,28 +97,19 @@ async function fetchOrders() {
     });
 }
 async function goToFragment(username, quantity) {
-    // Gọi hàm getRecipient để lấy recipient
     const recipient = await getRecipient(username);
-
-    // Kiểm tra nếu không có recipient
     if (!recipient) {
         alert('Không thể tìm thấy recipient cho username này.');
         return;
     }
-
-    // Tạo URL từ recipient và quantity
     const url = `https://fragment.com/stars/buy?recipient=${encodeURIComponent(recipient)}&quantity=${encodeURIComponent(quantity)}`;
-    
-    // Mở URL trong tab mới
     window.open(url, '_blank');
 }
 async function fetchUsers() {
     const response = await fetch("/api/admin/users");
     const { users } = await response.json();
-
     const usersTable = document.getElementById("usersTable");
     usersTable.innerHTML = "";
-
     users.forEach(user => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -142,7 +121,6 @@ async function fetchUsers() {
         usersTable.appendChild(row);
     });
 }
-
 async function markAsPaid(orderId) {
     await fetch("/api/admin/order-paid", {
         method: "POST",
@@ -151,7 +129,6 @@ async function markAsPaid(orderId) {
     });
     fetchOrders();
 }
-
 async function cancelOrder(orderId) {
     await fetch("/api/cancel-order", {
         method: "POST",
@@ -179,12 +156,10 @@ async function deleteUser(userId) {
 async function fetchConfig() {
     const response = await fetch("/api/admin/config");
     const config = await response.json();
-
     document.getElementById("tonReceiver").value = config.tonReceiver || "";
     document.getElementById("channelId").value = config.channelId || "";
     document.getElementById("adminChatId").value = config.adminChatId || "";
 }
-
 async function updateConfig() {
     const tonReceiver = document.getElementById("tonReceiver").value.trim();
     const channelId = document.getElementById("channelId").value.trim();
@@ -197,31 +172,20 @@ async function updateConfig() {
     const result = await response.json();
     alert(result.message);
 }
-
-// Hàm gửi yêu cầu lấy thông tin recipient từ username
 async function getRecipient(username) {
     try {
-        // Gửi yêu cầu đến API backend để lấy recipient
         const response = await fetch(`/api/get-recipient?username=${encodeURIComponent(username)}`);
-
-        // Kiểm tra mã trạng thái HTTP
         if (!response.ok) {
             throw new Error('Lỗi khi gửi yêu cầu');
         }
-
         const data = await response.json();
-
-        // Kiểm tra nếu dữ liệu trả về hợp lệ
         if (data && data.recipient) {
-            return data.recipient;  // Trả về recipient từ API
+            return data.recipient;  
         } else {
             throw new Error('Không tìm thấy recipient cho username này.');
         }
-
     } catch (error) {
         console.error('Lỗi khi gọi API:', error);
-        return null;  // Trả về null nếu có lỗi
+        return null;  
     }
 }
-
-// Ví dụ sử dụng hàm với username

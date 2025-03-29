@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     let user = Telegram.WebApp.initDataUnsafe?.user || null;
     let id = user?.id || "null";
     let userCard = document.getElementById("usercard");
-
     const bottomMenu = document.createElement("div");
     bottomMenu.className = "bottom-menu";
     bottomMenu.innerHTML = `
@@ -30,19 +29,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             userCard.innerHTML = "<p>❌ Unable to fetch user data!</p>";
         }
     }
-
     async function checkUserContact(user) {
         if (!user?.id) {
             console.warn("⚠️ User ID is missing!");
             return;
         }
-
         const apiUrl = `/api/getuser?id=${encodeURIComponent(user.id)}`;
-        
         try {
             let response = await fetch(apiUrl);
             let data = await response.json();
-
             if (data?.user?.phone) {
                 console.log("✅ User already has phone:", data.user.phone);
                 updateUserInfo(user, data.user.phone); // ✅ Cập nhật UI với số điện thoại có sẵn
@@ -56,19 +51,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.error("❌ Error checking user contact:", error);
         }
     }
-
     async function saveUserToDB(user, phoneNumber = "") {
         if (!user?.id) {
             console.error("❌ User ID is missing!");
             return;
         }
-
         const apiUrl = `/api/adduser?id=${encodeURIComponent(user.id)}
             &username=${encodeURIComponent(user.username || "")}
             &name=${encodeURIComponent(user.first_name + " " + (user.last_name || ""))}
             &phone=${encodeURIComponent(phoneNumber)}
             &pic=${encodeURIComponent(user.photo_url || "")}`.replace(/\s+/g, '');
-
         $.getJSON(apiUrl)
             .done(function (data) {
                 if (data.message.includes("✅")) {
@@ -81,13 +73,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error("❌ Error saving user:", textStatus, errorThrown);
             });
     }
-
     async function updatePhoneNumber(id, phoneNumber) {
         console.log("📌 Sending phone update to API:", phoneNumber, id);
-
         const apiUrl = `/api/updateuser?id=${encodeURIComponent(id)}
             &phone=${encodeURIComponent(phoneNumber)}`.replace(/\s+/g, '');
-
         $.getJSON(apiUrl)
             .done(function (data) {
                 if (data.message.includes("✅")) {
@@ -101,7 +90,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.error("❌ Error updating phone:", textStatus, errorThrown);
             });
     }
-
     async function requestPhoneNumber(user) {
         return new Promise((resolve, reject) => {
             Telegram.WebApp.requestContact(function (sent, event) {
@@ -115,10 +103,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
         });
     }
-
-    // 📌 Lưu thông tin user (không có phone trước)
     await saveUserToDB(user);
-
-    // 📌 Kiểm tra số điện thoại và cập nhật nếu cần
     await checkUserContact(user);
 });
