@@ -19,7 +19,7 @@ async function fetchTonRate() {
         // console.log("✅ Tỷ giá TON/USD:", tonRate);
     } catch (error) {
         console.error("❌ Lỗi khi lấy tỷ giá TON:", error);
-        tonRate = 1; // Dùng giá trị mặc định nếu có lỗi
+        tonRate = 3.5; 
     }
 }
 function selectStars(button, amount) {
@@ -34,40 +34,121 @@ function selectStars(button, amount) {
     button.classList.add('active');
     document.getElementById("selectedAmount").value = amount;
 }
+// Main function to swap Stars
 async function swapNow() {
-    if (!Telegram.WebApp.initDataUnsafe || !Telegram.WebApp.initDataUnsafe.user) {
-        alert("⚠️ Không thể xác định tài khoản Telegram. Vui lòng mở lại WebApp!");
+    // Check Telegram WebApp
+    if (!Telegram.WebApp.initDataUnsafe?.user?.id) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ Telegram Error",
+            text: "Unable to identify Telegram account. Please reopen the WebApp!",
+        });
         return;
     }
+
     const userId = Telegram.WebApp.initDataUnsafe.user.id;
-    const selectedAmount = document.getElementById("selectedAmount").value;
-    if (!selectedAmount || selectedAmount <= 0) {
-        alert("⚠️ Vui lòng chọn số lượng Stars cần swap!");
+    const selectedAmountInput = document.getElementById("selectedAmount")?.value;
+
+    // Validate and convert the Stars amount
+    const selectedAmount = parseFloat(selectedAmountInput);
+    if (isNaN(selectedAmount) || selectedAmount <= 0) {
+        Swal.fire({
+            icon: "warning",
+            title: "⚠️ Invalid Amount",
+            text: "Please enter a valid Stars amount (greater than 0)!",
+        });
         return;
     }
+
     try {
-        const response = await fetch("/create-invoice", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, amount: selectedAmount })
+        // Show processing status
+        Swal.fire({
+            title: "Creating Invoice...",
+            text: "Please wait a moment.",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(),
         });
 
-        const data = await response.json();
-        if (data.success && data.invoice) {
-            Telegram.WebApp.openTelegramLink(data.invoice.link); // Đúng cú pháp mở Invoice
-        } else {
-            Swal.fire("❌ Lỗi", "Không thể tạo invoice!", "error");
+        // Send request to backend
+        const response = await fetchWithTimeout("/create-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, amount: selectedAmount }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server returned an error: ${response.status}`);
         }
+
+        const data = await response.json();
+        if (!data.success || !data.invoice?.link) {
+            throw new Error(data.message || "Failed to create invoice!");
+        }
+
+        // Close loading notification and open invoice
+        Swal.close();
+        Telegram.WebApp.openTelegramLink(data.invoice.link);
+
     } catch (error) {
-        console.error("❌ Lỗi gửi yêu cầu:", error);
-        Swal.fire("❌ Lỗi", "Có lỗi xảy ra, vui lòng thử lại sau!", "error");
+        console.error("❌ Error during swap:", error);
+        Swal.fire({
+            icon: "error",
+            title: "❌ Error",
+            text: error.message || "An error occurred, please try again later!",
+            showConfirmButton: true,
+            confirmButtonText: "Try Again",
+        }).then((result) => {
+            if (result.isConfirmed) swapNow(); // Allow retry
+        });
     }
 }
-Telegram.WebApp.onEvent("invoiceClosed", function (result) {
-    if (result.status === "paid") {
-        Swal.fire("🎉 Thành công", "Thanh toán thành công! Stars đã được thêm vào tài khoản.", "success");
-    } else {
-        Swal.fire("⚠️ Thất bại", "Thanh toán bị hủy hoặc thất bại.", "error");
+
+// Handle invoice closed event
+Telegram.WebApp.onEvent("invoiceClosed", (result) => {
+    switch (result.status) {
+        case "paid":
+            Swal.fire({
+                icon: "success",
+                title: "🎉 Payment Successful",
+                text: "Stars have been added to your account!",
+            });
+            break;
+        case "cancelled":
+            Swal.fire({
+                icon: "warning",
+                title: "⚠️ Cancelled",
+                text: "You have cancelled the payment.",
+            });
+            break;
+        case "pending":
+            Swal.fire({
+                icon: "info",
+                title: "⏳ Pending",
+                text: "Payment is being processed, please check back later.",
+            });
+            break;
+        case "failed":
+            Swal.fire({
+                icon: "error",
+                title: "❌ Failed",
+                text: "Payment failed, please try again.",
+            });
+            break;
+        default:
+            Swal.fire({
+                icon: "error",
+                title: "❌ Unknown Error",
+                text: "An unexpected error occurred.",
+            });
     }
 });
+// Helper function for fetch with timeout
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Request timed out")), timeout)
+        ),
+    ]);
+}
 fetchTonRate();
