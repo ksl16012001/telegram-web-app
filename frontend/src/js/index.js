@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     bottomMenu.innerHTML = `
         <button onclick="location.href='index.html'">Home</button>
         <button onclick="location.href='buystar.html'">Buy Stars</button>
+        <button onclick="location.href='swapStar.html'">Swap Stars</button>
         <button onclick="location.href='buypre.html'">Buy Premium</button>
         <button onclick="location.href='profile.html'">Profile</button>
     `;
