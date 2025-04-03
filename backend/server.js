@@ -409,4 +409,46 @@ app.get('/api/get-recipient', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+app.post("api/create-invoice", async (req, res) => {
+    try {
+        const { userId, amount } = req.body;
+
+        // Kiểm tra dữ liệu đầu vào
+        if (!userId || !amount || amount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid userId or amount",
+            });
+        }
+
+        // Chuyển amount từ Stars sang đơn vị nhỏ nhất (nếu cần, tùy hệ thống)
+        const priceInNano = Math.round(amount * 1000000); // Ví dụ: 1 Star = 1,000,000 nano units
+
+        // Tạo payload cho hóa đơn
+        const invoicePayload = {
+            chat_id: userId,
+            title: "Swap Stars",
+            description: `Swap ${amount} Stars to your account`,
+            payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất để theo dõi
+            provider_token: "", // Thêm provider token nếu dùng thanh toán thực tế (e.g., Stripe)
+            currency: "XTR", // Telegram Stars (XTR) là đơn vị tiền tệ
+            prices: [{ label: "Stars", amount: priceInNano }],
+        };
+
+        // Gửi hóa đơn qua Telegram Bot API
+        const invoice = await bot.createInvoiceLink(invoicePayload);
+
+        // Trả về link hóa đơn
+        res.json({
+            success: true,
+            invoice: { link: invoice },
+        });
+    } catch (error) {
+        console.error("Error creating invoice:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to create invoice",
+        });
+    }
+});
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

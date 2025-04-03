@@ -70,7 +70,7 @@ async function swapNow() {
         });
 
         // Send request to backend
-        const response = await fetchWithTimeout("/create-invoice", {
+        const response = await fetchWithTimeout("api/create-invoice", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, amount: selectedAmount }),
