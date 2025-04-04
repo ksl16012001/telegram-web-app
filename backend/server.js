@@ -13,7 +13,7 @@ const axios = require("axios");
 const PORT = process.env.PORT || 3000;
 const adminRoutes = require("./routes/adminRoutes");
 const TelegramBot = require("node-telegram-bot-api");
-const fetch = require("node-fetch")
+// const fetch = require("node-fetch")
 // const { Telegraf } = require("telegraf");
 
 app.use("/api/admin", adminRoutes);
