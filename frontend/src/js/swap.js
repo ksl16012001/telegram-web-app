@@ -64,7 +64,7 @@ async function swapNow() {
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading(),
         });
-        const response = await fetchWithTimeout("api/create-invoice", {
+        const response = await fetchWithTimeout("/api/create-invoice", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, amount: selectedAmount }),
