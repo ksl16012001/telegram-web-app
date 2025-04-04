@@ -410,7 +410,7 @@ app.get('/api/get-recipient', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
+const botToken = process.env.BOT_TOKEN;
 const botStar = new TelegramBot(botToken);
 app.post("api/create-invoice", async (req, res) => {
     try {
