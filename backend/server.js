@@ -435,7 +435,7 @@ app.post("/api/create-invoice", async (req, res) => {
         // Tạo payload cho hóa đơn, tham khảo từ testTelegramInvoice
         const invoicePayload = {
             chat_id: userId, // Sử dụng userId từ request
-            title: "Swap Stars",
+            title: "Swap_Stars",
             description: `Swap ${amount} Stars`,
             payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất
             currency: "XTR", // Telegram Stars
