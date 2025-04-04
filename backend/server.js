@@ -412,6 +412,8 @@ app.get('/api/get-recipient', async (req, res) => {
 });
 const botToken = process.env.BOT_TOKEN;
 const botStar = new TelegramBot(botToken);
+app.use(express.json({ type: "application/json" })); 
+app.use(express.urlencoded({ extended: true })); 
 app.post("/api/create-invoice", async (req, res) => {
     try {
         const { userId, amount } = req.body;
