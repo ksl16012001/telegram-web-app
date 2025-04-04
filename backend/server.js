@@ -429,7 +429,7 @@ app.post("/api/create-invoice", async (req, res) => {
             });
         }
 
-        const priceInNano = Math.round(amount * 1000000); // 1 Star = 1,000,000 nano units
+        const priceInStars = Math.round(amount); // Số Stars trực tiếp, không nhân với 1,000,000
 
         // Tạo payload cho hóa đơn
         const invoicePayload = {
@@ -439,7 +439,7 @@ app.post("/api/create-invoice", async (req, res) => {
             payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất
             provider_token: "", // Để trống cho Telegram Stars
             currency: "XTR", // Telegram Stars
-            prices: [{ label: "Stars", amount: priceInNano }],
+            prices: [{ label: "Stars", amount: priceInStars }],
         };
 
         // Log payload để kiểm tra trước khi gửi
