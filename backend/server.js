@@ -13,6 +13,7 @@ const axios = require("axios");
 const PORT = process.env.PORT || 3000;
 const adminRoutes = require("./routes/adminRoutes");
 const TelegramBot = require("node-telegram-bot-api");
+const fetch = require("node-fetch")
 // const { Telegraf } = require("telegraf");
 
 app.use("/api/admin", adminRoutes);
@@ -429,29 +430,41 @@ app.post("/api/create-invoice", async (req, res) => {
             });
         }
 
-        // Số Stars trực tiếp, không nhân với 1,000,000
-        const priceInStars = Math.round(amount);
+        const priceInStars = Math.round(amount); // Số Stars trực tiếp
 
-        // Tạo payload cho hóa đơn, tham khảo từ testTelegramInvoice
+        // Tạo payload cho hóa đơn
         const invoicePayload = {
-            chat_id: userId, // Sử dụng userId từ request
-            title: "Swap_Stars",
+            chat_id: userId,
+            title: "Swap Stars",
             description: `Swap ${amount} Stars`,
-            payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất
-            currency: "XTR", // Telegram Stars
-            prices: [{ label: "Stars", amount: priceInStars }], // amount là số Stars trực tiếp
+            payload: `swap_${userId}_${Date.now()}`,
+            currency: "XTR",
+            prices: [{ label: "Stars", amount: priceInStars }],
         };
 
-        // Log payload để kiểm tra trước khi gửi
+        // Log payload để kiểm tra
         console.log("Invoice payload:", invoicePayload);
 
-        // Gửi hóa đơn qua Telegram Bot API
-        const invoice = await botStar.createInvoiceLink(invoicePayload);
+        // Gọi trực tiếp Telegram API với fetch
+        const url = `https://api.telegram.org/bot${botToken}/createInvoiceLink`;
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(invoicePayload),
+        });
+
+        const data = await response.json();
+
+        if (!data.ok) {
+            throw new Error(`Telegram API error: ${data.description}`);
+        }
 
         // Trả về link hóa đơn
         res.json({
             success: true,
-            invoice: { link: invoice },
+            invoice: { link: data.result },
         });
     } catch (error) {
         console.error("Error creating invoice:", error);
