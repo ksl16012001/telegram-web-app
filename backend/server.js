@@ -454,6 +454,6 @@ app.post("/api/create-invoice", async (req, res) => {
         });
     }
 });
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
