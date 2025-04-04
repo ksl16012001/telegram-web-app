@@ -48,8 +48,6 @@ async function swapNow() {
 
     const userId = Telegram.WebApp.initDataUnsafe.user.id;
     const selectedAmountInput = document.getElementById("selectedAmount")?.value;
-
-    // Validate and convert the Stars amount
     const selectedAmount = parseFloat(selectedAmountInput);
     if (isNaN(selectedAmount) || selectedAmount <= 0) {
         Swal.fire({
@@ -59,17 +57,13 @@ async function swapNow() {
         });
         return;
     }
-
     try {
-        // Show processing status
         Swal.fire({
             title: "Creating Invoice...",
             text: "Please wait a moment.",
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading(),
         });
-
-        // Send request to backend
         const response = await fetchWithTimeout("api/create-invoice", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -102,8 +96,6 @@ async function swapNow() {
         });
     }
 }
-
-// Handle invoice closed event
 Telegram.WebApp.onEvent("invoiceClosed", (result) => {
     switch (result.status) {
         case "paid":
@@ -142,7 +134,6 @@ Telegram.WebApp.onEvent("invoiceClosed", (result) => {
             });
     }
 });
-// Helper function for fetch with timeout
 function fetchWithTimeout(url, options = {}, timeout = 10000) {
     return Promise.race([
         fetch(url, options),

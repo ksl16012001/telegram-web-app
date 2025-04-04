@@ -12,6 +12,7 @@ const app = express();
 const axios = require("axios");
 const PORT = process.env.PORT || 3000;
 const adminRoutes = require("./routes/adminRoutes");
+const TelegramBot = require("node-telegram-bot-api");
 // const { Telegraf } = require("telegraf");
 
 app.use("/api/admin", adminRoutes);
@@ -409,6 +410,8 @@ app.get('/api/get-recipient', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+const bot = new TelegramBot(botToken);
 app.post("api/create-invoice", async (req, res) => {
     try {
         const { userId, amount } = req.body;
@@ -421,7 +424,6 @@ app.post("api/create-invoice", async (req, res) => {
             });
         }
 
-        // Chuyển amount từ Stars sang đơn vị nhỏ nhất (nếu cần, tùy hệ thống)
         const priceInNano = Math.round(amount * 1000000); // Ví dụ: 1 Star = 1,000,000 nano units
 
         // Tạo payload cho hóa đơn
