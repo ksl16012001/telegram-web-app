@@ -429,17 +429,17 @@ app.post("/api/create-invoice", async (req, res) => {
             });
         }
 
-        const priceInStars = Math.round(amount); // Số Stars trực tiếp, không nhân với 1,000,000
+        // Số Stars trực tiếp, không nhân với 1,000,000
+        const priceInStars = Math.round(amount);
 
-        // Tạo payload cho hóa đơn
+        // Tạo payload cho hóa đơn, tham khảo từ testTelegramInvoice
         const invoicePayload = {
-            chat_id: userId,
-            title: "Swap Stars", // Tham số bắt buộc
-            description: `Swap ${amount} Stars to your account`,
+            chat_id: userId, // Sử dụng userId từ request
+            title: "Swap Stars",
+            description: `Swap ${amount} Stars`,
             payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất
-            provider_token: "", // Để trống cho Telegram Stars
             currency: "XTR", // Telegram Stars
-            prices: [{ label: "Stars", amount: priceInStars }],
+            prices: [{ label: "Stars", amount: priceInStars }], // amount là số Stars trực tiếp
         };
 
         // Log payload để kiểm tra trước khi gửi
