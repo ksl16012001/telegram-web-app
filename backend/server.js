@@ -429,11 +429,11 @@ app.post("/api/create-invoice", async (req, res) => {
         // Tạo payload cho hóa đơn
         const invoicePayload = {
             chat_id: userId,
-            title: "Swap Stars",
+            title: "Swap Stars", // Đảm bảo title luôn có giá trị
             description: `Swap ${amount} Stars to your account`,
-            payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất để theo dõi
+            payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất
             provider_token: "", // Để trống cho Telegram Stars
-            currency: "XTR", // Telegram Stars (XTR) là đơn vị tiền tệ
+            currency: "XTR", // Telegram Stars
             prices: [{ label: "Stars", amount: priceInNano }],
         };
 
@@ -450,12 +450,10 @@ app.post("/api/create-invoice", async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to create invoice",
+            error: error.message, // Thêm chi tiết lỗi để debug
         });
     }
 });
-
-// Khởi động server
-const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
