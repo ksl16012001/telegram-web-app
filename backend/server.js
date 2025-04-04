@@ -412,7 +412,7 @@ app.get('/api/get-recipient', async (req, res) => {
 });
 const botToken = process.env.BOT_TOKEN;
 const botStar = new TelegramBot(botToken);
-app.post("api/create-invoice", async (req, res) => {
+app.post("/api/create-invoice", async (req, res) => {
     try {
         const { userId, amount } = req.body;
 
@@ -424,7 +424,7 @@ app.post("api/create-invoice", async (req, res) => {
             });
         }
 
-        const priceInNano = Math.round(amount * 1000000); // Ví dụ: 1 Star = 1,000,000 nano units
+        const priceInNano = Math.round(amount * 1000000); // 1 Star = 1,000,000 nano units
 
         // Tạo payload cho hóa đơn
         const invoicePayload = {
@@ -432,7 +432,7 @@ app.post("api/create-invoice", async (req, res) => {
             title: "Swap Stars",
             description: `Swap ${amount} Stars to your account`,
             payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất để theo dõi
-            provider_token: "", // Thêm provider token nếu dùng thanh toán thực tế (e.g., Stripe)
+            provider_token: "", // Để trống cho Telegram Stars
             currency: "XTR", // Telegram Stars (XTR) là đơn vị tiền tệ
             prices: [{ label: "Stars", amount: priceInNano }],
         };
@@ -453,4 +453,9 @@ app.post("api/create-invoice", async (req, res) => {
         });
     }
 });
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+
+// Khởi động server
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
