@@ -416,6 +416,9 @@ app.post("/api/create-invoice", async (req, res) => {
     try {
         const { userId, amount } = req.body;
 
+        // Log dữ liệu đầu vào để debug
+        console.log("Request body:", req.body);
+
         // Kiểm tra dữ liệu đầu vào
         if (!userId || !amount || amount <= 0) {
             return res.status(400).json({
@@ -429,13 +432,16 @@ app.post("/api/create-invoice", async (req, res) => {
         // Tạo payload cho hóa đơn
         const invoicePayload = {
             chat_id: userId,
-            title: "Swap Stars", // Đảm bảo title luôn có giá trị
+            title: "Swap Stars", // Tham số bắt buộc
             description: `Swap ${amount} Stars to your account`,
             payload: `swap_${userId}_${Date.now()}`, // Payload duy nhất
             provider_token: "", // Để trống cho Telegram Stars
             currency: "XTR", // Telegram Stars
             prices: [{ label: "Stars", amount: priceInNano }],
         };
+
+        // Log payload để kiểm tra trước khi gửi
+        console.log("Invoice payload:", invoicePayload);
 
         // Gửi hóa đơn qua Telegram Bot API
         const invoice = await botStar.createInvoiceLink(invoicePayload);
@@ -450,7 +456,7 @@ app.post("/api/create-invoice", async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to create invoice",
-            error: error.message, // Thêm chi tiết lỗi để debug
+            error: error.message,
         });
     }
 });
