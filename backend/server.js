@@ -411,7 +411,7 @@ app.get('/api/get-recipient', async (req, res) => {
     }
 });
 
-const bot = new TelegramBot(botToken);
+const botStar = new TelegramBot(botToken);
 app.post("api/create-invoice", async (req, res) => {
     try {
         const { userId, amount } = req.body;
@@ -438,7 +438,7 @@ app.post("api/create-invoice", async (req, res) => {
         };
 
         // Gửi hóa đơn qua Telegram Bot API
-        const invoice = await bot.createInvoiceLink(invoicePayload);
+        const invoice = await botStar.createInvoiceLink(invoicePayload);
 
         // Trả về link hóa đơn
         res.json({
